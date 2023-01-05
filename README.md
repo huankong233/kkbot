@@ -6,6 +6,9 @@ Docker:https://hub.docker.com/r/huankong233/kkbot
 这只是一个简单的QQ框架和简单的实现
 
 # 🎉使用方法
+
+- 建议使用[docker](https://hub.docker.com/r/huankong233/kkbot)
+
 1.克隆项目
 ~~~sh
 git clone https://github.com/huankong233/kkbot.git
