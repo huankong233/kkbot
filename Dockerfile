@@ -7,4 +7,4 @@ RUN apk update && apk upgrade
 RUN apk add nodejs yarn python3 py3-pip
 RUN pip3 install --no-cache-dir --upgrade pip
 RUN pip3 install --no-cache-dir -r requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple
-ENTRYPOINT ["bash","start.sh"]
+ENTRYPOINT ["sh","start.sh"]

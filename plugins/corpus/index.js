@@ -49,7 +49,7 @@ function corpus(ctx) {
 
     let replyMsg = exec[0].replace(reg, reply);
     replyMsg = emoji.emojify(replyMsg, name => name);
-    if (replyMsg.length) replyMsg(ctx, replyMsg);
+    if (replyMsg.length) global.replyMsg(ctx, replyMsg);
     break;
   }
 
