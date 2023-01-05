@@ -1,0 +1,32 @@
+{
+  //配置名
+  "configName": "bot",
+  //机器人名
+  "botName": "空空",
+  //管理员账户
+  "admin": 2564076459,
+  //命令前缀
+  "prefix": "/",
+  //调试模式
+  "debug": true,
+  //上线了给管理员发送提示信息(如果打开调试将会强制关闭)
+  "online": {
+    //开关
+    "enable": true,
+    "msg": "已上线"
+  },
+  //连接信息,正向websocket(go-cqhttp)
+  "connect": {
+    "host": "127.0.0.1",
+    "port": 8080,
+    "enableAPI": true,
+    "enableEvent": true,
+    //token
+    "accessToken": "",
+    //自动重连
+    "reconnection": true,
+    //自动重连延迟和次数
+    "reconnectionAttempts": 10,
+    "reconnectionDelay": 5000
+  }
+}
