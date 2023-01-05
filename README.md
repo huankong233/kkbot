@@ -1,3 +1,7 @@
+Github:https://github.com/huankong233/kkbot
+
+Docker:https://hub.docker.com/r/huankong233/kkbot
+
 # 🤖空空bot
 这只是一个简单的QQ框架和简单的实现
 
@@ -19,9 +23,6 @@ yarn install
 ~~~
 
 5.修改配置文件
-~~~sh
-nano config/bot.jsonc
-~~~
 
 6.运行框架
 ~~~sh
