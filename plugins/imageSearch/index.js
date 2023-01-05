@@ -381,6 +381,6 @@ function parse(context, res, originUrl) {
 
 //时间格式化
 export const formatTime = second => {
-  const data = formatTime(second)
+  const data = global.formatTime(second)
   return data.hours + '小时' + data.minutes + '分钟' + data.seconds + '秒'
 }
