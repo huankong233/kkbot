@@ -63,6 +63,65 @@ yarn test
 yarn dev
 ~~~
 
+# 🎉编写插件
+
+### 1.创建文件夹
+### 2.创建index.js
+固定格式:
+~~~javascript
+export default () => {
+  event()
+}
+
+function event() {
+  RegEvent('message', async (event, context, tags) => {
+    handler(context)
+    //自带命令系统
+    if (context.command) {
+      if (context.command.name === 'xxx'){
+        //判断命令的名称
+        //执行判断的函数
+        //可以使用以下命令读取命令后跟随的参数
+        //context.command.params
+      }
+    }
+  })
+}
+
+function handler(context){
+  //编写需要的判断代码
+}
+~~~
+
+# 🎉编写配置文件
+### 1.创建配置文件
+### 2.在插件的默认暴露函数中添加读取
+~~~javascript
+export default () => {
+  //读取配置文件的方法是 global.config.配置名
+  loadConfig('配置名.jsonc', true)
+  event()
+}
+~~~
+
+# 🎉编写支持库
+### 1.创建文件夹
+### 2.创建index.js
+固定格式:
+~~~javascript
+export default () => {
+  return {
+    //需要传入需要定义到global的函数
+    func
+  }
+}
+
+function func(params){
+  //code
+}
+~~~
+
+
 # ⭐星星！
 
 [![Stargazers over time](https://starchart.cc/huankong233/kkbot.svg)](https://starchart.cc/huankong233/kkbot)
