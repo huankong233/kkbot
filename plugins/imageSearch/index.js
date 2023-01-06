@@ -94,7 +94,7 @@ function turnOnSearchMode(context) {
   }
   replyMsg(
     context,
-    `${global.config.searchImage.word.on_reply}\n记得说"${global.config.searchImage.word.off}"来退出搜图模式哦~`,
+    `${global.config.searchImage.word.on_reply}\n记得说"${global.config.bot.prefix}${global.config.searchImage.word.off}"来退出搜图模式哦~`,
     true
   )
 }
@@ -131,8 +131,8 @@ function ifSearchMode(context) {
   return bool
 }
 
-import { add, reduce } from '../pigeon'
-import { ascii2d, SauceNAO, IqDB, TraceMoe, EHentai } from 'image_searcher'
+import { add, reduce } from '../pigeon/index.js'
+import { ascii2d, SauceNAO, IqDB, TraceMoe, EHentai, Yandex } from 'image_searcher'
 
 //获取通用地址
 function getUniversalImgURL(url = '') {
@@ -208,6 +208,13 @@ async function search(context) {
             }
           },
           {
+            name: 'Yandex',
+            callback: Yandex,
+            params: {
+              url: imageUrl
+            }
+          },
+          {
             name: 'E-Hentai',
             callback: EHentai,
             params: {
@@ -244,6 +251,7 @@ async function search(context) {
         }
 
         parse(context, responseData, imageUrl)
+
         if (global.config.bot.debug) {
           console.log(`搜图完成`)
         }
@@ -289,11 +297,15 @@ async function request(callbacks) {
       console.log(`${item.name}搜图中`)
     }
     try {
-      responseData.push({
+      const start = performance.now()
+      let obj = {
         success: true,
         name: item.name,
         res: await item.callback(item.params)
-      })
+      }
+      const end = performance.now()
+      obj.cost = end - start
+      responseData.push(obj)
     } catch (error) {
       if (global.config.bot.debug) {
         console.log(`${item.name}搜图失败`)
@@ -306,13 +318,13 @@ async function request(callbacks) {
 }
 
 //整理数据
-function parse(context, res, originUrl) {
+async function parse(context, res, originUrl) {
   let messages = [
     CQ.node(global.config.bot.botName, context.self_id, CQ.image(originUrl))
   ]
   res.forEach(async datum => {
     if (datum.success) {
-      let message = `${datum.name}:\n`
+      let message = `${datum.name}(耗时:${parseInt(datum.cost)}ms):\n`
       if (datum.res.length === 0) {
         message += '没有搜索结果~'
       } else {
@@ -324,37 +336,82 @@ function parse(context, res, originUrl) {
           const item = datum.res[i]
           switch (datum.name) {
             case 'ascii2d':
-              message += `${CQ.image(item.image)}\n图片信息:${item.info}\n链接:${item.source.link
-                }\n${item.author && (item.author.text || item.author.link)
-                  ? `作者:${item.author.text ? item.author.text : ''}(${item.author.link ? item.author.link : ''
-                  })\n`
-                  : ''
-                }`
+              message += [
+                `${CQ.image(item.image)}`,
+                `图片信息:${item.info}`,
+                `链接:${confuseURL(item.source.link)}`,
+                `${item.author && (item.author.text || item.author.link) ? `作者:${item.author.text ? item.author.text : ''}(${item.author.link ? confuseURL(item.author.link) : ''})\n` : ''}`,
+                ``
+              ].join('\n')
               break
             case 'SauceNAO':
-              message += `${CQ.image(item.image)}\n标题:${item.title}\n相似度:${item.similarity
-                }\n图片信息:\n`
+              message += [
+                `${CQ.image(item.image)}`,
+                `标题: ${item.title}`,
+                `相似度: ${item.similarity}`,
+                `图片信息:`,
+                ``
+              ].join('\n')
               item.content.forEach((c, index) => {
                 if (index % 2) {
-                  message += `${c.text}(${c.link})\n`
+                  if (c.link) {
+                    message += `${c.text}(${confuseURL(c.link)}) \n`
+                  } else {
+                    message += `${c.text} \n`
+                  }
                 } else {
                   message += c.text
+                  if (index === item.content.length - 1) {
+                    message += '\n'
+                  }
                 }
               })
+              message += '\n'
               break
             case 'IqDB':
-              message += `${CQ.image(item.image)}\n分辨率:${item.resolution}\n相似度:${item.similarity
-                }\n链接:${item.url}\n`
+              message += [
+                `${CQ.image(item.image)}`,
+                `分辨率: ${item.resolution}`,
+                `相似度: ${item.similarity}`,
+                `链接: ${confuseURL(item.url)}`,
+                ``,
+                ``
+              ].join('\n')
               break
             case 'TraceMoe':
-              message += `${CQ.image(item.preview)}\n相似度:${item.similarity}\n动漫名:${item.name.native
-                }\nNSFW:${item.nsfw}\n文件名:${item.file}\n大概位置:${formatTime(item.from)['minutes']
-                }:${formatTime(item.from)['seconds']}——${formatTime(item.to)['minutes']
-                }:${formatTime(item.from)['seconds']}\n集数:${item.episode}\n`
+              message += [
+                `${CQ.image(item.preview)}`,
+                `相似度: ${item.similarity}`,
+                `文件名: ${item.file}`,
+                `动漫名: ${item.name.native}`,
+                `NSFW: ${item.nsfw}`,
+                `集数: ${item.episode}`,
+                `大概位置: ${formatTime(item.from)}——${formatTime(item.to)}`,
+                ``,
+                ``
+              ].join('\n')
               break
             case 'E-Hentai':
-              message += `${CQ.image(item.fileName)}\n标题:${item.title}\n时间:${item.date
-                }\n类型:${item.type}\n标签:${item.tags.toString()}\n地址:${item.link}`
+              message += [
+                `${CQ.image(item.fileName)}`,
+                `标题: ${item.title}`,
+                `时间: ${item.date}`,
+                `类型: ${item.type}`,
+                `标签: ${item.tags.toString()}`,
+                `地址: ${confuseURL(item.link)}`,
+                ``,
+                ``
+              ].join('\n')
+              break
+            case 'Yandex':
+              message += [
+                `${CQ.image(`https:${item.thumb.url}`)}`,
+                `标题: ${item.snippet.title}`,
+                `内容: ${item.snippet.text}`,
+                `来源: ${confuseURL(item.snippet.url, true)}`,
+                ``,
+                ``
+              ].join('\n')
               break
           }
         }
@@ -376,11 +433,19 @@ function parse(context, res, originUrl) {
   })
 
   //发送
-  send_forward_msg(context, messages)
+  const data = await send_forward_msg(context, messages)
+  if (data.status === 'failed') {
+    replyMsg(context, "发送合并消息失败，鸽子已返还")
+    let count = 0
+    res.forEach(item => item.success ? count++ : void (0))
+    await add(context.user_id, global.config.searchImage.claim * count, `合并消息发送失败赔偿`)
+  }
 }
 
 //时间格式化
-export const formatTime = second => {
-  const data = global.formatTime(second)
-  return data.hours + '小时' + data.minutes + '分钟' + data.seconds + '秒'
+export const formatTime = stamp => {
+  const iso = new Date(stamp).toISOString();
+  const [, timeZ] = iso.split('T');
+  const [time] = timeZ.split('Z');
+  return time;
 }

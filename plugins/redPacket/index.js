@@ -25,7 +25,7 @@ function event() {
   )
 }
 
-import { reduce } from '../pigeon'
+import { getUserData, add, reduce } from '../pigeon/index.js'
 
 //我的鸽子
 async function give(context) {
@@ -33,7 +33,7 @@ async function give(context) {
   if (params.length < 2) {
     return replyMsg(
       context,
-      '红包发送失败,所需参数至少需要两个,发送"/帮助 鸽子红包"查看细节'
+      `红包发送失败,所需参数至少需要两个,发送"${global.config.bot.prefix}帮助 鸽子红包"查看细节`
     )
   }
   const user_id = context.user_id
@@ -72,8 +72,6 @@ async function give(context) {
   await freshRedPacketList()
   replyMsg(context, `富哥发红包了!口令:${code}`)
 }
-
-import { getUserData, add } from '../pigeon'
 
 async function get(context) {
   const message = context.message
@@ -117,7 +115,7 @@ async function freshRedPacketList() {
     .from('red_packet')
 }
 
-import { getUserName } from '../query'
+import { getUserName } from '../query/index.js'
 function getAll(context) {
   if (global.redPacketList.length !== 0) {
     let msg = '剩余红包:'

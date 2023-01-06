@@ -27,13 +27,13 @@ function event() {
   })
 }
 
-import { add, reduce } from '../pigeon'
-import { isToday } from '../gugu'
+import { add, reduce } from '../pigeon/index.js'
+import { isToday } from '../gugu/index.js'
 
 async function createGame(context) {
   const params = context.command.params
   if (params.length < 2) {
-    return replyMsg(context, '参数不足,请发送/帮助 装弹查看详细信息')
+    return replyMsg(context, `参数不足,请发送"${global.config.bot.prefix}帮助 装弹"查看详细信息`)
   }
 
   if (global.russian.from_id) {
@@ -244,7 +244,7 @@ async function startGame(context) {
   global.russian.start = true
 }
 
-import { getUserName } from '../query'
+import { getUserName } from '../query/index.js'
 
 async function shot(context) {
   const user_id = context.user_id

@@ -11,10 +11,10 @@ function event() {
 }
 
 import fetch from 'node-fetch'
-import { getVideoInfo } from './video'
-import { getDynamicInfo } from './dynamic'
-import { getArticleInfo } from './article'
-import { getLiveRoomInfo } from './live'
+import { getVideoInfo } from './video.js'
+import { getDynamicInfo } from './dynamic.js'
+import { getArticleInfo } from './article.js'
+import { getLiveRoomInfo } from './live.js'
 
 const getIdFromNormalLink = link => {
   if (typeof link !== 'string') return null

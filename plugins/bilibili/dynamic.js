@@ -1,5 +1,5 @@
-import { humanNum } from './humanNum'
-import { purgeLink, purgeLinkInText, request } from './utils'
+import { humanNum } from './humanNum.js'
+import { purgeLink, purgeLinkInText, request } from './utils.js'
 
 export const getDynamicInfo = async id => {
   try {

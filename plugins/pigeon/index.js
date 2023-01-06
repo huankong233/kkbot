@@ -6,7 +6,7 @@ export default () => {
       if (context.command) {
         if (!(await getUserData(context.user_id))) {
           if (context.command.name.search('咕咕') === -1) {
-            replyMsg(context, `请先使用"/咕咕"注册账户`)
+            replyMsg(context, `请先使用"${global.config.bot.prefix}咕咕"注册账户`)
             return 'quit'
           }
         }

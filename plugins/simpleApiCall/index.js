@@ -58,7 +58,7 @@ async function prprme(context) {
   if (key) {
     bot('send_private_msg', {
       user_id: context.user_id,
-      message: '我真的好喜欢你啊!!\n（回复/别舔了来停止哦~）'
+      message: `我真的好喜欢你啊!!\n（回复"${global.config.bot.prefix}别舔了"来停止哦~）`
     })
     let id = setInterval(async () => {
       try {

@@ -1,4 +1,4 @@
-import { humanNum } from './humanNum'
+import { humanNum } from './humanNum.js'
 import { request } from './utils.js'
 
 export const getArticleInfo = async id => {

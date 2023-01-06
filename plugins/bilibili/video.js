@@ -1,6 +1,6 @@
-import { request } from './utils.js'
 import { stringify } from 'qs'
-import { humanNum } from './humanNum'
+import { request } from './utils.js'
+import { humanNum } from './humanNum.js'
 
 export const getVideoInfo = async param => {
   try {

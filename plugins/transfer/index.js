@@ -13,12 +13,12 @@ function event() {
   })
 }
 
-import { getUserData, add, reduce } from '../pigeon'
+import { getUserData, add, reduce } from '../pigeon/index.js'
 
 async function transferAccounts(context) {
   const params = context.command.params
   if (params.length < 2) {
-    return replyMsg(context, '红包发送失败,所需参数至少需要两个,发送"帮助 鸽子转账"查看细节')
+    return replyMsg(context, `红包发送失败,所需参数至少需要两个,发送"${global.config.bot.prefix}帮助 鸽子转账"查看细节`)
   }
   const from = context.user_id
   const to = parseFloat(params[0])

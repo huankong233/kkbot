@@ -14,7 +14,7 @@ function event() {
   })
 }
 
-import { getUserData, add } from '../pigeon'
+import { getUserData, add } from '../pigeon/index.js'
 
 async function gugu(context) {
   const user_id = context.user_id

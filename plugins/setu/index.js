@@ -15,9 +15,9 @@ function event() {
   })
 }
 
-import { reduce } from '../pigeon'
-import { isToday } from '../gugu'
-import { imgAntiShielding } from './AntiShielding'
+import { reduce } from '../pigeon/index.js'
+import { isToday } from '../gugu/index.js'
+import { imgAntiShielding } from './AntiShielding.js'
 import Jimp from 'jimp'
 import fetch from 'node-fetch'
 

@@ -24,7 +24,7 @@ async function help(context) {
     }
     await replyMsg(context, str)
   } else {
-    let str = '使用"帮助 命令名称"来获取详情\n命令列表:\n'
+    let str = `使用"${global.config.bot.prefix}帮助 命令名称"来获取详情\n命令列表:\n`
     for (const key in help) {
       str += key + '\n'
     }

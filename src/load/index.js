@@ -11,7 +11,7 @@ export default () => {
 import fs from 'fs'
 import path from 'path'
 import { jsonc } from 'jsonc'
-import { globalReg } from '../global'
+import { globalReg } from '../global/index.js'
 
 export const loadLibs = async () => {
   const src_path = './src'
@@ -20,7 +20,7 @@ export const loadLibs = async () => {
   //循环所有文件
   for (let i = 0; i < files.length; i++) {
     //文件位置
-    const file_path = `../${files[i]}`
+    const file_path = `../${files[i]}/index.js`
     //获取内容
     const data = await import(file_path)
     if (data.default) {
@@ -50,7 +50,7 @@ export const loadConfigs = async (configs, global = false) => {
 }
 
 export const loadPlugin = async plugin => {
-  let program = await import(`../../${plugin}`)
+  let program = await import(`../../${plugin}/index.js`)
   try {
     if (program.enable === false) {
       msgToConsole(`插件${plugin}未启用`)

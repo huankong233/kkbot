@@ -1,5 +1,5 @@
 //加载库
-import { loadLibs } from './src/load'
+import { loadLibs } from './src/load/index.js'
 
 //执行src文件夹内容的default方法
 await loadLibs()

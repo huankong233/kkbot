@@ -73,7 +73,7 @@ async function loadRules() {
   });
 }
 
-import { reduce, add } from '../pigeon'
+import { reduce, add } from '../pigeon/index.js'
 
 const available = {
   mode: [0, 1],

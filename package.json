@@ -1,17 +1,14 @@
 {
   "name": "kkbot",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "simple qqbot",
   "type": "module",
-  "engines": {
-    "node": "<19"
-  },
   "scripts": {
-    "start": "pm2 start --node-args=\"--experimental-specifier-resolution=node\" index.js",
-    "stop": "pm2 stop --node-args=\"--experimental-specifier-resolution=node\" index.js",
+    "start": "pm2 start index.js",
+    "stop": "pm2 stop index.js",
     "status": "pm2 list",
-    "test": "node --experimental-specifier-resolution=node index.js",
-    "dev": "nodemon --experimental-specifier-resolution=node index.js"
+    "test": "node index.js",
+    "dev": "nodemon index.js"
   },
   "repository": "https://github.com/huankong233/kkbot",
   "author": "huan_kong",
@@ -22,7 +19,7 @@
     "cheerio": "^1.0.0-rc.12",
     "formdata-node": "^5.0.0",
     "go-cqwebsocket": "^6.2.2",
-    "image_searcher": "^0.0.3",
+    "image_searcher": "^0.0.6",
     "jimp": "^0.16.2",
     "jsonc": "^2.0.0",
     "knex": "^2.3.0",

@@ -28,7 +28,7 @@ async function phlogo(context) {
       await replyMsg(context, '制作失败')
     }
   } else {
-    await replyMsg(context, '参数不足，请发送/帮助 phlogo查看帮助')
+    await replyMsg(context, `参数不足，请发送"${global.config.bot.prefix}帮助 phlogo"查看帮助`)
   }
 }
 

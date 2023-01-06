@@ -17,7 +17,7 @@ function event() {
   })
 }
 
-import { getUserData } from '../pigeon'
+import { getUserData } from '../pigeon/index.js'
 
 //我的鸽子
 async function query(context) {
