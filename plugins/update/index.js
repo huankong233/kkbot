@@ -1,5 +1,6 @@
 export default async () => {
   await loadConfig('update.jsonc', true)
+  global.config.update.count = 0
   event()
 }
 
@@ -17,15 +18,29 @@ async function event() {
 import fs from 'fs'
 async function checkUpdate() {
   const { proxy, url } = global.config.update
-  const remote_version = (await fetch(proxy + url)).version
-  const local_version = JSON.parse(fs.readFileSync('package.json', 'utf8')).version
-  if (compairVersion(remote_version, local_version)) {
-    //需要更新，通知admin
-    await sendMsg(
-      global.config.bot.admin,
-      ['kkbot有更新哟~', `最新版本${remote_version} | 当前版本${local_version}`].join('\n')
-    )
-    clearInterval(global.config.update.id)
+  try {
+    const remote_version = (await fetch(proxy + url)).version
+    const local_version = JSON.parse(fs.readFileSync('package.json', 'utf8')).version
+    if (compairVersion(remote_version, local_version)) {
+      //需要更新，通知admin
+      await sendMsg(
+        global.config.bot.admin,
+        ['kkbot有更新哟~', `最新版本${remote_version} | 当前版本${local_version}`].join('\n')
+      )
+      clearInterval(global.config.update.id)
+    }
+  } catch (error) {
+    if (global.config.bot.debug) {
+      console.log(error)
+    }
+    global.config.update.count++
+    if (global.config.update.count === global.config.update.max) {
+      await sendMsg(
+        global.config.bot.admin,
+        ['检查更新失败', `当前版本${local_version} | 请检查您的网络状况！`].join('\n')
+      )
+      clearInterval(global.config.bot.id)
+    }
   }
 }
 

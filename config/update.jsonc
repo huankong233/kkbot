@@ -6,5 +6,7 @@
   //package.json
   "url": "https://github.com/huankong233/kkbot/raw/master/package.json",
   //检查频率(ms)
-  "hz": 3600000
+  "hz": 3600000,
+  //检查失败次数上线
+  "max": 10
 }
