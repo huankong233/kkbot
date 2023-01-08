@@ -1,0 +1,10 @@
+{
+  //开关
+  "enable": true,
+  //github代理地址
+  "proxy": "https://ghproxy.com/",
+  //package.json
+  "url": "https://github.com/huankong233/kkbot/raw/master/package.json",
+  //检查频率(ms)
+  "hz": 3600000
+}

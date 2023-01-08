@@ -11,7 +11,7 @@ export default () => {
 function event() {
   RegEvent('message', async (event, context, tags) => {
     if (context.command) {
-      if (context.command.name === global.config.searchImage.word.on) {
+      if (context.command.name === global.config.bot.botName + global.config.searchImage.word.on) {
         turnOnSearchMode(context)
       }
     }
@@ -19,7 +19,7 @@ function event() {
   RegEvent(
     'message',
     async (event, context, tags) => {
-      if (context.command.name === global.config.searchImage.word.off) {
+      if (context.command.name === global.config.searchImage.word.off + global.config.bot.botName) {
         turnOffSearchMode(context)
       } else {
         if (ifSearchMode(context)) {
@@ -94,7 +94,7 @@ function turnOnSearchMode(context) {
   }
   replyMsg(
     context,
-    `${global.config.searchImage.word.on_reply}\n记得说"${global.config.bot.prefix}${global.config.searchImage.word.off}"来退出搜图模式哦~`,
+    `${global.config.searchImage.word.on_reply}\n记得说"${global.config.bot.prefix}${global.config.searchImage.word.off}${global.config.bot.botName}"来退出搜图模式哦~`,
     true
   )
 }
@@ -319,9 +319,7 @@ async function request(callbacks) {
 
 //整理数据
 async function parse(context, res, originUrl) {
-  let messages = [
-    CQ.node(global.config.bot.botName, context.self_id, CQ.image(originUrl))
-  ]
+  let messages = [CQ.node(global.config.bot.botName, context.self_id, CQ.image(originUrl))]
   res.forEach(async datum => {
     if (datum.success) {
       let message = `${datum.name}(耗时:${parseInt(datum.cost)}ms):\n`
@@ -337,16 +335,22 @@ async function parse(context, res, originUrl) {
           switch (datum.name) {
             case 'ascii2d':
               message += [
-                `${CQ.image(item.image)}`,
+                `${await antiShielding(item.image)}`,
                 `图片信息:${item.info}`,
-                `链接:${confuseURL(item.source.link)}`,
-                `${item.author && (item.author.text || item.author.link) ? `作者:${item.author.text ? item.author.text : ''}(${item.author.link ? confuseURL(item.author.link) : ''})\n` : ''}`,
+                `链接:${confuseURL(item.source.link, true)}`,
+                `${
+                  item.author && (item.author.text || item.author.link)
+                    ? `作者:${item.author.text ? item.author.text : ''}(${
+                        item.author.link ? confuseURL(item.author.link, true) : ''
+                      })\n`
+                    : ''
+                }`,
                 ``
               ].join('\n')
               break
             case 'SauceNAO':
               message += [
-                `${CQ.image(item.image)}`,
+                `${await antiShielding(item.image)}`,
                 `标题: ${item.title}`,
                 `相似度: ${item.similarity}`,
                 `图片信息:`,
@@ -355,9 +359,9 @@ async function parse(context, res, originUrl) {
               item.content.forEach((c, index) => {
                 if (index % 2) {
                   if (c.link) {
-                    message += `${c.text}(${confuseURL(c.link)}) \n`
+                    message += `${confuseURL(c.text, true)}(${confuseURL(c.link, true)}) \n`
                   } else {
-                    message += `${c.text} \n`
+                    message += `${confuseURL(c.text, true)} \n`
                   }
                 } else {
                   message += c.text
@@ -370,17 +374,17 @@ async function parse(context, res, originUrl) {
               break
             case 'IqDB':
               message += [
-                `${CQ.image(item.image)}`,
+                `${await antiShielding(item.image)}`,
                 `分辨率: ${item.resolution}`,
                 `相似度: ${item.similarity}`,
-                `链接: ${confuseURL(item.url)}`,
+                `链接: ${confuseURL(item.url, true)}`,
                 ``,
                 ``
               ].join('\n')
               break
             case 'TraceMoe':
               message += [
-                `${CQ.image(item.preview)}`,
+                `${await antiShielding(item.preview)}`,
                 `相似度: ${item.similarity}`,
                 `文件名: ${item.file}`,
                 `动漫名: ${item.name.native}`,
@@ -393,19 +397,19 @@ async function parse(context, res, originUrl) {
               break
             case 'E-Hentai':
               message += [
-                `${CQ.image(item.fileName)}`,
+                `${await antiShielding(item.fileName)}`,
                 `标题: ${item.title}`,
                 `时间: ${item.date}`,
                 `类型: ${item.type}`,
                 `标签: ${item.tags.toString()}`,
-                `地址: ${confuseURL(item.link)}`,
+                `地址: ${confuseURL(item.link, true)}`,
                 ``,
                 ``
               ].join('\n')
               break
             case 'Yandex':
               message += [
-                `${CQ.image(`https:${item.thumb.url}`)}`,
+                `${await antiShielding(`https:${item.thumb.url}`)}`,
                 `标题: ${item.snippet.title}`,
                 `内容: ${item.snippet.text}`,
                 `来源: ${confuseURL(item.snippet.url, true)}`,
@@ -416,9 +420,7 @@ async function parse(context, res, originUrl) {
           }
         }
       }
-      messages.push(
-        CQ.node(global.config.bot.botName, context.self_id, message.slice(0, -1))
-      )
+      messages.push(CQ.node(global.config.bot.botName, context.self_id, message.slice(0, -1)))
     } else {
       messages.push(
         CQ.node(
@@ -435,17 +437,27 @@ async function parse(context, res, originUrl) {
   //发送
   const data = await send_forward_msg(context, messages)
   if (data.status === 'failed') {
-    replyMsg(context, "发送合并消息失败，鸽子已返还")
+    replyMsg(context, '发送合并消息失败，可以尝试私聊我哦~(鸽子已返还)')
     let count = 0
-    res.forEach(item => item.success ? count++ : void (0))
+    res.forEach(item => (item.success ? count++ : void 0))
     await add(context.user_id, global.config.searchImage.claim * count, `合并消息发送失败赔偿`)
   }
 }
 
 //时间格式化
 export const formatTime = stamp => {
-  const iso = new Date(stamp).toISOString();
-  const [, timeZ] = iso.split('T');
-  const [time] = timeZ.split('Z');
-  return time;
+  const iso = new Date(stamp).toISOString()
+  const [, timeZ] = iso.split('T')
+  const [time] = timeZ.split('Z')
+  return time
+}
+
+//反和谐
+import Jimp from 'jimp'
+import { imgAntiShielding } from '../setu/AntiShielding.js'
+export const antiShielding = async url => {
+  //反和谐
+  const img = await Jimp.read(Buffer.from(await fetch(url).then(res => res.arrayBuffer())))
+  const base64 = await imgAntiShielding(img, global.config.searchImage.antiShieldingMode)
+  return CQ.image(`base64://${base64}`)
 }

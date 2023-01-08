@@ -73,6 +73,11 @@ export async function imgAntiShielding(img, mode) {
     randomModifyPixels(img)
     img.simpleRotate(rotate[parseInt(Math.random() * rotate.length)])
     randomModifyPixels(img)
+  } else if (mode === 4) {
+    randomModifyPixels(img)
+    randomModifyPixels(img)
+    randomModifyPixels(img)
+    randomModifyPixels(img)
   } else {
     throw new Error('你别乱写啊(')
   }
