@@ -21,7 +21,7 @@ import { imgAntiShielding } from './AntiShielding.js'
 import Jimp from 'jimp'
 import fetch from 'node-fetch'
 
-async function setu(context, match) {
+export const setu = async (context, match) => {
   const user_id = context.user_id
   //判断有没有到上限了
   let count_data = await database.select().where('user_id', user_id).from('setu')
@@ -35,10 +35,7 @@ async function setu(context, match) {
       //超出配额
       if (!isToday(count_data[0].update_time)) {
         //判断时间
-        return replyMsg(
-          context,
-          CQ.image('https://api.lolicon.app/assets/img/lx.jpg')
-        )
+        return await replyMsg(context, CQ.image('https://api.lolicon.app/assets/img/lx.jpg'))
       } else {
         //如果不是今天
         count = 1
@@ -48,7 +45,7 @@ async function setu(context, match) {
     }
 
     if (!(await reduce(context.user_id, global.config.setu.pigeon, '看色图'))) {
-      return replyMsg(context, '你的鸽子不够哦~')
+      return await replyMsg(context, '你的鸽子不够哦~')
     }
 
     const data = {
@@ -65,35 +62,34 @@ async function setu(context, match) {
     try {
       let responseData = (await fetch('https://api.lolicon.app/setu/v2', data, 'POST')).data
       if (responseData.length === 0) {
-        return replyMsg(context, '换个标签试试吧~')
+        return await replyMsg(context, '换个标签试试吧~')
       } else {
         responseData = responseData[0]
       }
-      const shortUrlData = (
-        await fetch(
-          `https://url.huankong.top/api/url?url=https://www.pixiv.net/artworks/${responseData.pid}`, {}, 'POST'
-        )
+      const shortUrlData = await fetch(
+        `https://url.huankong.top/api/url?url=https://www.pixiv.net/artworks/${responseData.pid}`,
+        {},
+        'POST'
       )
       //反和谐
       const img = await Jimp.read(
-        Buffer.from(
-          await fetch(responseData.urls.original).then(res => res.arrayBuffer())
-        )
+        Buffer.from(await fetch(responseData.urls.original).then(res => res.arrayBuffer()))
       )
       const base64 = await imgAntiShielding(img, global.config.setu.antiShieldingMode)
-      const message_data = `${CQ.image(`base64://${base64}`)}\n标题:${responseData.title
-        }\n作品地址:${shortUrlData.url}`
+      const message_data = `${CQ.image(`base64://${base64}`)}\n标题:${
+        responseData.title
+      }\n作品地址:${shortUrlData.url}`
       const message = await replyMsg(context, message_data, false)
       if (message.status === 'ok') {
-        setTimeout(() => {
+        setTimeout(async () => {
           //撤回消息
-          bot('delete_msg', {
+          await bot('delete_msg', {
             message_id: message.data.message_id
           })
         }, global.config.setu.withdraw * 1000)
       }
       if (message.status === 'failed') {
-        replyMsg(context, '色图发送失败(')
+        await replyMsg(context, '色图发送失败(')
         await reduce(context.user_id, global.config.setu.pigeon, '色图加载失败')
       } else {
         //更新数据
@@ -106,11 +102,8 @@ async function setu(context, match) {
           .into('setu')
       }
     } catch (error) {
-      replyMsg(context, '色图发送失败(')
+      await replyMsg(context, '色图发送失败(')
       await reduce(context.user_id, global.config.setu.pigeon, '色图加载失败')
-      if (global.config.bot.debug) {
-        console.log(error)
-      }
     }
   }
 }

@@ -6,7 +6,7 @@ export default () => {
 
 function event() {
   RegEvent('message', async (event, context, tags) => {
-    bilibiliHandler(context)
+    await bilibiliHandler(context)
   })
 }
 

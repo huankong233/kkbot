@@ -4,7 +4,10 @@ export default () => {
   }
 }
 
-//格式化参数
+/**
+ * 格式化信息，提取参数和命令名
+ * @param {String} message
+ */
 export const format = message => {
   const prefix = global.config.bot.prefix
   //去头去尾空格

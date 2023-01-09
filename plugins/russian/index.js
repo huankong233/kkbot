@@ -30,15 +30,18 @@ function event() {
 import { add, reduce } from '../pigeon/index.js'
 import { isToday } from '../gugu/index.js'
 
-async function createGame(context) {
+export const createGame = async context => {
   const params = context.command.params
   if (params.length < 2) {
-    return replyMsg(context, `参数不足,请发送"${global.config.bot.prefix}帮助 装弹"查看详细信息`)
+    return await replyMsg(
+      context,
+      `参数不足,请发送"${global.config.bot.prefix}帮助 装弹"查看详细信息`
+    )
   }
 
   if (global.russian.from_id) {
     //正在有游戏进行中
-    return replyMsg(context, '有一场比赛在进行中')
+    return await replyMsg(context, '有一场比赛在进行中')
   }
 
   const user_id = context.user_id
@@ -54,7 +57,7 @@ async function createGame(context) {
       //超出配额
       if (!isToday(count_data[0].update_time)) {
         //判断时间
-        return replyMsg(context, `每次最多只能玩${global.config.russian.limit}次哦~`)
+        return await replyMsg(context, `每次最多只能玩${global.config.russian.limit}次哦~`)
       } else {
         await database
           .update({
@@ -70,23 +73,23 @@ async function createGame(context) {
     const pigeon = parseInt(params[1])
 
     if (pigeon > global.config.russian.max) {
-      return replyMsg(context, `每次最多只能${global.config.russian.max}只鸽子哦~`)
+      return await replyMsg(context, `每次最多只能${global.config.russian.max}只鸽子哦~`)
     }
 
     //判断用户能否发起
     if (pigeon < 100) {
-      return replyMsg(context, '至少需要100只鸽子哦~')
+      return await replyMsg(context, '至少需要100只鸽子哦~')
     }
     if (!(await reduce(user_id, pigeon, '参加比赛'))) {
-      return replyMsg(context, '你的鸽子不足哦~')
+      return await replyMsg(context, '你的鸽子不足哦~')
     }
 
     //判断子弹数量
     if (mag > global.config.russian.mag - 2) {
-      return replyMsg(context, `子弹数不能大于${global.config.russian.mag - 2}`)
+      return await replyMsg(context, `子弹数不能大于${global.config.russian.mag - 2}`)
     }
     if (mag <= 0) {
-      return replyMsg(context, `子弹怎么样也要有一颗吧（`)
+      return await replyMsg(context, `子弹怎么样也要有一颗吧（`)
     }
 
     global.russian = {
@@ -103,7 +106,7 @@ async function createGame(context) {
 
     global.russian.wait_id = setInterval(async () => {
       if (global.russian.time === 0) {
-        replyMsg(context, '超时咯,鸽子已退回~')
+        await replyMsg(context, '超时咯,鸽子已退回~')
         global.russian = {}
         await add(user_id, pigeon, '比赛超时')
         clearInterval(global.russian.wait_id)
@@ -111,11 +114,11 @@ async function createGame(context) {
       global.russian.time--
     }, 1000)
 
-    replyMsg(context, '回复接受比赛就可以加入比赛啦~')
+    await replyMsg(context, '回复接受比赛就可以加入比赛啦~')
   }
 }
 
-async function acceptGame(context) {
+export const acceptGame = async context => {
   const user_id = context.user_id
   //判断有没有到上限了
   const count_data = await database.select().where('user_id', user_id).from('russian')
@@ -129,7 +132,7 @@ async function acceptGame(context) {
       //超出配额
       if (!isToday(count_data[0].update_time)) {
         //判断时间
-        return replyMsg(context, `每次最多只能玩${global.config.russian.limit}次哦~`)
+        return await replyMsg(context, `每次最多只能玩${global.config.russian.limit}次哦~`)
       } else {
         await database
           .update({
@@ -143,24 +146,24 @@ async function acceptGame(context) {
 
     if (!global.russian.from_id) {
       //没有游戏进行中
-      return replyMsg(context, '没有比赛在进行中~')
+      return await replyMsg(context, '没有比赛在进行中~')
     }
 
     if (global.russian.to_id !== null) {
       //没有游戏进行中
-      return replyMsg(context, '不要捣乱啦~', true)
+      return await replyMsg(context, '不要捣乱啦~', true)
     }
 
     if (global.russian.from_id === context.user_id) {
-      return replyMsg(context, '不可以和自己比赛哦~')
+      return await replyMsg(context, '不可以和自己比赛哦~')
     }
 
     //判断用户能否发起
     if (!(await reduce(user_id, global.russian.addon, '参加比赛'))) {
-      return replyMsg(context, '你的鸽子不足哦~')
+      return await replyMsg(context, '你的鸽子不足哦~')
     }
 
-    replyMsg(context, '加入比赛成功~')
+    await replyMsg(context, '加入比赛成功~')
     clearInterval(global.russian.wait_id)
 
     //加入
@@ -173,11 +176,10 @@ async function acceptGame(context) {
   }
 }
 
-async function startGame(context) {
+export const startGame = async context => {
   //扣除双方机会
   const count_from =
-    (await database.select().where('user_id', global.russian.from_id).from('russian'))[0]
-      .count + 1
+    (await database.select().where('user_id', global.russian.from_id).from('russian'))[0].count + 1
   //更新数据
   await database
     .update({
@@ -188,8 +190,7 @@ async function startGame(context) {
     .into('russian')
   //扣除双方机会
   const count_to =
-    (await database.select().where('user_id', global.russian.to_id).from('russian'))[0]
-      .count + 1
+    (await database.select().where('user_id', global.russian.to_id).from('russian'))[0].count + 1
   //更新数据
   await database
     .update({
@@ -212,7 +213,7 @@ async function startGame(context) {
       index++
     }
   }
-  await replyMsg(
+  await await replyMsg(
     context,
     `子弹已经入膛了哦~\n子弹情况${global.russian.mag}/${global.config.russian.mag}\n发送射击来打响第一枪吧!`
   )
@@ -223,7 +224,7 @@ async function startGame(context) {
   global.russian.time = global.config.russian.time
   global.russian.wait_id = setInterval(async () => {
     if (global.russian.time === 0) {
-      replyMsg(
+      await replyMsg(
         context,
         '超时咯,上一回合射击者获胜~(如果没有人开枪就都返还了哦~需要扣除手续费)'
       )
@@ -246,36 +247,36 @@ async function startGame(context) {
 
 import { getUserName } from '../query/index.js'
 
-async function shot(context) {
+export const shot = async context => {
   const user_id = context.user_id
   if (!global.russian.from_id) {
     //正在有游戏进行中
-    return replyMsg(context, '没有比赛在进行中~')
+    return await replyMsg(context, '没有比赛在进行中~')
   }
 
   //判断用户是否是游戏内用户
   if (user_id !== global.russian.from_id && user_id !== global.russian.to_id) {
-    return replyMsg(context, '可以观看比赛，但是不要打乱比赛哦~')
+    return await replyMsg(context, '可以观看比赛，但是不要打乱比赛哦~')
   }
 
   //判断是否已经开始
   if (!global.russian.start) {
-    return replyMsg(context, '比赛正在等待对手哦~')
+    return await replyMsg(context, '比赛正在等待对手哦~')
   }
 
   //判断是否已经结束
   if (global.russian.end) {
-    return replyMsg(context, '比赛已经结束~正在结算中~')
+    return await replyMsg(context, '比赛已经结束~正在结算中~')
   }
 
   //先手
   if (global.russian.mag[global.russian.shot_index] === '*') {
     global.russian.end = true
-    replyMsg(context, '中枪咯~')
+    await replyMsg(context, '中枪咯~')
     let addon = Math.ceil(global.russian.addon * 2 * (1 - global.config.russian.clip))
     if (global.russian.from_id === context.user_id) {
       await add(global.russian.to_id, addon, '比赛获胜')
-      replyMsg(
+      await replyMsg(
         context,
         `${await getUserName(global.russian.to_id)}获胜啦~\n获得了${addon}只鸽子~`
       )
@@ -291,7 +292,7 @@ async function shot(context) {
     } else {
       global.russian.end = true
       await add(global.russian.from_id, addon, '比赛获胜')
-      replyMsg(
+      await replyMsg(
         context,
         `${await getUserName(global.russian.from_id)}获胜啦~\n获得了${addon}只鸽子~`
       )
@@ -305,18 +306,18 @@ async function shot(context) {
         })
         .into('russian_history')
     }
-    replyMsg(context, `子弹排布(*为子弹):\n${global.russian.mag.join(' ')}`)
+    await replyMsg(context, `子弹排布(*为子弹):\n${global.russian.mag.join(' ')}`)
     clearInterval(global.russian.wait_id)
     global.russian = {}
   } else {
-    replyMsg(context, '幸运女神站在了你这边!')
+    await replyMsg(context, '幸运女神站在了你这边!')
     global.russian.time = global.config.russian.time
     global.russian.shot_index++
     global.russian.last_user = context.user_id
   }
 }
 
-async function feiqiu(context) {
+export const feiqiu = async context => {
   let list = {}
   const data = await database.select().from('russian_history')
   data.forEach(datum => {
@@ -353,13 +354,14 @@ async function feiqiu(context) {
   }
   for (let index = 0; index < length; index++) {
     const item = list[index]
-    message += `${index + 1}:${await getUserName(item.user_id)}在${item.round}次失败中输掉了${item.pigeon
-      }只鸽子\n`
+    message += `${index + 1}:${await getUserName(item.user_id)}在${item.round}次失败中输掉了${
+      item.pigeon
+    }只鸽子\n`
   }
   await replyMsg(context, message.slice(0, -1))
 }
 
-async function ouhuang(context) {
+export const ouhuang = async context => {
   let list = {}
   const data = await database.select().from('russian_history')
   data.forEach(datum => {
@@ -396,13 +398,14 @@ async function ouhuang(context) {
   }
   for (let index = 0; index < length; index++) {
     const item = list[index]
-    message += `${index + 1}:${await getUserName(item.user_id)}在${item.round}次胜利中获得了${item.pigeon
-      }只鸽子\n`
+    message += `${index + 1}:${await getUserName(item.user_id)}在${item.round}次胜利中获得了${
+      item.pigeon
+    }只鸽子\n`
   }
   await replyMsg(context, message.slice(0, -1))
 }
 
-async function my(context) {
+export const my = async context => {
   const user_id = context.user_id
   const data = await database
     .select()
@@ -437,13 +440,13 @@ async function my(context) {
       }
     }
   })
-  replyMsg(
+  await replyMsg(
     context,
     `你共获胜了${win.round}场，获得了${win.pigeon}只鸽子\n你共失败了${loss.round}场，失去了${loss.pigeon}只鸽子`
   )
 }
 
-function object2arr(object) {
+export const object2arr = object => {
   let temp = []
   for (const key in object) {
     if (Object.hasOwnProperty.call(object, key)) {
@@ -457,7 +460,7 @@ function object2arr(object) {
   return temp
 }
 
-function compare(list, property) {
+export const compare = (list, property) => {
   return Array.from(list).sort((a, b) =>
     a[property] < b[property] ? 1 : a[property] > b[property] ? -1 : 0
   )

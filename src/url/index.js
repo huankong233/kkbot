@@ -8,9 +8,8 @@ const bannedHosts = ['danbooru.donmai.us', 'konachan.com', 'fanbox.cc', 'pixiv.n
 
 /**
  * 链接混淆
- *
  * @param {string} url
- * @returns
+ * @returns {string}
  */
 export function confuseURL(url, force) {
   url = pixivShorten(url)
@@ -28,10 +27,8 @@ export function confuseURL(url, force) {
 
 /**
  * pixiv 短链接
- *
- * @export
  * @param {string} url
- * @returns
+ * @returns {string}
  */
 export function pixivShorten(url) {
   const pidSearch = /pixiv.+illust_id=([0-9]+)/.exec(url) || /pixiv.+artworks\/([0-9]+)/.exec(url)

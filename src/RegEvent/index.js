@@ -6,9 +6,9 @@ export default () => {
 
 /**
  * 事件快捷注册
- * @param {String} type
- * @param {Function} callback
- * @param {Int} priority 优先级
+ * @param {String} type 事件类型
+ * @param {Function} callback 回调函数
+ * @param {Number} priority 优先级
  */
 function RegEvent(type, callback, priority = 1) {
   switch (type) {
@@ -31,6 +31,6 @@ function RegEvent(type, callback, priority = 1) {
       })
       break
     default:
-      throw `"${type}"事件类型不存在`
+      throw new Error(`"${type}"事件类型不存在`)
   }
 }

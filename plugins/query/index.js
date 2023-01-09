@@ -20,7 +20,7 @@ function event() {
 import { getUserData } from '../pigeon/index.js'
 
 //我的鸽子
-async function query(context) {
+export const query = async context => {
   let user_id = context.user_id
   const params = context.command.params
   if (params && params.length !== 0) {
@@ -29,19 +29,20 @@ async function query(context) {
   // 数据
   const pigeon_num = await getUserData(user_id)
   if (pigeon_num !== false) {
-    replyMsg(
+    await replyMsg(
       context,
-      `${user_id === context.user_id ? '你' : `用户${user_id}`}拥有${pigeon_num[0].pigeon_num
+      `${user_id === context.user_id ? '你' : `用户${user_id}`}拥有${
+        pigeon_num[0].pigeon_num
       }只鸽子`,
       true
     )
   } else {
     //用户不存在
-    replyMsg(context, `${user_id}是谁呀，咱不认识`, true)
+    await replyMsg(context, `${user_id}是谁呀，咱不认识`, true)
   }
 }
 
-async function rankingList(context) {
+export const rankingList = async context => {
   // 鸽子排行榜
   const data = await database
     .from('pigeon')
@@ -61,7 +62,7 @@ async function rankingList(context) {
   }
 }
 
-export async function getUserName(user_id) {
+export const getUserName = async user_id => {
   const res = await bot('get_stranger_info', {
     user_id
   })

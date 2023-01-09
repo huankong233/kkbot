@@ -4,7 +4,11 @@ export default () => {
   }
 }
 
-//时间格式化
+/**
+ * 时间格式化
+ * @param {number} second
+ * @returns {object}
+ */
 export const formatTime = second => {
   const days = Math.floor(second / 86400)
   const hours = Math.floor((second % 86400) / 3600)

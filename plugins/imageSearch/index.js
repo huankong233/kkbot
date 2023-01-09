@@ -12,7 +12,7 @@ function event() {
   RegEvent('message', async (event, context, tags) => {
     if (context.command) {
       if (context.command.name === global.config.bot.botName + global.config.searchImage.word.on) {
-        turnOnSearchMode(context)
+        await turnOnSearchMode(context)
       }
     }
   })
@@ -20,7 +20,7 @@ function event() {
     'message',
     async (event, context, tags) => {
       if (context.command.name === global.config.searchImage.word.off + global.config.bot.botName) {
-        turnOffSearchMode(context)
+        await turnOffSearchMode(context)
       } else {
         if (ifSearchMode(context)) {
           search(context)
@@ -32,7 +32,7 @@ function event() {
   )
 }
 
-export function searchInitialization() {
+export const searchInitialization = () => {
   //删除temp文件夹内的所有文件
   deleteFolder(`./temp/`)
   //创建文件夹
@@ -40,13 +40,13 @@ export function searchInitialization() {
   global.searchUsers = []
   //1s运行一次的计时器
   setInterval(() => {
-    global.searchUsers.forEach(searchUser => {
+    global.searchUsers.forEach(async searchUser => {
       //开启了自动退出
       if (searchUser.autuLeave === true) {
         if (searchUser.surplus_time === 0) {
           //退出搜图模式
           turnOffSearchMode(searchUser.context, false)
-          replyMsg(
+          await replyMsg(
             searchUser.context,
             `已自动退出搜图模式\n下次记得说"${global.config.searchImage.word.off}"来退出搜图模式哦~`,
             true
@@ -60,11 +60,11 @@ export function searchInitialization() {
 }
 
 //删除文件夹
-function deleteFolder(path) {
+export const deleteFolder = path => {
   let files = []
   if (fs.existsSync(path)) {
     files = fs.readdirSync(path)
-    files.forEach(function (file, index) {
+    files.forEach((file, index) => {
       let dirPath = path + '/' + file
       if (fs.statSync(dirPath).isDirectory()) {
         deleteFolder(dirPath)
@@ -77,7 +77,7 @@ function deleteFolder(path) {
 }
 
 //开启搜图模式
-function turnOnSearchMode(context) {
+export const turnOnSearchMode = async context => {
   if (global.config.searchImage.autoLeave.enable) {
     //开启自动退出搜图模式
     global.searchUsers.push({
@@ -92,7 +92,7 @@ function turnOnSearchMode(context) {
       autuLeave: false
     })
   }
-  replyMsg(
+  await replyMsg(
     context,
     `${global.config.searchImage.word.on_reply}\n记得说"${global.config.bot.prefix}${global.config.searchImage.word.off}${global.config.bot.botName}"来退出搜图模式哦~`,
     true
@@ -100,7 +100,7 @@ function turnOnSearchMode(context) {
 }
 
 //关闭搜图模式
-function turnOffSearchMode(context, reply = true) {
+export const turnOffSearchMode = async (context, reply = true) => {
   let arr = []
   global.searchUsers.forEach(searchUser => {
     if (searchUser.context.user_id !== context.user_id) {
@@ -108,11 +108,11 @@ function turnOffSearchMode(context, reply = true) {
     }
   })
   global.searchUsers = arr
-  if (reply) replyMsg(context, `${global.config.searchImage.word.off_reply}`, true)
+  if (reply) await replyMsg(context, `${global.config.searchImage.word.off_reply}`, true)
 }
 
 //刷新搜图模式时间
-function refreshTimeOfAutoLeave(user_id) {
+export const refreshTimeOfAutoLeave = user_id => {
   global.searchUsers.forEach(searchUser => {
     if (searchUser.context.user_id === user_id) {
       searchUser.surplus_time = global.config.searchImage.autoLeave.time
@@ -121,7 +121,7 @@ function refreshTimeOfAutoLeave(user_id) {
 }
 
 //判断是否是搜图模式
-function ifSearchMode(context) {
+export const ifSearchMode = context => {
   let bool = false
   global.searchUsers.forEach(searchUser => {
     if (searchUser.context.user_id === context.user_id) {
@@ -135,14 +135,14 @@ import { add, reduce } from '../pigeon/index.js'
 import { ascii2d, SauceNAO, IqDB, TraceMoe, EHentai, Yandex } from 'image_searcher'
 
 //获取通用地址
-function getUniversalImgURL(url = '') {
+export const getUniversalImgURL = (url = '') => {
   return url
     .replace('/c2cpicdw.qpic.cn/offpic_new/', '/gchat.qpic.cn/gchatpic_new/')
     .replace(/\/\d+\/+\d+-\d+-/, '/0/0-0-')
     .replace(/\?.*$/, '')
 }
 
-async function search(context) {
+export const search = context => {
   //先下载文件
   let data = CQ.parse(context.message)
   let receive = false
@@ -153,7 +153,7 @@ async function search(context) {
         //收到回复
         if (!receive) {
           receive = true
-          replyMsg(context, `${global.config.searchImage.word.receive}`, true)
+          await replyMsg(context, `${global.config.searchImage.word.receive}`, true)
         }
         //刷新时间
         refreshTimeOfAutoLeave(context.user_id)
@@ -226,39 +226,12 @@ async function search(context) {
           }
         ])
 
-        //提前下载好eh图片
-        for (let i = 0; i < responseData.length; i++) {
-          const datum = responseData[i]
-          if (datum.success && datum.name === 'E-Hentai') {
-            let limit =
-              datum.res.length >= global.config.searchImage.limit
-                ? global.config.searchImage.limit
-                : datum.res.length
-            for (let i = 0; i <= limit - 1; i++) {
-              const item = datum.res[i]
-              //下载图片
-              const fileName = 'base64://'
-              const base64 = await downloadFile(
-                item.image,
-                '',
-                '',
-                global.config.searchImage.EH_COOKIE,
-                true
-              )
-              item.fileName = fileName + base64
-            }
-          }
-        }
-
         parse(context, responseData, imageUrl)
 
-        if (global.config.bot.debug) {
-          console.log(`搜图完成`)
-        }
         //删除文件
         fs.unlinkSync(imagePath)
       } else {
-        replyMsg(context, `搜索失败,鸽子不足~`, true)
+        await replyMsg(context, `搜索失败,鸽子不足~`, true)
       }
     }
   })
@@ -267,35 +240,24 @@ async function search(context) {
 import fs from 'fs'
 import fetch from 'node-fetch'
 //下载图片
-async function downloadFile(url, filePath, fileName, cookie = '', base64 = false) {
+export const downloadFile = async (url, filePath, fileName) => {
   if (!base64 && !fs.existsSync(filePath)) {
     fs.mkdirSync(filePath)
   }
-  const res = await fetch(url, {
-    method: 'GET',
-    headers: { 'Content-Type': 'application/octet-stream', cookie }
+  const res = await fetch(url)
+  const dest = fs.createWriteStream(`${filePath}/${fileName}`)
+  res.body.pipe(dest)
+  return new Promise((resolve, reject) => {
+    dest.on('finish', resolve)
+    dest.on('error', reject)
   })
-  if (base64) {
-    const resData = await res.arrayBuffer()
-    return new Buffer.from(resData, 'binary').toString('base64')
-  } else {
-    const dest = fs.createWriteStream(`${filePath}/${fileName}`)
-    res.body.pipe(dest)
-    return new Promise((resolve, reject) => {
-      dest.on('finish', resolve)
-      dest.on('error', reject)
-    })
-  }
 }
 
 //运行函数防止崩溃
-async function request(callbacks) {
+export const request = async callbacks => {
   let responseData = []
   for (let i = 0; i < callbacks.length; i++) {
     const item = callbacks[i]
-    if (global.config.bot.debug) {
-      console.log(`${item.name}搜图中`)
-    }
     try {
       const start = performance.now()
       let obj = {
@@ -307,10 +269,6 @@ async function request(callbacks) {
       obj.cost = end - start
       responseData.push(obj)
     } catch (error) {
-      if (global.config.bot.debug) {
-        console.log(`${item.name}搜图失败`)
-        console.log(error)
-      }
       responseData.push({ success: false, name: item.name, res: null })
     }
   }
@@ -318,7 +276,7 @@ async function request(callbacks) {
 }
 
 //整理数据
-async function parse(context, res, originUrl) {
+export const parse = async (context, res, originUrl) => {
   let messages = [CQ.node(global.config.bot.botName, context.self_id, CQ.image(originUrl))]
   res.forEach(async datum => {
     if (datum.success) {
@@ -397,7 +355,7 @@ async function parse(context, res, originUrl) {
               break
             case 'E-Hentai':
               message += [
-                `${await antiShielding(item.fileName)}`,
+                `${await antiShielding(item.image, global.config.searchImage.EH_COOKIE)}`,
                 `标题: ${item.title}`,
                 `时间: ${item.date}`,
                 `类型: ${item.type}`,
@@ -437,7 +395,7 @@ async function parse(context, res, originUrl) {
   //发送
   const data = await send_forward_msg(context, messages)
   if (data.status === 'failed') {
-    replyMsg(context, '发送合并消息失败，可以尝试私聊我哦~(鸽子已返还)')
+    await replyMsg(context, '发送合并消息失败，可以尝试私聊我哦~(鸽子已返还)')
     let count = 0
     res.forEach(item => (item.success ? count++ : void 0))
     await add(context.user_id, global.config.searchImage.claim * count, `合并消息发送失败赔偿`)
@@ -455,9 +413,16 @@ export const formatTime = stamp => {
 //反和谐
 import Jimp from 'jimp'
 import { imgAntiShielding } from '../setu/AntiShielding.js'
-export const antiShielding = async url => {
+export const antiShielding = async (url, cookie) => {
   //反和谐
-  const img = await Jimp.read(Buffer.from(await fetch(url).then(res => res.arrayBuffer())))
+  const img = await Jimp.read(
+    Buffer.from(
+      await fetch(url, {
+        method: 'get',
+        headers: { 'Content-Type': 'application/octet-stream', cookie }
+      }).then(res => res.arrayBuffer())
+    )
+  )
   const base64 = await imgAntiShielding(img, global.config.searchImage.antiShieldingMode)
   return CQ.image(`base64://${base64}`)
 }

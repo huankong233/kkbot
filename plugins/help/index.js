@@ -8,13 +8,13 @@ function event() {
   RegEvent('message', async (event, context, tags) => {
     if (context.command) {
       if (context.command.name === '帮助') {
-        help(context)
+        await help(context)
       }
     }
   })
 }
 
-async function help(context) {
+export const help = async context => {
   const help = global.config.help
   const name = context.command.params[0]
   if (name) {

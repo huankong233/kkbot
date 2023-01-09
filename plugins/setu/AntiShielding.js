@@ -4,7 +4,7 @@
 
 import Jimp from 'jimp'
 
-function rotate90degrees(bitmap, dstBuffer, clockwise) {
+export const rotate90degrees = (bitmap, dstBuffer, clockwise) => {
   const dstOffsetStep = clockwise ? -4 : 4
   let dstOffset = clockwise ? dstBuffer.length - 4 : 0
 
@@ -63,7 +63,7 @@ Jimp.prototype.simpleRotate = function (deg) {
  * @param {number} mode
  * @returns base64
  */
-export async function imgAntiShielding(img, mode) {
+export const imgAntiShielding = async (img, mode) => {
   let rotate = [90, -90, 180, -180]
   if (mode === 1) {
     randomModifyPixels(img)
@@ -90,7 +90,7 @@ export async function imgAntiShielding(img, mode) {
  * 随机修改四角像素
  * @param {Jimp} img
  */
-export function randomModifyPixels(img) {
+export const randomModifyPixels = img => {
   const [w, h] = [img.getWidth(), img.getHeight()]
   const pixels = [
     [0, 0],

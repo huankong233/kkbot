@@ -6,9 +6,13 @@ export default () => {
   }
 }
 
-//发送私信
+/**
+ * 发送私信
+ * @param {number} who
+ * @param {string} message
+ */
 export const sendMsg = (who, message) => {
-  bot('send_private_msg', {
+  return bot('send_private_msg', {
     user_id: who,
     message
   })
@@ -16,8 +20,7 @@ export const sendMsg = (who, message) => {
 
 /**
  * 回复消息
- *
- * @param {*} context 消息对象
+ * @param {object} context 消息对象
  * @param {string} message 回复内容
  * @param {boolean} at 是否at发送者
  * @param {boolean} reply 是否使用回复形式
@@ -53,20 +56,23 @@ export const replyMsg = (context, message, at = false, reply = false) => {
   }
 }
 
-//合并信息发送(messages是数组)
-//https://docs.go-cqhttp.org/cqcode/#%E5%90%88%E5%B9%B6%E8%BD%AC%E5%8F%91
-export const send_forward_msg = async (context, messages) => {
+/**
+ * 合并信息发送
+ * docs:https://docs.go-cqhttp.org/cqcode/#%E5%90%88%E5%B9%B6%E8%BD%AC%E5%8F%91
+ * @param {*} context 消息对象
+ * @param {Array} messages
+ * @returns
+ */
+export const send_forward_msg = (context, messages) => {
   if (context.message_type === 'group') {
-    const data = await bot('send_group_forward_msg', {
+    return bot('send_group_forward_msg', {
       group_id: context.group_id,
       messages: messages
     })
-    return data
   } else if (context.message_type === 'private') {
-    const data = await bot('send_private_forward_msg', {
+    return bot('send_private_forward_msg', {
       user_id: context.user_id,
       messages: messages
     })
-    return data
   }
 }

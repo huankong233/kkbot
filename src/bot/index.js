@@ -7,6 +7,9 @@ export default () => {
 import { CQWebSocket } from '@tsuk1ko/cq-websocket'
 import { CQ } from 'go-cqwebsocket'
 
+/**
+ * 启动机器人线程，注册事件等
+ */
 export const newBot = async () => {
   await loadConfig('bot.jsonc', true)
 
@@ -17,14 +20,14 @@ export const newBot = async () => {
     globalReg({ bot, CQ })
 
     //连接相关监听
-    bot.on('socket.open', (wsType, attempts) =>
-      msgToConsole(`连接中[${wsType}]#${attempts}`)
-    )
+    bot.on('socket.open', (wsType, attempts) => msgToConsole(`连接中[${wsType}]#${attempts}`))
 
     bot.on('socket.failed', (wsType, attempts) => {
       msgToConsole(`连接失败[${wsType}]#${attempts}`)
       if (attempts === global.config.bot.connect.reconnectionAttempts) {
-        throw Error(`连接失败次数超过设置的${global.config.bot.connect.reconnectionAttempts}次!`)
+        throw new Error(
+          `连接失败次数超过设置的${global.config.bot.connect.reconnectionAttempts}次!`
+        )
       }
     })
 
@@ -37,11 +40,11 @@ export const newBot = async () => {
       msgToConsole(`连接成功[${wsType}]#${attempts}`)
       if (wsType === '/api') {
         if (global.config.bot.online.enable && global.config.bot.debug === false) {
-          setTimeout(() => {
+          setTimeout(async () => {
             if (global.config.bot.admin <= 0) {
               msgToConsole('请检查管理员账户')
             } else {
-              sendMsg(global.config.bot.admin, `${global.config.bot.online.msg}#${attempts}`)
+              await sendMsg(global.config.bot.admin, `${global.config.bot.online.msg}#${attempts}`)
             }
           }, 1000)
         }
@@ -94,10 +97,10 @@ export const newBot = async () => {
     bot.connect()
   } catch (error) {
     console.log(error)
-    throw Error('请检查机器人配置文件!!!')
+    throw new Error('请检查机器人配置文件!!!')
   }
 }
 
-function compare(arr, property) {
+export const compare = (arr, property) => {
   return arr.sort((a, b) => (a[property] < b[property] ? 1 : a[property] > b[property] ? -1 : 0))
 }

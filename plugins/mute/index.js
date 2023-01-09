@@ -15,7 +15,7 @@ function event() {
 }
 
 //我的鸽子
-async function mute(context) {
+export const mute = async context => {
   if (context.group_id !== undefined) {
     //判断对方信息
     const state = await bot('get_group_member_info', {
@@ -41,8 +41,8 @@ async function mute(context) {
       user_id: context.user_id,
       duration: muteTime
     })
-    replyMsg(context, '还鸽不鸽了')
+    await replyMsg(context, '还鸽不鸽了')
   } else {
-    replyMsg(context, '爬爬爬，私聊来找茬是吧')
+    await replyMsg(context, '爬爬爬，私聊来找茬是吧')
   }
 }

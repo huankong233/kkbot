@@ -16,7 +16,7 @@ async function event() {
 
 //检查更新
 import fs from 'fs'
-async function checkUpdate() {
+export const checkUpdate = async () => {
   const { proxy, url } = global.config.update
   try {
     const remote_version = (await fetch(proxy + url)).version
@@ -30,9 +30,6 @@ async function checkUpdate() {
       clearInterval(global.config.update.id)
     }
   } catch (error) {
-    if (global.config.bot.debug) {
-      console.log(error)
-    }
     global.config.update.count++
     if (global.config.update.count === global.config.update.max) {
       await sendMsg(
@@ -50,7 +47,7 @@ async function checkUpdate() {
  * @param {string} v2 要进行比较的版本号2
  * @returns
  */
-function compairVersion(v1, v2) {
+export const compairVersion = (v1, v2) => {
   //补位0，或者使用其它字符
   const ZERO_STR = '000000000000000000000000000000000000000000'
   if (v1 === v2) {

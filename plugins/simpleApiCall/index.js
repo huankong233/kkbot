@@ -23,28 +23,32 @@ function event() {
   })
 }
 
-async function dog(context) {
+export const dog = async context => {
   const data = await fetch('https://api.oick.cn/dog/api.php')
   await replyMsg(context, data)
 }
 
-async function oneSay(context) {
+export const oneSay = async context => {
   const data = await fetch('https://api.oick.cn/dutang/api.php')
   await replyMsg(context, data)
 }
 
-async function guess(context) {
+export const guess = async context => {
   if (context.command.params[0]) {
-    const data = await fetch('https://lab.magiconch.com/api/nbnhhsh/guess', {
-      text: context.command.params[0]
-    }, 'POST')
+    const data = await fetch(
+      'https://lab.magiconch.com/api/nbnhhsh/guess',
+      {
+        text: context.command.params[0]
+      },
+      'POST'
+    )
     await replyMsg(context, `翻译"${data[0].name}":\n${data[0].trans.toString()}`)
   } else {
     await replyMsg(context, '请输入需要猜的话')
   }
 }
 
-async function prprme(context) {
+export const prprme = async context => {
   const data = await bot('get_friend_list')
   let key = false
   // 判断是否为好友
@@ -56,35 +60,27 @@ async function prprme(context) {
     }
   })
   if (key) {
-    bot('send_private_msg', {
-      user_id: context.user_id,
-      message: `我真的好喜欢你啊!!\n（回复"${global.config.bot.prefix}别舔了"来停止哦~）`
-    })
+    await sendMsg(
+      context.user_id,
+      `我真的好喜欢你啊!!\n（回复"${global.config.bot.prefix}别舔了"来停止哦~）`
+    )
     let id = setInterval(async () => {
       try {
         const data = await fetch('https://api.uomg.com/api/rand.qinghua?format=json')
-        console.log(data)
-        bot('send_private_msg', {
-          user_id: context.user_id,
-          message: data.content
-        })
-      } catch (error) {
-        if (global.config.bot.debug) {
-          console.log(error)
-        }
-      }
+        await sendMsg(context.user_id, data.content)
+      } catch (error) {}
     }, 3000)
     global.prprmeCode[context.user_id] = id
   } else {
-    replyMsg(context, '先加一下好友叭~咱也是会害羞的')
+    await replyMsg(context, '先加一下好友叭~咱也是会害羞的')
   }
 }
 
-async function stoprprme(context) {
+export const stoprprme = async context => {
   const data = global.prprmeCode[context.user_id]
   if (data) {
     clearInterval(data)
-    bot('send_private_msg', {
+    await bot('send_private_msg', {
       user_id: context.user_id,
       message: '呜呜，对不起惹你生气了'
     })

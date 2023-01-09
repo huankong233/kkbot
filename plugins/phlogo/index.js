@@ -7,13 +7,13 @@ function event() {
   RegEvent('message', async (event, context, tags) => {
     if (context.command) {
       if (context.command.name === 'phlogo') {
-        phlogo(context)
+        await phlogo(context)
       }
     }
   })
 }
 
-async function phlogo(context) {
+export const phlogo = async context => {
   if (context.command.params.length >= 2) {
     const { execSync } = await import('child_process')
     try {

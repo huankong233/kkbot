@@ -20,7 +20,7 @@ async function gugu(context) {
   const user_id = context.user_id
   if (!(await getUserData(context.user_id))) {
     //插入新用户
-    replyMsg(context, `新用户!赠送${global.config.gugu.newUserAdd}只鸽子~`)
+    await replyMsg(context, `新用户!赠送${global.config.gugu.newUserAdd}只鸽子~`)
     await database.insert({ user_id }).into('pigeon')
     await add(user_id, global.config.gugu.newUserAdd, '新用户赠送')
     gugu(context)
@@ -31,9 +31,9 @@ async function gugu(context) {
       //获得的鸽子数
       let addon = randomMaxToMin(1, global.config.gugu.oldUserAdd)
       await add(user_id, addon, '每日咕咕', { update_time: Date.now() })
-      replyMsg(context, `咕咕成功~获得${addon}只鸽子~`)
+      await replyMsg(context, `咕咕成功~获得${addon}只鸽子~`)
     } else {
-      replyMsg(context, `咕咕失败~今天已经咕咕过了哦~`)
+      await replyMsg(context, `咕咕失败~今天已经咕咕过了哦~`)
     }
   }
 }

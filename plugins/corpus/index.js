@@ -10,7 +10,7 @@ import emoji from 'node-emoji'
 function event() {
   RegEvent('message', async (event, context, tags) => {
     context.message = emoji.unemojify(context.message)
-    corpus(context)
+    await corpus(context)
     if (context.command) {
       if (context.command.name === global.config.bot.botName + '学习') {
         await learn(context, context.command.params)
@@ -32,7 +32,7 @@ const isCtxMatchScence = ({ message_type }, scence) => {
   return ENUM_SCENCE[scence].includes(message_type)
 }
 
-function corpus(ctx) {
+export const corpus = async ctx => {
   const rules = global.config.corpus.data
   let stop = false
 
@@ -47,16 +47,16 @@ function corpus(ctx) {
     stop = true
     reply = reply.replace(/\[CQ:at\]/g, ctx.message_type === 'private' ? '' : CQ.at(ctx.user_id))
 
-    let replyMsg = exec[0].replace(reg, reply)
-    replyMsg = emoji.emojify(replyMsg, name => name)
-    if (replyMsg.length) global.replyMsg(ctx, replyMsg)
+    let msg = exec[0].replace(reg, reply)
+    msg = emoji.emojify(msg, name => name)
+    if (msg.length) await replyMsg(ctx, msg)
     break
   }
 
   return stop
 }
 
-async function loadRules() {
+export const loadRules = async () => {
   global.config.corpus.data = []
   const data = await database.select().from('corpus').where('hide', 0)
   data.forEach(value => {
@@ -75,13 +75,14 @@ async function loadRules() {
 
 import { reduce, add } from '../pigeon/index.js'
 
+// 满足要求的内容
 const available = {
   mode: [0, 1],
   scene: ['p', 'g', 'a']
 }
 
 // 学习
-async function learn(context, params) {
+export const learn = async (context, params) => {
   if (!(await reduce(context.user_id, global.config.corpus.add, '添加关键字'))) {
     return await replyMsg(context, '鸽子不足~')
   }
@@ -119,7 +120,7 @@ async function learn(context, params) {
 }
 
 //忘记
-async function forget(context, params) {
+export const forget = async (context, params) => {
   if (!(await reduce(context.user_id, global.config.corpus.delete, '删除关键字'))) {
     return await replyMsg(context, '鸽子不足~')
   }

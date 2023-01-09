@@ -11,7 +11,7 @@ function event() {
   })
 }
 
-function repeat(context) {
+export const repeat = async context => {
   if (!global.config.repeat.data[context.group_id]) {
     global.config.repeat.data[context.group_id] = {
       message: context.message,
@@ -29,21 +29,21 @@ function repeat(context) {
     } else {
       //增加计数(并且不是同一个人)
       if (!global.config.repeat.data[context.group_id].user_id.includes(context.user_id)) {
-        global.config.repeat.data[context.group_id].user_id.push(context.user_id);
-        global.config.repeat.data[context.group_id].count++;
+        global.config.repeat.data[context.group_id].user_id.push(context.user_id)
+        global.config.repeat.data[context.group_id].count++
         //判断次数
         if (global.config.repeat.data[context.group_id].count === global.config.repeat.times) {
-          setTimeout(() => {
-            replyMsg(context, context.message)
-          }, 2000);
+          setTimeout(async () => {
+            await replyMsg(context, context.message)
+          }, 2000)
         }
       }
     }
   }
   //所有规则外还有一定概率触发
   if (randomMaxToMin(100, 0.00001) <= global.config.repeat.commonProb) {
-    setTimeout(() => {
-      replyMsg(context, context.message)
-    }, 2000);
+    setTimeout(async () => {
+      await replyMsg(context, context.message)
+    }, 2000)
   }
 }

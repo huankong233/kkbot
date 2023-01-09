@@ -17,7 +17,7 @@ export const getDynamicInfo = async id => {
   }
 }
 
-const parseDynamicCard = ({
+export const parseDynamicCard = ({
   desc: {
     type,
     dynamic_id_str,
@@ -51,7 +51,7 @@ const parseDynamicCard = ({
   return data
 }
 
-const dynamicCard2msg = async (card, forPush = false) => {
+export const dynamicCard2msg = async (card, forPush = false) => {
   if (!card) {
     if (forPush) return null
     return {
@@ -82,9 +82,9 @@ const dynamicCard2msg = async (card, forPush = false) => {
   }
 }
 
-const ifArray = (cond, ...items) => (cond ? items : [])
+export const ifArray = (cond, ...items) => (cond ? items : [])
 
-const formatters = {
+export const formatters = {
   // 转发
   1: async ({ origin, card }, forPush = false) => [
     CQ.escape(purgeLinkInText(card.item.content.trim())),
@@ -104,9 +104,9 @@ const formatters = {
       item: { description, pictures }
     }
   }) => [
-      CQ.escape(purgeLinkInText(description.trim())),
-      ...pictures.map(({ img_src }) => CQ.image(img_src))
-    ],
+    CQ.escape(purgeLinkInText(description.trim())),
+    ...pictures.map(({ img_src }) => CQ.image(img_src))
+  ],
 
   // 文字动态
   4: ({ card: { item }, vote }) => {
@@ -166,23 +166,19 @@ const formatters = {
     card: {
       sketch: { title, cover_url, target_url }
     }
-  }) => [
-      CQ.image(cover_url),
-      CQ.escape(title),
-      CQ.escape(purgeLink(target_url))
-    ],
+  }) => [CQ.image(cover_url), CQ.escape(title), CQ.escape(purgeLink(target_url))],
 
   // 直播
   4200: ({
     card: { title, cover, roomid, short_id, area_v2_parent_name, area_v2_name, live_status, online }
   }) => [
-      CQ.image(cover),
-      CQ.escape(title),
-      `房间号：${roomid}${short_id ? `  短号：${short_id}` : ''}`,
-      `分区：${area_v2_parent_name}${area_v2_parent_name === area_v2_name ? '' : `-${area_v2_name}`}`,
-      live_status ? `直播中  ${humanNum(online)}人气` : '未开播',
-      `https://live.bilibili.com/${short_id || roomid}`
-    ],
+    CQ.image(cover),
+    CQ.escape(title),
+    `房间号：${roomid}${short_id ? `  短号：${short_id}` : ''}`,
+    `分区：${area_v2_parent_name}${area_v2_parent_name === area_v2_name ? '' : `-${area_v2_name}`}`,
+    live_status ? `直播中  ${humanNum(online)}人气` : '未开播',
+    `https://live.bilibili.com/${short_id || roomid}`
+  ],
 
   // 直播
   4308: ({
@@ -190,11 +186,11 @@ const formatters = {
       live_play_info: { cover, title, room_id, parent_area_name, area_name, live_status, online }
     }
   }) => [
-      CQ.image(cover),
-      CQ.escape(title),
-      `房间号：${room_id}`,
-      `分区：${parent_area_name}${parent_area_name === area_name ? '' : `-${area_name}`}`,
-      live_status ? `直播中  ${humanNum(online)}人气` : '未开播',
-      `https://live.bilibili.com/${room_id}`
-    ]
+    CQ.image(cover),
+    CQ.escape(title),
+    `房间号：${room_id}`,
+    `分区：${parent_area_name}${parent_area_name === area_name ? '' : `-${area_name}`}`,
+    live_status ? `直播中  ${humanNum(online)}人气` : '未开播',
+    `https://live.bilibili.com/${room_id}`
+  ]
 }
