@@ -16,7 +16,7 @@ async function event() {
   RegEvent('message', async (event, context, tags) => {
     if (context.command) {
       if (context.command.name === '检查更新') {
-        await checkUpdate()
+        await checkUpdate(true)
       }
     }
   })
@@ -25,7 +25,7 @@ async function event() {
 //检查更新
 import fs from 'fs'
 import { compare } from 'compare-versions'
-export const checkUpdate = async () => {
+export const checkUpdate = async (manual = false) => {
   const { proxy, url } = global.config.update
   try {
     const remote_version = (await fetch(proxy + url)).version
@@ -37,6 +37,12 @@ export const checkUpdate = async () => {
         ['kkbot有更新哟~', `最新版本${remote_version} | 当前版本${local_version}`].join('\n')
       )
       clearInterval(global.config.update.id)
+    }
+    if (manual && compare(local_version, remote_version, '=')) {
+      await sendMsg(
+        global.config.bot.admin,
+        ['kkbot无需更新哟~', `最新版本${remote_version}`, `当前版本${local_version}`].join('\n')
+      )
     }
   } catch (error) {
     global.config.update.count++

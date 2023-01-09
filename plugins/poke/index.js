@@ -7,7 +7,12 @@ export default () => {
 
 function event() {
   RegEvent('notice', async context => {
-    if (context.notice_type === 'notify' && context.sub_type === 'poke') {
+    console.log(context)
+    if (
+      context.notice_type === 'notify' &&
+      context.sub_type === 'poke' &&
+      context.target_id === context.self_id
+    ) {
       await poke(context)
     }
   })
