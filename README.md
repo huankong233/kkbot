@@ -5,6 +5,7 @@ Docker:https://hub.docker.com/r/huankong233/kkbot
 # 🤖空空bot
 这只是一个简单的QQ框架和简单的实现
 插件有高耦合性，如果需要删除需要谨慎
+## [更新日志](./CHANGELOG.md)
 
 # 🎉使用方法
 
@@ -99,6 +100,7 @@ function handler(context){
 ~~~javascript
 export default () => {
   //读取配置文件的方法是 global.config.配置名
+  //具体可以看源码
   loadConfig('配置名.jsonc', true)
   event()
 }

@@ -90,8 +90,6 @@ export async function imgAntiShielding(img, mode) {
  * 随机修改四角像素
  * @param {Jimp} img
  */
-import _ from 'lodash'
-const { random } = _
 export function randomModifyPixels(img) {
   const [w, h] = [img.getWidth(), img.getHeight()]
   const pixels = [
@@ -101,6 +99,10 @@ export function randomModifyPixels(img) {
     [w - 1, h - 1]
   ]
   for (const [x, y] of pixels) {
-    img.setPixelColor(Jimp.rgbaToInt(random(255), random(255), random(255), 1), x, y)
+    img.setPixelColor(
+      Jimp.rgbaToInt(randomMaxToMin(255), randomMaxToMin(255), randomMaxToMin(255), 1),
+      x,
+      y
+    )
   }
 }

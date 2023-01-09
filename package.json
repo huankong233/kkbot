@@ -1,6 +1,6 @@
 {
   "name": "kkbot",
-  "version": "0.0.2.3",
+  "version": "0.0.2.4",
   "description": "simple qqbot",
   "type": "module",
   "scripts": {
@@ -15,15 +15,11 @@
   "license": "MIT",
   "dependencies": {
     "@tsuk1ko/cq-websocket": "^2.3.1",
-    "axios": "^1.2.0",
-    "cheerio": "^1.0.0-rc.12",
-    "formdata-node": "^5.0.0",
     "go-cqwebsocket": "^6.2.2",
     "image_searcher": "^0.0.6",
     "jimp": "^0.16.2",
     "jsonc": "^2.0.0",
     "knex": "^2.3.0",
-    "lodash": "^4.17.21",
     "mysql2": "^2.3.3",
     "node-emoji": "^1.11.0",
     "node-fetch": "^3.3.0",
