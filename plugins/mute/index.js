@@ -18,13 +18,13 @@ function event() {
 export const mute = async context => {
   if (context.group_id !== undefined) {
     //判断对方信息
-    const state = await bot('get_group_member_info', {
+    const state = await global.bot('get_group_member_info', {
       group_id: context.group_id,
       user_id: context.user_id,
       no_cache: true
     })
     //判断自己信息
-    const bot = await bot('get_group_member_info', {
+    const bot = await global.bot('get_group_member_info', {
       group_id: context.group_id,
       user_id: context.self_id,
       no_cache: true
@@ -36,7 +36,7 @@ export const mute = async context => {
       return replyMsg(context, '没你官大(')
     }
     const muteTime = randomMaxToMin(global.config.mute.time[1], global.config.mute.time[0])
-    await bot('set_group_ban', {
+    await global.bot('set_group_ban', {
       group_id: context.group_id,
       user_id: context.user_id,
       duration: muteTime
