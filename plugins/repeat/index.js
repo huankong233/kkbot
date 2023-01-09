@@ -41,7 +41,7 @@ export const repeat = async context => {
     }
   }
   //所有规则外还有一定概率触发
-  if (randomMaxToMin(100, 0.00001) <= global.config.repeat.commonProb) {
+  if (Math.random() * 100 <= global.config.repeat.commonProb) {
     setTimeout(async () => {
       await replyMsg(context, context.message)
     }, 2000)

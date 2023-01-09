@@ -31,15 +31,3 @@ export const phlogo = async context => {
     await replyMsg(context, `参数不足，请发送"${global.config.bot.prefix}帮助 phlogo"查看帮助`)
   }
 }
-
-import url from 'node:url'
-import path from 'node:path'
-Object.defineProperty(global, 'getDirName', {
-  get() {
-    return importMetaUrl => {
-      return path.dirname(url.fileURLToPath(importMetaUrl))
-    }
-  },
-  enumerable: true,
-  configurable: false
-})

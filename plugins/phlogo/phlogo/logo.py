@@ -2,7 +2,7 @@ from os.path import dirname
 
 from PIL import Image, ImageDraw, ImageFont
 
-FONT_DIR = dirname(__file__) + "/resource/font.ttf"
+FONT_DIR = dirname(__file__) + "/../../../resources/font/phlogo.ttf"
 
 LEFT_PART_VERTICAL_BLANK_MULTIPLY_FONT_HEIGHT = 2
 LEFT_PART_HORIZONTAL_BLANK_MULTIPLY_FONT_WIDTH = 1 / 4
