@@ -31,7 +31,11 @@ export const dinggong = async context => {
     //语音回复
     await replyMsg(
       context,
-      CQ.record(`file:///${path + records[randomMaxToMin(records.length - 1, 0)]}`)
+      CQ.record(
+        `${process.platform === 'win32' ? 'file:///' : ''}${
+          path + records[randomMaxToMin(records.length - 1, 0)]
+        }`
+      )
     )
   } else {
     //正常回复
