@@ -24,7 +24,6 @@ export const phlogo = async context => {
       const buf = Buffer.from(data)
       await replyMsg(context, CQ.image(buf.toString()))
     } catch (error) {
-      console.log(error)
       await replyMsg(context, '制作失败')
     }
   } else {
