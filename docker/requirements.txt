@@ -1,4 +1,1 @@
 Pillow
-ImageHash
-opencv-python
-matplotlib
