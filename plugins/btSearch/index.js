@@ -37,10 +37,12 @@ export const init = async context => {
     CQ.node(
       global.config.bot.botName,
       context.self_id,
-      [
-        `共${data.lastPage}页`,
-        `可使用命令"${global.config.bot.prefix}BT搜索 ${keyword} 指定页数"来进行翻页`
-      ].join('\n')
+      data.lastPage === '获取失败或只有一页'
+        ? data.lastPage
+        : [
+            `共${data.lastPage}页`,
+            `可使用命令"${global.config.bot.prefix}BT搜索 ${keyword} 指定页数"来进行翻页`
+          ].join('\n')
     )
   ]
   data.data.forEach(datum => {
@@ -111,8 +113,8 @@ export const parse = html => {
 //获取总页数
 export const getLastPage = html => {
   const $ = cheerio.load(html, { decodeEntities: true })
-  const last = $('.last_p', html).html().match('_rel_(.*).html')[1]
-  return last ? last : '获取失败'
+  const last = $('.last_p', html)
+  return last ? last.html().match('_rel_(.*).html')[1] : '获取失败或只有一页'
 }
 
 //获取磁力地址
