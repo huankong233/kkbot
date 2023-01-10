@@ -241,7 +241,7 @@ import fs from 'fs'
 import fetch from 'node-fetch'
 //下载图片
 export const downloadFile = async (url, filePath, fileName) => {
-  if (!base64 && !fs.existsSync(filePath)) {
+  if (!fs.existsSync(filePath)) {
     fs.mkdirSync(filePath)
   }
   const res = await fetch(url)
