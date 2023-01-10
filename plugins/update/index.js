@@ -34,7 +34,7 @@ export const checkUpdate = async (manual = false) => {
       //需要更新，通知admin
       await sendMsg(
         global.config.bot.admin,
-        ['kkbot有更新哟~', `最新版本${remote_version} | 当前版本${local_version}`].join('\n')
+        ['kkbot有更新哟~', `最新版本${remote_version}`, `当前版本${local_version}`].join('\n')
       )
       clearInterval(global.config.update.id)
     }
