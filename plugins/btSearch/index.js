@@ -113,8 +113,8 @@ export const parse = html => {
 //获取总页数
 export const getLastPage = html => {
   const $ = cheerio.load(html, { decodeEntities: true })
-  const last = $('.last_p', html)
-  return last ? last.html().match('_rel_(.*).html')[1] : '获取失败或只有一页'
+  const last = $('.last_p', html).html()
+  return last ? last.match('_rel_(.*).html')[1] : '获取失败或只有一页'
 }
 
 //获取磁力地址
