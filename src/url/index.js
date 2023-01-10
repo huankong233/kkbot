@@ -14,8 +14,12 @@ const bannedHosts = ['danbooru.donmai.us', 'konachan.com', 'fanbox.cc', 'pixiv.n
 export function confuseURL(url, force) {
   url = pixivShorten(url)
   if (force) {
-    const host = url.match('(http|https)://(.*)/')[2]
-    return url.replace('//', '//\u200B').replace(host, host.replace(/\./g, '.\u200B'))
+    const host = url.match('(http|https)://(.*)/')
+    if (host) {
+      return url.replace('//', '//\u200B').replace(host[2], host[2].replace(/\./g, '.\u200B'))
+    } else {
+      return url
+    }
   }
   for (const host of bannedHosts) {
     if (url.includes(host)) {
