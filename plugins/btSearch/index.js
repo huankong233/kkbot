@@ -81,7 +81,7 @@ export const init = async context => {
 
 import fetch from 'node-fetch'
 //搜索
-export const search = async (keyword, page, count = 1) => {
+export const search = async (keyword, page, count = 0) => {
   const url = `${global.config.searchBt.site}/s/${keyword}_rel_${page}.html`
   try {
     const html = await fetch(url).then(res => res.text())

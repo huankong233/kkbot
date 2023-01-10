@@ -226,7 +226,7 @@ export const search = context => {
           }
         ])
 
-        parse(context, responseData, imageUrl)
+        await parse(context, responseData, imageUrl)
 
         //删除文件
         fs.unlinkSync(imagePath)
@@ -267,6 +267,7 @@ export const request = async callbacks => {
       }
       const end = performance.now()
       obj.cost = end - start
+      console.log(item.name + '已完成')
       responseData.push(obj)
     } catch (error) {
       responseData.push({ success: false, name: item.name, res: null })
@@ -293,7 +294,7 @@ export const parse = async (context, res, originUrl) => {
           switch (datum.name) {
             case 'ascii2d':
               message += [
-                `${await antiShielding(item.image)}`,
+                `${CQ.image(item.image)}`,
                 `图片信息:${item.info}`,
                 `链接:${confuseURL(item.source.link, true)}`,
                 `${
@@ -302,13 +303,12 @@ export const parse = async (context, res, originUrl) => {
                         item.author.link ? confuseURL(item.author.link, true) : ''
                       })\n`
                     : ''
-                }`,
-                ``
+                }`
               ].join('\n')
               break
             case 'SauceNAO':
               message += [
-                `${await antiShielding(item.image)}`,
+                `${CQ.image(item.image)}`,
                 `标题: ${item.title}`,
                 `相似度: ${item.similarity}`,
                 `图片信息:`,
@@ -328,28 +328,25 @@ export const parse = async (context, res, originUrl) => {
                   }
                 }
               })
-              message += '\n'
               break
             case 'IqDB':
               message += [
-                `${await antiShielding(item.image)}`,
+                `${CQ.image(item.image)}`,
                 `分辨率: ${item.resolution}`,
                 `相似度: ${item.similarity}`,
                 `链接: ${confuseURL(item.url, true)}`,
-                ``,
                 ``
               ].join('\n')
               break
             case 'TraceMoe':
               message += [
-                `${await antiShielding(item.preview)}`,
+                `${CQ.image(item.preview)}`,
                 `相似度: ${item.similarity}`,
                 `文件名: ${item.file}`,
                 `动漫名: ${item.name.native}`,
                 `NSFW: ${item.nsfw}`,
                 `集数: ${item.episode}`,
                 `大概位置: ${formatTime(item.from)}——${formatTime(item.to)}`,
-                ``,
                 ``
               ].join('\n')
               break
@@ -361,24 +358,25 @@ export const parse = async (context, res, originUrl) => {
                 `类型: ${item.type}`,
                 `标签: ${item.tags.toString()}`,
                 `地址: ${confuseURL(item.link, true)}`,
-                ``,
                 ``
               ].join('\n')
               break
             case 'Yandex':
               message += [
-                `${await antiShielding(`https:${item.thumb.url}`)}`,
+                `${CQ.image(`https:${item.thumb.url}`)}`,
                 `标题: ${item.snippet.title}`,
                 `内容: ${item.snippet.text}`,
                 `来源: ${confuseURL(item.snippet.url, true)}`,
-                ``,
                 ``
               ].join('\n')
               break
           }
         }
       }
-      messages.push(CQ.node(global.config.bot.botName, context.self_id, message.slice(0, -1)))
+      const node = CQ.node(global.config.bot.botName, context.self_id, message)
+      messages.push(node)
+      console.log(node)
+      console.log(messages)
     } else {
       messages.push(
         CQ.node(
@@ -393,7 +391,9 @@ export const parse = async (context, res, originUrl) => {
   })
 
   //发送
+  console.log(messages)
   const data = await send_forward_msg(context, messages)
+  console.log(data)
   if (data.status === 'failed') {
     await replyMsg(context, '发送合并消息失败，可以尝试私聊我哦~(鸽子已返还)')
     let count = 0
@@ -415,14 +415,33 @@ import Jimp from 'jimp'
 import { imgAntiShielding } from '../setu/AntiShielding.js'
 export const antiShielding = async (url, cookie) => {
   //反和谐
-  const img = await Jimp.read(
-    Buffer.from(
-      await fetch(url, {
-        method: 'get',
-        headers: { 'Content-Type': 'application/octet-stream', cookie }
-      }).then(res => res.arrayBuffer())
-    )
-  )
-  const base64 = await imgAntiShielding(img, global.config.searchImage.antiShieldingMode)
+  const img = await getImg(url, cookie)
+  let base64
+  if (img === '获取失败') {
+    base64 = ''
+  } else {
+    base64 = await imgAntiShielding(img, global.config.searchImage.antiShieldingMode)
+  }
   return CQ.image(`base64://${base64}`)
+}
+
+export const getImg = async (url, cookie, count = 0) => {
+  let img
+  try {
+    img = await Jimp.read(
+      Buffer.from(
+        await fetch(url, {
+          method: 'get',
+          headers: { 'Content-Type': 'application/octet-stream', cookie }
+        }).then(res => res.arrayBuffer())
+      )
+    )
+  } catch (error) {
+    count++
+    if (count === 10) {
+      return '获取失败'
+    }
+    return getImg(url, cookie, count)
+  }
+  return img
 }
