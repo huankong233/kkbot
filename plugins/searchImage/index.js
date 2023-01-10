@@ -267,7 +267,6 @@ export const request = async callbacks => {
       }
       const end = performance.now()
       obj.cost = end - start
-      console.log(item.name + '已完成')
       responseData.push(obj)
     } catch (error) {
       responseData.push({ success: false, name: item.name, res: null })
@@ -375,8 +374,6 @@ export const parse = async (context, res, originUrl) => {
       }
       const node = CQ.node(global.config.bot.botName, context.self_id, message)
       messages.push(node)
-      console.log(node)
-      console.log(messages)
     } else {
       messages.push(
         CQ.node(
@@ -391,9 +388,7 @@ export const parse = async (context, res, originUrl) => {
   })
 
   //发送
-  console.log(messages)
   const data = await send_forward_msg(context, messages)
-  console.log(data)
   if (data.status === 'failed') {
     await replyMsg(context, '发送合并消息失败，可以尝试私聊我哦~(鸽子已返还)')
     let count = 0
