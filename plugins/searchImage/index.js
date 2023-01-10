@@ -398,7 +398,7 @@ export const parse = async (context, res, originUrl) => {
     await replyMsg(context, '发送合并消息失败，可以尝试私聊我哦~(鸽子已返还)')
     let count = 0
     res.forEach(item => (item.success ? count++ : void 0))
-    await add(context.user_id, global.config.searchImage.claim * count, `合并消息发送失败赔偿`)
+    await add(context.user_id, global.config.searchImage.claim * count, `搜图合并消息发送失败赔偿`)
   }
 }
 

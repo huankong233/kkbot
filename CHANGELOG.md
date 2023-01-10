@@ -2,6 +2,11 @@
 
 ## 2023
 
+### 01-09 v0.0.3.2
+- 更新插件`simpleApiCall`可以深夜哭哭了
+- 新增插件`btSearch`
+- 更新插件`phlogo`消耗鸽子咯
+
 ### 01-09 v0.0.3.1
 - 修复插件`imageSearch`的优化后bug
 

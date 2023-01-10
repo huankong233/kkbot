@@ -1,4 +1,5 @@
 export default () => {
+  loadConfig('apiCall.jsonc', true)
   global.prprmeCode = {}
 
   event()
@@ -9,16 +10,19 @@ function event() {
   RegEvent('message', async (event, context, tags) => {
     if (context.command) {
       if (context.command.name === '舔狗日记') {
-        dog(context)
+        await dog(context)
       } else if (context.command.name === '一言') {
-        oneSay(context)
+        await oneSay(context)
       } else if (context.command.name === '能不能好好说话') {
-        guess(context)
+        await guess(context)
       } else if (context.command.name === '舔我') {
-        prprme(context)
+        await prprme(context)
       } else if (context.command.name === '别舔了') {
-        stoprprme(context)
+        await stoprprme(context)
       }
+    }
+    if (context.message.match('^(到点了|12点了|生而为人)$')) {
+      await comments_163(context)
     }
   })
 }
@@ -85,4 +89,20 @@ export const stoprprme = async context => {
       message: '呜呜，对不起惹你生气了'
     })
   }
+}
+
+export const comments_163 = async context => {
+  const data = await fetch(
+    'https://v2.alapi.cn/api/comment',
+    { token: global.config.apiCall.alapi_token },
+    'POST'
+  )
+  await replyMsg(
+    context,
+    [
+      `歌名:${data.data.title}`,
+      `${data.data.comment_nickname}说:${data.data.comment_content}`
+    ].join('\n')
+  )
+  await replyMsg(context, CQ.music('163', data.data.song_id))
 }
