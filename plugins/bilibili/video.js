@@ -4,9 +4,7 @@ import { humanNum } from './humanNum.js'
 
 export const getVideoInfo = async param => {
   try {
-    const data = await request(
-      `https://api.bilibili.com/x/web-interface/view?${stringify(param)}`
-    )
+    const data = await request(`https://api.bilibili.com/x/web-interface/view?${stringify(param)}`)
 
     if (data.code === -404) return { text: '该视频已被删除', reply: true }
     if (data.code !== 0) return { text: data.message, reply: true }

@@ -32,28 +32,26 @@ const isCtxMatchScence = ({ message_type }, scence) => {
   return ENUM_SCENCE[scence].includes(message_type)
 }
 
-export const corpus = async ctx => {
+export const corpus = async context => {
   const rules = global.config.corpus.data
-  let stop = false
-
   for (let { regexp, reply, scene } of rules) {
-    if ([regexp, reply, scene].some(v => !(typeof v === 'string' && v.length))) continue
-    if (!isCtxMatchScence(ctx, scene)) continue
+    // 判断生效范围
+    if (!isCtxMatchScence(context, scene)) continue
 
+    // 执行正则判断
     const reg = new RegExp(regexp)
-    const exec = reg.exec(ctx.message)
+    const exec = reg.exec(context.message)
     if (!exec) continue
 
-    stop = true
-    reply = reply.replace(/\[CQ:at\]/g, ctx.message_type === 'private' ? '' : CQ.at(ctx.user_id))
+    reply = reply.replace(
+      /\[CQ:at\]/g,
+      context.message_type === 'private' ? '' : CQ.at(context.user_id)
+    )
 
     let msg = exec[0].replace(reg, reply)
     msg = emoji.emojify(msg, name => name)
-    if (msg.length) await replyMsg(ctx, msg)
-    break
+    if (msg.length) await replyMsg(context, msg)
   }
-
-  return stop
 }
 
 export const loadRules = async () => {
@@ -92,10 +90,25 @@ export const learn = async (context, params) => {
   }
 
   const user_id = context.user_id
-  const keyword = emoji.unemojify(params[0])
-  const mode = parseInt(params[1])
-  const reply = emoji.unemojify(params[2])
-  const scene = params[3]
+
+  const messages = CQ.parse(params[0].trim())
+  let keyword, mode
+
+  let type = null
+  for (let i = 0; i < messages.length; i++) {
+    const message = messages[i]
+    if (type === null) {
+      type = message._type
+      type === 'text'
+        ? ([keyword, mode] = [emoji.unemojify(message._data.text), parseInt(params[1].trim())])
+        : ([keyword, mode] = [`\[CQ:image,file=${message.file}`, 0])
+    } else {
+      return await replyMsg(context, `不能同时存在图片或文字哦~`)
+    }
+  }
+
+  const reply = emoji.unemojify(params[2].trim())
+  const scene = params[3].trim()
 
   //判断参数是否合法
   if (!available.mode.includes(mode)) {
@@ -110,12 +123,13 @@ export const learn = async (context, params) => {
   if (repeat.length !== 0) {
     return await replyMsg(context, '这个"触发词"已经存在啦~')
   }
+
   if (await database.insert({ user_id, keyword, mode, reply, scene }).into('corpus')) {
     await loadRules()
     await replyMsg(context, `${global.config.bot.botName}学会啦~`)
   } else {
     await replyMsg(context, '学习失败~')
-    await add(context.user_id, global.config.corpus.add, '添加关键字')
+    await add(user_id, global.config.corpus.add, '添加关键字')
   }
 }
 

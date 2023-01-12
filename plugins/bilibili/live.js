@@ -2,7 +2,9 @@ import { humanNum } from './humanNum.js'
 import { request } from './utils.js'
 
 export const getLiveRoomInfo = async id => {
-  const data = await request(`https://api.live.bilibili.com/xlive/web-room/v1/index/getInfoByRoom?room_id=${id}`).catch(e => {
+  const data = await request(
+    `https://api.live.bilibili.com/xlive/web-room/v1/index/getInfoByRoom?room_id=${id}`
+  ).catch(e => {
     msgToConsole(`[error] bilibili get live room info ${id}`)
     console.log(e)
   })
