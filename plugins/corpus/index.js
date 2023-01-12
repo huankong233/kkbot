@@ -101,7 +101,7 @@ export const learn = async (context, params) => {
       type = message._type
       type === 'text'
         ? ([keyword, mode] = [emoji.unemojify(message._data.text), parseInt(params[1].trim())])
-        : ([keyword, mode] = [`\[CQ:image,file=${message.file}`, 0])
+        : ([keyword, mode] = [`\\[CQ:image,file=${message.file}`, 0])
     } else {
       return await replyMsg(context, `不能同时存在图片或文字哦~`)
     }

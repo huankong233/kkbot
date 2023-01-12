@@ -66,7 +66,9 @@ export const checkUpdate = async (manual = false, context) => {
   } catch (error) {
     global.config.update.count++
     if (global.config.update.count === global.config.update.max) {
-      const message = ['检查更新失败', `当前版本${local_version} | 请检查您的网络状况！`].join('\n')
+      const message = ['检查更新失败', `当前版本${local_version}`, `请检查您的网络状况！`].join(
+        '\n'
+      )
       if (manual) {
         await replyMsg(context, message)
       } else {
