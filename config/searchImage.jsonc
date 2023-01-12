@@ -28,5 +28,6 @@
   //EHcookie
   "EH_COOKIE": "ipb_member_id=6773575; ipb_pass_hash=9cc89d0027f6aa2f50e3abab957bc50c; igneous=f98299522",
   //反和谐
-  "antiShieldingMode": 4
+  "antiShieldingMode": 4,
+  "try": 10
 }

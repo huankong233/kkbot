@@ -433,7 +433,7 @@ export const getImg = async (url, cookie, count = 0) => {
     )
   } catch (error) {
     count++
-    if (count === 10) {
+    if (count === global.config.searchImage.try) {
       return '获取失败'
     }
     return getImg(url, cookie, count)

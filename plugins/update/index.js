@@ -26,6 +26,7 @@ async function event() {
 //检查更新
 import fs from 'fs'
 import { compare } from 'compare-versions'
+import { isToday } from '../gugu/index.js'
 export const checkUpdate = async (manual = false, context) => {
   const { proxy, url } = global.config.update
   try {
@@ -43,8 +44,18 @@ export const checkUpdate = async (manual = false, context) => {
       } else {
         await sendMsg(global.config.bot.admin, message)
       }
-
       clearInterval(global.config.update.id)
+      //开启新的计时器
+      global.config.update.now = Date.now()
+      global.config.update.nextDay = setInterval(() => {
+        //第二天了,开启新的计时器
+        if (isToday(global.config.update.now)) {
+          global.config.update.id = setInterval(async () => {
+            await checkUpdate()
+          }, global.config.update.hz)
+          clearInterval(global.config.update.nextDay)
+        }
+      }, 1000 * 60 * 60)
     }
     if (manual && compare(local_version, remote_version, '=')) {
       await replyMsg(
