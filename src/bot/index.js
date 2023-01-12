@@ -19,6 +19,9 @@ export const newBot = async () => {
     //注册全局变量
     globalReg({ bot, CQ })
 
+    //修改时区
+    process.env.TZ = global.config.bot.timeZone
+
     //连接相关监听
     bot.on('socket.open', (wsType, attempts) => msgToConsole(`连接中[${wsType}]#${attempts}`))
 
