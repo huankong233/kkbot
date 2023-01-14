@@ -420,7 +420,7 @@ export const antiShielding = async (url, cookie) => {
   return CQ.image(`base64://${base64}`)
 }
 
-export const getImg = async (url, cookie, count = 0) => {
+export const getImg = async (url, cookie = '', count = 0) => {
   let img
   try {
     img = await Jimp.read(
