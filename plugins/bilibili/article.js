@@ -7,14 +7,13 @@ export const getArticleInfo = async id => {
     console.log(e)
     return null
   })
+
   let {
     data: {
-      data: {
-        stats: { view, reply },
-        title,
-        author_name,
-        origin_image_urls: [img]
-      }
+      stats: { view, reply },
+      title,
+      author_name,
+      origin_image_urls: [img]
     }
   } = data
 
