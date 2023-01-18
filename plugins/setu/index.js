@@ -102,7 +102,7 @@ export const setu = async (context, match) => {
           .into('setu')
       }
     } catch (error) {
-      await replyMsg(context, '色图发送失败(\n502')
+      await replyMsg(context, '色图服务器爆炸惹')
       await reduce(context.user_id, global.config.setu.pigeon, '色图加载失败')
     }
   }
