@@ -27,9 +27,11 @@ function event() {
   })
 }
 
+import req from 'node-fetch'
+
 export const dog = async context => {
-  const data = await fetch('https://api.oick.cn/dog/api.php')
-  await replyMsg(context, data)
+  const data = await req('https://api.oick.cn/dog/api.php').then(res => res.text())
+  await replyMsg(context, data.slice(1, -1))
 }
 
 export const oneSay = async context => {

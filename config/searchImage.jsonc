@@ -5,6 +5,8 @@
   "claim": 5,
   //限制显示数量
   "limit": 3,
+  //是否使用代理
+  "ascii2dProxy": true,
   //搜图之后自动退出搜图模式
   "autoLeave": {
     //是否开启

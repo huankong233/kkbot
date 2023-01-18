@@ -170,7 +170,8 @@ export const search = context => {
             callback: ascii2d,
             params: {
               type: 'bovw',
-              imagePath
+              imagePath,
+              proxy: global.config.searchImage.ascii2dProxy
             }
           },
           {

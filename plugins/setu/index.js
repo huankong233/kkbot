@@ -19,7 +19,7 @@ import { reduce } from '../pigeon/index.js'
 import { isToday } from '../gugu/index.js'
 import { imgAntiShielding } from './AntiShielding.js'
 import Jimp from 'jimp'
-import fetch from 'node-fetch'
+import req from 'node-fetch'
 
 export const setu = async (context, match) => {
   const user_id = context.user_id
@@ -69,11 +69,11 @@ export const setu = async (context, match) => {
       const shortUrlData = await fetch(
         `https://url.huankong.top/api/url?url=https://www.pixiv.net/artworks/${responseData.pid}`,
         {},
-        'POST'
+        'GET'
       )
       //反和谐
       const img = await Jimp.read(
-        Buffer.from(await fetch(responseData.urls.original).then(res => res.arrayBuffer()))
+        Buffer.from(await req(responseData.urls.original).then(res => res.arrayBuffer()))
       )
       const base64 = await imgAntiShielding(img, global.config.setu.antiShieldingMode)
       const message_data = `${CQ.image(`base64://${base64}`)}\n标题:${
@@ -102,7 +102,7 @@ export const setu = async (context, match) => {
           .into('setu')
       }
     } catch (error) {
-      await replyMsg(context, '色图发送失败(')
+      await replyMsg(context, '色图发送失败(\n502')
       await reduce(context.user_id, global.config.setu.pigeon, '色图加载失败')
     }
   }
