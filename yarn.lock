@@ -1327,10 +1327,10 @@ image-q@^4.0.0:
   dependencies:
     "@types/node" "16.9.1"
 
-image_searcher@^0.0.7:
-  version "0.0.7"
-  resolved "https://registry.yarnpkg.com/image_searcher/-/image_searcher-0.0.7.tgz#d9ee353314c32801ff8d4b9d6cc820e46797d89b"
-  integrity sha512-KALW4MTcC2oQqWD7FWTLsozYL4DOAOhqf+HMqItUyl669UT5Wpklvb5MAMRV+nhJcHdQXGVnNvoB+vWln//qGg==
+image_searcher@^0.0.8:
+  version "0.0.8"
+  resolved "https://registry.yarnpkg.com/image_searcher/-/image_searcher-0.0.8.tgz#1fe19ee14a921fac2badab8a45b46d542a428ad6"
+  integrity sha512-rn41p0Rm5dWA/mUKaJkNQUYHJoLTaP9wvv4hQj8P6E0/iGyGC0v+KMBNL5ZgCNl9yJb1BARoyFTDmdqHIDuHEQ==
   dependencies:
     cheerio "^1.0.0-rc.12"
     formdata-node "^5.0.0"
