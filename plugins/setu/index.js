@@ -50,7 +50,8 @@ export const setu = async (context, match) => {
 
     const data = {
       r18: match[1] ? 1 : 0,
-      tag: []
+      tag: [],
+      proxy: global.config.setu.proxy.enable ? global.config.setu.proxy.url : 'i.pximg.net'
     }
     if (match[2]) {
       const groupOut = match[2].split('&amp;')
@@ -59,51 +60,92 @@ export const setu = async (context, match) => {
         data.tag.push(groupIn)
       })
     }
+
+    let responseData
+
     try {
-      let responseData = (await fetch('https://api.lolicon.app/setu/v2', data, 'POST')).data
-      if (responseData.length === 0) {
-        return await replyMsg(context, '换个标签试试吧~')
-      } else {
-        responseData = responseData[0]
-      }
-      const shortUrlData = await fetch(
+      responseData = (await fetch('https://api.lolicon.app/setu/v2', data, 'POST')).data
+    } catch (error) {
+      await replyMsg(context, '色图服务器爆炸惹')
+      await reduce(context.user_id, global.config.setu.pigeon, '色图加载失败')
+      return 0
+    }
+
+    if (responseData.length === 0) {
+      return await replyMsg(context, '换个标签试试吧~')
+    } else {
+      responseData = responseData[0]
+    }
+
+    let shortUrlData
+
+    try {
+      shortUrlData = await fetch(
         `https://url.huankong.top/api/url?url=https://www.pixiv.net/artworks/${responseData.pid}`,
         {},
         'GET'
       )
-      //反和谐
-      const img = await Jimp.read(
-        Buffer.from(await req(responseData.urls.original).then(res => res.arrayBuffer()))
-      )
-      const base64 = await imgAntiShielding(img, global.config.setu.antiShieldingMode)
-      const message_data = `${CQ.image(`base64://${base64}`)}\n标题:${
-        responseData.title
-      }\n作品地址:${shortUrlData.url}`
-      const message = await replyMsg(context, message_data, false)
-      if (message.status === 'ok') {
-        setTimeout(async () => {
-          //撤回消息
-          await bot('delete_msg', {
-            message_id: message.data.message_id
-          })
-        }, global.config.setu.withdraw * 1000)
-      }
-      if (message.status === 'failed') {
-        await replyMsg(context, '色图发送失败(')
-        await reduce(context.user_id, global.config.setu.pigeon, '色图加载失败')
-      } else {
-        //更新数据
-        await database
-          .update({
-            count,
-            update_time: Date.now()
-          })
-          .where('user_id', user_id)
-          .into('setu')
-      }
     } catch (error) {
-      await replyMsg(context, '色图服务器爆炸惹')
+      await replyMsg(context, '短链服务器爆炸惹')
       await reduce(context.user_id, global.config.setu.pigeon, '色图加载失败')
+      return 0
+    }
+
+    const info_data = [
+      `标题:${responseData.title}`,
+      `作品地址:${shortUrlData.url}`,
+      '图片还在路上哦~坐和放宽~'
+    ].join('\n')
+    const info_message = await replyMsg(context, info_data, false)
+
+    let image
+
+    try {
+      image = await req(responseData.urls.original, {
+        headers: { Referer: 'https://www.pixiv.net/' }
+      }).then(res => res.arrayBuffer())
+    } catch (error) {
+      await replyMsg(context, '图片获取失败惹')
+      await reduce(context.user_id, global.config.setu.pigeon, '色图加载失败')
+      return 0
+    }
+
+    let base64
+
+    try {
+      //反和谐
+      const img = await Jimp.read(Buffer.from(image))
+      base64 = await imgAntiShielding(img, global.config.setu.antiShieldingMode)
+    } catch (error) {
+      await replyMsg(context, '反和谐失败惹')
+      await reduce(context.user_id, global.config.setu.pigeon, '色图加载失败')
+      return 0
+    }
+
+    const message = await replyMsg(context, CQ.image(`base64://${base64}`), false)
+
+    setTimeout(async () => {
+      //撤回消息
+      await bot('delete_msg', {
+        message_id: message.data.message_id
+      })
+      await bot('delete_msg', {
+        message_id: info_message.data.message_id
+      })
+    }, global.config.setu.withdraw * 1000)
+
+    if (message.status === 'failed') {
+      await replyMsg(context, '色图发送失败')
+      await reduce(context.user_id, global.config.setu.pigeon, '色图加载失败')
+    } else {
+      //更新数据
+      await database
+        .update({
+          count,
+          update_time: Date.now()
+        })
+        .where('user_id', user_id)
+        .into('setu')
     }
   }
 }

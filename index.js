@@ -8,6 +8,6 @@ await loadLibs()
 newBot()
 
 //确保需要预先加载的插件
-await loadPlugins(['./plugins/knex'])
+await loadPlugins(['./plugins/proxy', './plugins/knex'])
 //加载其余插件
 await loadPluginDir('./plugins')

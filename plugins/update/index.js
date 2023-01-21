@@ -57,7 +57,7 @@ export const checkUpdate = async (manual = false, context) => {
         }
       }, 1000 * 60 * 60)
     }
-    if (manual && compare(local_version, remote_version, '=')) {
+    if (manual && compare(local_version, remote_version, '>=')) {
       await replyMsg(
         context,
         ['kkbot无需更新哟~', `最新版本${remote_version}`, `当前版本${local_version}`].join('\n')
