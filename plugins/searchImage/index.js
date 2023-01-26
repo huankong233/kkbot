@@ -212,7 +212,8 @@ export const search = context => {
             name: 'Yandex',
             callback: Yandex,
             params: {
-              url: imageUrl
+              url: imageUrl,
+              cookie: global.config.searchImage.YANDEX_COOKIE
             }
           },
           {
@@ -270,7 +271,7 @@ export const request = async callbacks => {
       obj.cost = end - start
       responseData.push(obj)
     } catch (error) {
-      responseData.push({ success: false, name: item.name, res: null })
+      responseData.push({ success: false, name: item.name, res: error })
     }
   }
   return responseData
@@ -380,7 +381,13 @@ export const parse = async (context, res, originUrl) => {
         CQ.node(
           global.config.bot.botName,
           context.self_id,
-          CQ.text(`${datum.name}搜图失败~已赔偿鸽子${global.config.searchImage.claim}只`)
+          CQ.text(
+            `${datum.name}搜图失败力~已赔偿鸽子${global.config.searchImage.claim}只${
+              datum.name === 'Yandex'
+                ? `\n${datum.res.toString().substring(7)}可以自己复制到浏览器试试看`
+                : ``
+            }`
+          )
         )
       )
       //赔偿

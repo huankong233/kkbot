@@ -28,7 +28,9 @@
     "receive": "收到咯~处理中~(自动退出不影响处理)"
   },
   //EHcookie
-  "EH_COOKIE": "ipb_member_id=6773575; ipb_pass_hash=9cc89d0027f6aa2f50e3abab957bc50c; igneous=f98299522",
+  "EH_COOKIE": "",
+  //yandex
+  "YANDEX_COOKIE": "",
   //反和谐
   "antiShieldingMode": 4,
   "try": 10

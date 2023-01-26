@@ -26,7 +26,9 @@ git clone https://github.com/huankong233/kkbot.git
 [mysql](https://www.mysql.com/)
 
 [python](https://www.python.org/downloads/)
-安装完成后运行`pip3 install --no-cache-dir -r requirements.txt`
+安装完成后运行`pip3 install -r requirements.txt`
+
+还有ffmpeg(在go-cqhttp客户端)
 
 Tip:为了防止linux服务器存在python=python2,python3=python3的问题，默认直接调用python3，windows端的小盆友注意哦~
 
