@@ -10,6 +10,8 @@ export const addProxy = () => {
   if (global.config.proxy.enable) {
     proxy.default.setConfig(global.config.proxy.proxy)
     proxy.default.start()
-    msgToConsole('当前已经开启了代理哦')
+    msgToConsole('=====================================================')
+    msgToConsole('代理已启动')
+    msgToConsole('=====================================================')
   }
 }

@@ -48,7 +48,6 @@ export const rankingList = async context => {
     .from('pigeon')
     .limit(10)
     .orderBy([{ column: 'pigeon_num', order: 'DESC' }])
-  console.log(data)
   if (data.length === 0) {
     await replyMsg(context, '这个数据库里还没有用户哦~')
   } else {
