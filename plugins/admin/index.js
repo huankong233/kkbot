@@ -24,6 +24,8 @@ function event() {
   })
 }
 
+import { getUserName } from '../query/index.js'
+
 //notice事件处理
 export const notice = async context => {
   const { notice_type, sub_type, self_id, user_id } = context
@@ -42,7 +44,7 @@ export const notice = async context => {
       if (self_id !== user_id)
         await replyMsg(
           { message_type: 'group', user_id: context.user_id, group_id: context.group_id },
-          `用户:${context.user_id},离开了我们~`
+          `用户:${await getUserName(context.user_id)},离开了我们~`
         )
     }
   }
