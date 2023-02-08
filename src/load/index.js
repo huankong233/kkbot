@@ -51,7 +51,7 @@ export const loadConfig = (file_path, setGlobal = false) => {
 /**
  * 加载多个配置文件
  * @param {Array} file_path
- * @param {Boolean} setGlobal
+ * @param {Boolean} global
  */
 export const loadConfigs = async (configs, global = false) => {
   let config = {}
