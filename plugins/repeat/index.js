@@ -7,7 +7,10 @@ export default async () => {
 
 function event() {
   RegEvent('message', async (event, context, tags) => {
-    repeat(context)
+    //屏蔽命令
+    if (!context.command) {
+      repeat(context)
+    }
   })
 }
 
