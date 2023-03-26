@@ -29,9 +29,9 @@ import { compare } from 'compare-versions'
 import { isToday } from '../gugu/index.js'
 export const checkUpdate = async (manual = false, context) => {
   const { proxy, url } = global.config.update
+  const remote_version = (await fetch(proxy + url)).version
+  const local_version = JSON.parse(fs.readFileSync('package.json', 'utf8')).version
   try {
-    const remote_version = (await fetch(proxy + url)).version
-    const local_version = JSON.parse(fs.readFileSync('package.json', 'utf8')).version
     if (compare(local_version, remote_version, '<')) {
       //需要更新，通知admin
       const message = [
