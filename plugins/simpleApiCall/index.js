@@ -8,21 +8,25 @@ export default () => {
 //注册事件
 function event() {
   RegEvent('message', async (event, context, tags) => {
-    if (context.command) {
-      if (context.command.name === '舔狗日记') {
-        await dog(context)
-      } else if (context.command.name === '一言') {
-        await oneSay(context)
-      } else if (context.command.name === '能不能好好说话') {
-        await guess(context)
-      } else if (context.command.name === '舔我') {
-        await prprme(context)
-      } else if (context.command.name === '别舔了') {
-        await stoprprme(context)
+    try {
+      if (context.command) {
+        if (context.command.name === '舔狗日记') {
+          await dog(context)
+        } else if (context.command.name === '一言') {
+          await oneSay(context)
+        } else if (context.command.name === '能不能好好说话') {
+          await guess(context)
+        } else if (context.command.name === '舔我') {
+          await prprme(context)
+        } else if (context.command.name === '别舔了') {
+          await stoprprme(context)
+        }
       }
-    }
-    if (context.message.match('^(到点了|12点了|生而为人)$')) {
-      await comments_163(context)
+      if (context.message.match('^(到点了|12点了|生而为人)$')) {
+        await comments_163(context)
+      }
+    } catch (error) {
+      await replyMsg(context, '接口请求失败~')
     }
   })
 }
