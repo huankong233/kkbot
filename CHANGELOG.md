@@ -2,6 +2,10 @@
 
 ## 2023
 
+### 04-02 v0.0.3.23
+
+- 修复了一下`setu`插件失败后撤回的顺序问题
+
 ### 04-02 v0.0.3.22
 
 - 照抄更新了一下[无法搜索 Electron QQ 发出的图片的问题](https://github.com/Tsuk1ko/cq-picsearcher-bot/commit/56594b67c16faa64ad32f5bbcb66d73d01476dd1)

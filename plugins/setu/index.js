@@ -124,16 +124,6 @@ export const setu = async (context, match) => {
 
     const message = await replyMsg(context, CQ.image(`base64://${base64}`), false)
 
-    setTimeout(async () => {
-      //撤回消息
-      await bot('delete_msg', {
-        message_id: message.data.message_id
-      })
-      await bot('delete_msg', {
-        message_id: info_message.data.message_id
-      })
-    }, global.config.setu.withdraw * 1000)
-
     if (message.status === 'failed') {
       await replyMsg(context, '色图发送失败')
       await reduce(context.user_id, global.config.setu.pigeon, '色图加载失败')
@@ -146,6 +136,16 @@ export const setu = async (context, match) => {
         })
         .where('user_id', user_id)
         .into('setu')
+
+      setTimeout(async () => {
+        //撤回消息
+        await bot('delete_msg', {
+          message_id: message.data.message_id
+        })
+        await bot('delete_msg', {
+          message_id: info_message.data.message_id
+        })
+      }, global.config.setu.withdraw * 1000)
     }
   }
 }
