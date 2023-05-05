@@ -8,7 +8,7 @@ export default () => {
 //注册事件
 function event() {
   RegEvent('message', async (event, context, tags) => {
-    if (context.message.match(`[CQ:at,qq=${context.self_id}]`)) {
+    if (context.message.indexOf(`[CQ:at,qq=${context.self_id}]`) !== -1) {
       // 初始化数据
       let params = context.message
         .trim()
@@ -17,9 +17,9 @@ function event() {
           return value === '' ? false : value
         })
       context.params = params.slice(1, params.length)
-
       await chat(context)
     }
+
     if (context.command) {
       if (context.command.name === 'chatgpt') {
         await chat(context)
