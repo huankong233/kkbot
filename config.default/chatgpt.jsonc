@@ -10,5 +10,7 @@
     "username": "",
     "password": ""
   },
-  "cost": 5
+  "cost": 5,
+  // 私聊默认执行chatgpt
+  "private": true
 }

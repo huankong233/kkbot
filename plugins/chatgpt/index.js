@@ -8,21 +8,19 @@ export default () => {
 //注册事件
 function event() {
   RegEvent('message', async (event, context, tags) => {
-    if (context.message.indexOf(`[CQ:at,qq=${context.self_id}]`) !== -1) {
-      // 初始化数据
-      let params = context.message
-        .trim()
-        .split(' ')
-        .filter(value => {
-          return value === '' ? false : value
-        })
-      context.params = params.slice(1, params.length)
-      await chat(context)
+    if (global.config.chatgpt.private && context.message_type === 'private') {
+      await chat(context, 1)
+    }
+
+    const index = context.message.indexOf(`[CQ:at,qq=${context.self_id}]`)
+
+    if (index !== -1) {
+      await chat(context, 2, index + `[CQ:at,qq=${context.self_id}]`.length + 1)
     }
 
     if (context.command) {
       if (context.command.name === 'chatgpt') {
-        await chat(context)
+        await chat(context, 3)
       }
     }
   })
@@ -31,8 +29,10 @@ function event() {
 import { add, reduce } from '../pigeon/index.js'
 import fetch from 'node-fetch'
 
-async function chat(context) {
-  if (!context.params[0]) {
+async function chat(context, type, index) {
+  let prompt = getPrompt(context.message, type, index)
+
+  if (!prompt) {
     return await replyMsg(context, `请求失败,请提供prompt~`, true)
   }
 
@@ -52,7 +52,7 @@ async function chat(context) {
   let response
   try {
     response = await fetch(
-      `${global.config.chatgpt.url}/ask?prompt=${global.config.chatgpt.basicPrompt}${context.params[0]}`,
+      `${global.config.chatgpt.url}/ask?prompt=${global.config.chatgpt.basicPrompt}${prompt}`,
       params
     ).then(res => res.text())
   } catch (error) {
@@ -67,4 +67,20 @@ async function chat(context) {
   }
 
   return await replyMsg(context, response)
+}
+
+// 提取prompt
+function getPrompt(message, type, index) {
+  switch (type) {
+    case 1:
+      return message
+      break
+    case 2:
+      return message.substring(index, message.length)
+      break
+    case 3:
+      const type3Index = message.indexOf(`chatgpt`)
+      return message.substring(type3Index + 8, message.length)
+      break
+  }
 }
