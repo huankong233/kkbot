@@ -24,12 +24,12 @@ export const transferAccounts = async context => {
     )
   }
   const from = context.user_id
-  const to = parseFloat(params[0])
+  const to = params[0].replace(/[^0-9]/gi, '')
   if (from === to) {
     return await replyMsg(context, '请不要给自己转账哦~')
   }
   //转账多少只
-  const num = parseInt(params[1])
+  const num = params[1].replace(/[^0-9]/gi, '')
   if (num <= 0) {
     return await replyMsg(context, '转账失败,金额有误')
   }
