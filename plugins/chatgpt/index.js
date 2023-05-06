@@ -19,7 +19,7 @@ function event() {
     }
 
     if (context.command) {
-      if (context.command.name === 'chatgpt') {
+      if (context.command.name === 'gpt') {
         await chat(context, 3)
       }
     }
