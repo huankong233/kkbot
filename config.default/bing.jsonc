@@ -1,0 +1,7 @@
+{
+  // 存放cookie的位置 不懂请勿修改
+  "cookiePath": "../../config/bing_cookie.json",
+  // 暂存context的位置 不懂请勿修改
+  "tempContextFile": "../../temp/context.info",
+  "cost": 10
+}
