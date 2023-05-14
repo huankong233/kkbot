@@ -30,7 +30,7 @@ export const phlogo = async context => {
       const buf = Buffer.from(data)
       await replyMsg(context, CQ.image(buf.toString()))
     } catch (error) {
-      await reduce(context.user_id, global.config.phlogo.cost, `制作phlogo失败`)
+      await add(context.user_id, global.config.phlogo.cost, `制作phlogo失败`)
       await replyMsg(context, '制作失败')
     }
   } else {
