@@ -14,11 +14,11 @@ function event() {
       await chat(context, 1)
     }
 
-    const index = context.message.indexOf(`[CQ:at,qq=${context.self_id}]`)
+    // const index = context.message.indexOf(`[CQ:at,qq=${context.self_id}]`)
 
-    if (index !== -1) {
-      await chat(context, 2, index + `[CQ:at,qq=${context.self_id}]`.length + 1)
-    }
+    // if (index !== -1) {
+    //   await chat(context, 2, index + `[CQ:at,qq=${context.self_id}]`.length + 1)
+    // }
 
     if (context.command) {
       if (context.command.name === 'gpt') {

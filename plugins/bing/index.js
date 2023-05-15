@@ -74,7 +74,7 @@ export const handler = async context => {
       if (global.config.bing.basicAuth.enable) {
         queryParams['headers'] = {
           Authorization: `Basic ${Buffer.from(
-            `${global.config.chatgpt.basicAuth.username}:${global.config.chatgpt.basicAuth.password}`
+            `${global.config.bing.basicAuth.username}:${global.config.bing.basicAuth.password}`
           ).toString('base64')}`
         }
       }
