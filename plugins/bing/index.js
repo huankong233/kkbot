@@ -98,7 +98,8 @@ export const handler = async context => {
     }
 
     // 获取返回数据
-    if (response.item.result.value !== 'Success') {
+    if (!response.item || response.item.result.value !== 'Success') {
+      console.log(response)
       await add(context.user_id, global.config.phlogo.cost, `搜索bing失败`)
       await replyMsg(context, '搜索bing失败')
     }
