@@ -101,7 +101,15 @@ export const handler = async context => {
     if (!response.item || response.item.result.value !== 'Success') {
       console.log(response)
       await add(context.user_id, global.config.phlogo.cost, `搜索bing失败`)
-      await replyMsg(context, '搜索bing失败')
+      if (
+        response.type === 'error' &&
+        response.error ===
+          'Your prompt has been blocked by Bing. Try to change any bad words and try again.'
+      ) {
+        await replyMsg(context, '请求被拦截，请不要使用不合时宜的词汇。')
+      } else {
+        await replyMsg(context, '搜索bing失败')
+      }
     }
 
     const message = response.item.messages[1]
