@@ -1,3 +1,5 @@
+export const enable = false
+
 export default () => {
   loadConfig('chatgpt.jsonc', true)
 

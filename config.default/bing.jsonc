@@ -1,5 +1,16 @@
 {
   // 存放cookie的位置 不懂请勿修改
   "cookiePath": "./config/bing_cookie.json",
-  "cost": 10
+  // 暂存context的位置 不懂请勿修改
+  "tempContextFile": "./temp/context.info",
+  // docker部署: https://hub.docker.com/r/huankong233/edgegpt
+  // 如果设置了web优先使用web
+  "web": false,
+  "basicAuth": {
+    "enable": false,
+    "username": "",
+    "password": ""
+  },
+  "cost": 10,
+  "private": true
 }

@@ -8,6 +8,16 @@ export default async () => {
 
 async function event() {
   RegEvent('message', async (event, context, tags) => {
+    if (global.config.bing.private && context.message_type === 'private') {
+      await handler(context)
+    }
+
+    const index = context.message.indexOf(`[CQ:at,qq=${context.self_id}]`)
+
+    if (index !== -1) {
+      await handler(context)
+    }
+
     if (context.command) {
       if (context.command.name === 'bing') {
         await handler(context)
@@ -19,6 +29,8 @@ async function event() {
 import { add, reduce } from '../pigeon/index.js'
 import fs from 'fs'
 import { jsonc } from 'jsonc'
+import fetch from 'node-fetch'
+import { FormData } from 'formdata-node'
 
 export const handler = async context => {
   const params = context.command.params
@@ -48,23 +60,44 @@ export const handler = async context => {
     userContext += `${item.tag}\n${item.text}\n\n`
   })
 
-  const contextName = getRangeCode()
-
-  fs.writeFileSync(`./temp/${contextName}.info`, userContext)
-
   try {
-    const { execSync } = await import('child_process')
-    const path = getDirName(import.meta.url)
-    const outputName = execSync(
-      `python3 ${path}/chat.py ${global.config.bing.cookiePath} ${`./temp/${contextName}.info`} ${
-        params[0]
-      }`,
-      { encoding: 'utf-8' }
-    )
+    let response
+    if (global.config.bing.web) {
+      const form = new FormData()
+      form.append('message', params[0])
+      form.append('context', userContext)
+      let queryParams = {
+        method: 'post',
+        body: form
+      }
+
+      if (global.config.bing.basicAuth.enable) {
+        queryParams['headers'] = {
+          Authorization: `Basic ${Buffer.from(
+            `${global.config.chatgpt.basicAuth.username}:${global.config.chatgpt.basicAuth.password}`
+          ).toString('base64')}`
+        }
+      }
+
+      response = await fetch(`${global.config.bing.web}/ask`, queryParams).then(res => res.json())
+    } else {
+      const contextName = getRangeCode()
+      fs.writeFileSync(`./temp/${contextName}.info`, userContext)
+      const { execSync } = await import('child_process')
+      const path = getDirName(import.meta.url)
+      const outputName = execSync(
+        `python3 ${path}/chat.py ${global.config.bing.cookiePath} ${`./temp/${contextName}.info`} ${
+          params[0]
+        }`,
+        { encoding: 'utf-8' }
+      )
+      response = jsonc.parse(fs.readFileSync(`./temp/${outputName.trim()}.info`, 'utf8'))
+      // 清除缓存文件
+      fs.rmSync(`./temp/${contextName}.info`)
+      fs.rmSync(`./temp/${outputName.trim()}.info`)
+    }
 
     // 获取返回数据
-    const response = jsonc.parse(fs.readFileSync(`./temp/${outputName.trim()}.info`, 'utf8'))
-
     if (response.item.result.value !== 'Success') {
       await add(context.user_id, global.config.phlogo.cost, `搜索bing失败`)
       await replyMsg(context, '搜索bing失败')
@@ -94,10 +127,6 @@ export const handler = async context => {
         }
       ]
     }
-
-    // 清除缓存文件
-    fs.rmSync(`./temp/${contextName}.info`)
-    fs.rmSync(`./temp/${outputName.trim()}.info`)
   } catch (e) {
     console.log(e)
     await add(context.user_id, global.config.phlogo.cost, `搜索bing失败`)
