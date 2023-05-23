@@ -47,7 +47,12 @@ export const handler = async context => {
   const params = context.command.params
 
   if (params.length < 1) {
-    return await replyMsg(context, `参数不足，请发送"${global.config.bot.prefix}帮助 bing"查看帮助`)
+    return await replyMsg(
+      context,
+      `参数不足，请发送"${global.config.bot.prefix}帮助 bing"查看帮助`,
+      true,
+      true
+    )
   }
 
   if (!(await reduce(context.user_id, global.config.bing.cost, `搜索bing`))) {
@@ -78,7 +83,7 @@ export const handler = async context => {
       response = await streamOutput(params[0], userContext).catch(async e => {
         error = true
         await add(context.user_id, global.config.phlogo.cost, `搜索bing失败`)
-        await replyMsg(context, '请求被拦截，请不要使用不合时宜的词汇。')
+        await replyMsg(context, '请求被拦截，请不要使用不合时宜的词汇。', true, true)
       })
       if (error) return 'stop'
     } else {
@@ -106,14 +111,14 @@ export const handler = async context => {
         response.error ===
           'Your prompt has been blocked by Bing. Try to change any bad words and try again.'
       ) {
-        await replyMsg(context, '请求被拦截，请不要使用不合时宜的词汇。')
+        await replyMsg(context, '请求被拦截，请不要使用不合时宜的词汇。', true, true)
       } else {
-        await replyMsg(context, `搜索bing失败,返回值:${response.error}`)
+        await replyMsg(context, `搜索bing失败,返回值:${response.error}`, true, true)
       }
     }
 
     const message = response.item.messages[response.item.messages.length - 1]
-    await replyMsg(context, message.adaptiveCards[0].body[0].text.trim())
+    await replyMsg(context, message.adaptiveCards[0].body[0].text.trim(), true, true)
 
     global.config.bing.data[context.user_id].push({
       tag: '[user](#message)',
@@ -130,13 +135,13 @@ export const handler = async context => {
       response.item.throttling.numUserMessagesInConversation >=
       response.item.throttling.maxNumUserMessagesInConversation
     ) {
-      await replyMsg(context, '记忆已清除,单次聊天次数到达上限')
+      await replyMsg(context, '记忆已清除,单次聊天次数到达上限', true, true)
       global.config.bing.data[context.user_id] = null
     }
   } catch (e) {
     console.log(e)
     await add(context.user_id, global.config.phlogo.cost, `搜索bing失败`)
-    await replyMsg(context, '搜索bing失败')
+    await replyMsg(context, '搜索bing失败', true, true)
   }
 }
 
