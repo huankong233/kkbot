@@ -74,7 +74,13 @@ export const handler = async context => {
   try {
     let response
     if (global.config.bing.websocket) {
-      response = await streamOutput(params[0], userContext)
+      let error = false
+      response = await streamOutput(params[0], userContext).catch(async e => {
+        error = true
+        await add(context.user_id, global.config.phlogo.cost, `搜索bing失败`)
+        await replyMsg(context, '请求被拦截，请不要使用不合时宜的词汇。')
+      })
+      if (error) return 'stop'
     } else {
       const contextName = getRangeCode()
       fs.writeFileSync(`./temp/${contextName}.info`, userContext)
@@ -106,8 +112,7 @@ export const handler = async context => {
       }
     }
 
-    const message = response.item.messages[1]
-
+    const message = response.item.messages[response.item.messages.length - 1]
     await replyMsg(context, message.adaptiveCards[0].body[0].text.trim())
 
     global.config.bing.data[context.user_id].push({
