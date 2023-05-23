@@ -9,12 +9,24 @@ export default async () => {
 async function event() {
   RegEvent('message', async (event, context, tags) => {
     if (global.config.bing.private && context.message_type === 'private') {
+      context.command = {
+        params: [context.message]
+      }
       await handler(context)
     }
 
     const index = context.message.indexOf(`[CQ:at,qq=${context.self_id}]`)
 
     if (index !== -1) {
+      const atIndex = context.message.indexOf(`[CQ:at,qq=${context.self_id}]`)
+      context.command = {
+        params: [
+          context.message
+            .substring(atIndex + `[CQ:at,qq=${context.self_id}]`.length, context.message.length)
+            .trim()
+        ]
+      }
+
       await handler(context)
     }
 
@@ -29,8 +41,7 @@ async function event() {
 import { add, reduce } from '../pigeon/index.js'
 import fs from 'fs'
 import { jsonc } from 'jsonc'
-import fetch from 'node-fetch'
-import { FormData } from 'formdata-node'
+import WebSocket from 'ws'
 
 export const handler = async context => {
   const params = context.command.params
@@ -62,24 +73,8 @@ export const handler = async context => {
 
   try {
     let response
-    if (global.config.bing.web) {
-      const form = new FormData()
-      form.append('message', params[0])
-      form.append('context', userContext)
-      let queryParams = {
-        method: 'post',
-        body: form
-      }
-
-      if (global.config.bing.basicAuth.enable) {
-        queryParams['headers'] = {
-          Authorization: `Basic ${Buffer.from(
-            `${global.config.bing.basicAuth.username}:${global.config.bing.basicAuth.password}`
-          ).toString('base64')}`
-        }
-      }
-
-      response = await fetch(`${global.config.bing.web}/ask`, queryParams).then(res => res.json())
+    if (global.config.bing.websocket) {
+      response = await streamOutput(params[0], userContext)
     } else {
       const contextName = getRangeCode()
       fs.writeFileSync(`./temp/${contextName}.info`, userContext)
@@ -99,7 +94,6 @@ export const handler = async context => {
 
     // 获取返回数据
     if (!response.item || response.item.result.value !== 'Success') {
-      console.log(response)
       await add(context.user_id, global.config.phlogo.cost, `搜索bing失败`)
       if (
         response.type === 'error' &&
@@ -108,13 +102,13 @@ export const handler = async context => {
       ) {
         await replyMsg(context, '请求被拦截，请不要使用不合时宜的词汇。')
       } else {
-        await replyMsg(context, '搜索bing失败')
+        await replyMsg(context, `搜索bing失败,返回值:${response.error}`)
       }
     }
 
     const message = response.item.messages[1]
 
-    await replyMsg(context, message.adaptiveCards[0].body[0].text)
+    await replyMsg(context, message.adaptiveCards[0].body[0].text.trim())
 
     global.config.bing.data[context.user_id].push({
       tag: '[user](#message)',
@@ -127,7 +121,10 @@ export const handler = async context => {
     })
 
     // 可能有上限
-    if (global.config.bing.data[context.user_id].length >= 20) {
+    if (
+      response.item.throttling.numUserMessagesInConversation >=
+      response.item.throttling.maxNumUserMessagesInConversation
+    ) {
       await replyMsg(context, '记忆已清除,单次聊天次数到达上限')
       global.config.bing.data[context.user_id] = null
     }
@@ -136,4 +133,62 @@ export const handler = async context => {
     await add(context.user_id, global.config.phlogo.cost, `搜索bing失败`)
     await replyMsg(context, '搜索bing失败')
   }
+}
+
+let websocket
+
+async function connectWebSocket() {
+  return new Promise((resolve, reject) => {
+    websocket = new WebSocket(global.config.bing.websocket)
+
+    websocket.onopen = () => {
+      resolve()
+    }
+
+    websocket.onerror = error => {
+      reject(error)
+    }
+  })
+}
+
+async function streamOutput(userInput, userContext) {
+  if (!websocket || websocket.readyState !== WebSocket.OPEN) {
+    try {
+      await connectWebSocket()
+    } catch (error) {
+      alert(`WebSocket error: ${error}`)
+      return
+    }
+  }
+
+  websocket.send(
+    JSON.stringify({
+      message: userInput,
+      context: userContext
+    })
+  )
+
+  return new Promise((resolve, reject) => {
+    function finished(response) {
+      resolve(response)
+      websocket.onmessage = () => {}
+    }
+
+    websocket.onmessage = event => {
+      const response = JSON.parse(event.data)
+      if (response.type === 2) {
+        if (response.item.messages[response.item.messages.length - 1].text) {
+          finished(response)
+        } else {
+          reject('Looks like the user message has triggered the Bing filter')
+        }
+      } else if (response.type === 'error') {
+        reject(response.error)
+      }
+    }
+    websocket.onerror = error => {
+      alert(`WebSocket error: ${error}`)
+      reject(error)
+    }
+  })
 }
