@@ -39,9 +39,8 @@ async function event() {
 }
 
 import { add, reduce } from '../pigeon/index.js'
-import fs from 'fs'
-import { jsonc } from 'jsonc'
-import WebSocket from 'ws'
+import { streamOutput } from './web.js'
+import { local } from './local.js'
 
 export const handler = async context => {
   const params = context.command.params
@@ -97,20 +96,7 @@ export const handler = async context => {
       })
       if (error) return 'stop'
     } else {
-      const contextName = getRangeCode()
-      fs.writeFileSync(`./temp/${contextName}.info`, userContext)
-      const { execSync } = await import('child_process')
-      const path = getDirName(import.meta.url)
-      const outputName = execSync(
-        `python3 ${path}/chat.py ${global.config.bing.cookiePath} ${`./temp/${contextName}.info`} ${
-          params[0]
-        }`,
-        { encoding: 'utf-8' }
-      )
-      response = jsonc.parse(fs.readFileSync(`./temp/${outputName.trim()}.info`, 'utf8'))
-      // 清除缓存文件
-      fs.rmSync(`./temp/${contextName}.info`)
-      fs.rmSync(`./temp/${outputName.trim()}.info`)
+      response = await local(params[0], userContext)
     }
 
     // 获取返回数据
@@ -135,7 +121,14 @@ export const handler = async context => {
     })
 
     // const message = response.item.messages[response.item.messages.length - 1]
-    await replyMsg(context, message.adaptiveCards[0].body[0].text.trim(), true, true)
+    await replyMsg(
+      context,
+      `${message.adaptiveCards[0].body[0].text.trim()}\n使用情况:${
+        response.item.throttling.numUserMessagesInConversation
+      }/${response.item.throttling.maxNumUserMessagesInConversation}`,
+      true,
+      true
+    )
 
     global.config.bing.data[context.user_id].push({
       tag: '[user](#message)',
@@ -160,62 +153,4 @@ export const handler = async context => {
     await add(context.user_id, global.config.phlogo.cost, `搜索bing失败`)
     await replyMsg(context, '搜索bing失败', true, true)
   }
-}
-
-let websocket
-
-async function connectWebSocket() {
-  return new Promise((resolve, reject) => {
-    websocket = new WebSocket(global.config.bing.websocket)
-
-    websocket.onopen = () => {
-      resolve()
-    }
-
-    websocket.onerror = error => {
-      reject(error)
-    }
-  })
-}
-
-async function streamOutput(userInput, userContext) {
-  if (!websocket || websocket.readyState !== WebSocket.OPEN) {
-    try {
-      await connectWebSocket()
-    } catch (error) {
-      alert(`WebSocket error: ${error}`)
-      return
-    }
-  }
-
-  websocket.send(
-    JSON.stringify({
-      message: userInput,
-      context: userContext
-    })
-  )
-
-  return new Promise((resolve, reject) => {
-    function finished(response) {
-      resolve(response)
-      websocket.onmessage = () => {}
-    }
-
-    websocket.onmessage = event => {
-      const response = JSON.parse(event.data)
-      if (response.type === 2) {
-        if (response.item.messages[response.item.messages.length - 1].text) {
-          finished(response)
-        } else {
-          reject('Looks like the user message has triggered the Bing filter')
-        }
-      } else if (response.type === 'error') {
-        reject(response.error)
-      }
-    }
-    websocket.onerror = error => {
-      alert(`WebSocket error: ${error}`)
-      reject(error)
-    }
-  })
 }
