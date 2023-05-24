@@ -127,7 +127,14 @@ export const handler = async context => {
       }
     }
 
-    const message = response.item.messages[response.item.messages.length - 1]
+    // 查找有suggestedResponses的那一个
+    let message
+
+    response.item.messages.forEach(item => {
+      if (item.suggestedResponses) message = item
+    })
+
+    // const message = response.item.messages[response.item.messages.length - 1]
     await replyMsg(context, message.adaptiveCards[0].body[0].text.trim(), true, true)
 
     global.config.bing.data[context.user_id].push({
