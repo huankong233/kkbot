@@ -16,7 +16,7 @@ async function connectWebSocket() {
   })
 }
 
-export async function streamOutput(userInput, userContext) {
+export async function get(userInput, userContext) {
   if (!websocket || websocket.readyState !== WebSocket.OPEN) {
     try {
       await connectWebSocket()
