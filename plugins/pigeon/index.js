@@ -46,7 +46,12 @@ export const add = async (user_id, num, reason = '没有指定原因', extra = {
     return false
   }
   //获取拥有的鸽子数
-  let origin_pigeon = (await getUserData(user_id))[0].pigeon_num
+  let origin_pigeon = await getUserData(user_id)
+  if (!origin_pigeon) {
+    await replyMsg(context, `请先使用"${global.config.bot.prefix}咕咕"注册账户`)
+    return false
+  }
+  origin_pigeon = origin_pigeon[0].pigeon_num
   let now_pigeon = origin_pigeon + num
   //更新数据库
   await database
@@ -85,7 +90,12 @@ export const reduce = async (user_id, num, reason = '没有指定原因', extra 
     return false
   }
   //获取拥有的鸽子数
-  let origin_pigeon = (await getUserData(user_id))[0].pigeon_num
+  let origin_pigeon = await getUserData(user_id)
+  if (!origin_pigeon) {
+    await replyMsg(context, `请先使用"${global.config.bot.prefix}咕咕"注册账户`)
+    return false
+  }
+  origin_pigeon = origin_pigeon[0].pigeon_num
   let now_pigeon = origin_pigeon - num
   if (now_pigeon < 0) {
     //无法扣除
