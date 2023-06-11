@@ -28,7 +28,7 @@ function event() {
   })
 }
 
-import { add, reduce } from '../../plugins/pigeon/index.js'
+import { add, reduce } from '../../../plugins/pigeon/index.js'
 import fetch from 'node-fetch'
 
 async function chat(context, type, index) {
