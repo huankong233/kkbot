@@ -63,7 +63,7 @@ export const handler = async context => {
     return await replyMsg(context, `新的会话已经开启了哦，继续聊天叭~`, false, true)
   }
 
-  if (!(await reduce(context.user_id, global.config.bing.cost, `搜索bing`))) {
+  if (!(await reduce(context.user_id, global.config.bing.cost, `搜索bing`, {}, context))) {
     return await replyMsg(context, `搜索失败,鸽子不足~`, false, true)
   }
 
@@ -126,7 +126,7 @@ export const makeContext = context => {
 }
 
 export const errorParse = async (context, error) => {
-  await add(context.user_id, global.config.phlogo.cost, `搜索bing失败`)
+  await add(context.user_id, global.config.bing.cost, `搜索bing失败`, {}, context)
   if (error === 'Sorry, you need to login first to access this service.') {
     await replyMsg(
       context,

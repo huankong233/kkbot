@@ -40,7 +40,7 @@ export const getUserData = async user_id => {
  * @returns true 成功
  * @returns false 失败
  */
-export const add = async (user_id, num, reason = '没有指定原因', extra = {}) => {
+export const add = async (user_id, num, reason = '没有指定原因', extra = {}, context) => {
   //不允许增加负数的鸽子
   if (num < 0) {
     return false
@@ -84,7 +84,7 @@ export const add = async (user_id, num, reason = '没有指定原因', extra = {
  * @returns true 成功
  * @returns false 失败
  */
-export const reduce = async (user_id, num, reason = '没有指定原因', extra = {}) => {
+export const reduce = async (user_id, num, reason = '没有指定原因', extra = {}, context) => {
   //不允许减少负数的鸽子
   if (num < 0) {
     return false
