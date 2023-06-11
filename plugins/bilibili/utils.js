@@ -23,7 +23,9 @@ export const purgeLink = link => {
 export const purgeLinkInText = text =>
   text.replace(/https?:\/\/[-\w~!@#$%&*()+=;':,.?/]+/g, url => purgeLink(url))
 
-import fetch from 'node-fetch'
-export const request = async url => {
-  return await fetch(url).then(data => data.json())
-}
+// import fetch from 'node-fetch'
+// export const request = async url => {
+//   return await fetch(url).then(data => data.json())
+// }
+
+export const request = fetch

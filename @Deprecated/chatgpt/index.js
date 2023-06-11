@@ -14,11 +14,11 @@ function event() {
       await chat(context, 1)
     }
 
-    // const index = context.message.indexOf(`[CQ:at,qq=${context.self_id}]`)
+    const index = context.message.indexOf(`[CQ:at,qq=${context.self_id}]`)
 
-    // if (index !== -1) {
-    //   await chat(context, 2, index + `[CQ:at,qq=${context.self_id}]`.length + 1)
-    // }
+    if (index !== -1) {
+      await chat(context, 2, index + `[CQ:at,qq=${context.self_id}]`.length + 1)
+    }
 
     if (context.command) {
       if (context.command.name === 'gpt') {
@@ -28,7 +28,7 @@ function event() {
   })
 }
 
-import { add, reduce } from '../pigeon/index.js'
+import { add, reduce } from '../../plugins/pigeon/index.js'
 import fetch from 'node-fetch'
 
 async function chat(context, type, index) {
@@ -65,7 +65,7 @@ async function chat(context, type, index) {
 
   if (response === '401 Unauthorized') {
     await add(context.user_id, global.config.searchBt.cost, `chatgpt失败`)
-    return await replyMsg(context, `请求失败,鉴权失败请联系机器人管理员,鸽子已返还~`, true)
+    return await replyMsg(context, `请求失败,鉴权失败请联系管理员,鸽子已返还~`, true)
   }
 
   return await replyMsg(context, response)

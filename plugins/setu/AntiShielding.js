@@ -1,5 +1,5 @@
 /**
- * 部分代码来自https://github.com/Tsuk1ko/cq-picsearcher-bot
+ * 代码来自https://github.com/Tsuk1ko/cq-picsearcher-bot
  */
 
 import Jimp from 'jimp'

@@ -117,7 +117,7 @@ export const setu = async (context, match) => {
       const img = await Jimp.read(Buffer.from(image))
       base64 = await imgAntiShielding(img, global.config.setu.antiShieldingMode)
     } catch (error) {
-      await replyMsg(context, '反和谐失败惹')
+      await replyMsg(context, ['消息:反和谐失败惹', `报错:${error.toString()}`].join('\n'))
       await reduce(context.user_id, global.config.setu.pigeon, '色图加载失败')
       return 0
     }

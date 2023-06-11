@@ -34,20 +34,27 @@ export const checkUpdate = async (manual = false, context) => {
   try {
     remote_version = (await fetch(proxy + url)).version
   } catch (error) {
-    console.log(error)
     global.config.update.count++
-    const message = ['检查更新失败', `当前版本${local_version}`, `请检查您的网络状况！`].join('\n')
+
+    const message = [
+      '检查更新失败',
+      `当前版本${local_version}`,
+      `请检查您的网络状况！`,
+      `报错信息:${error.toString()}`
+    ].join('\n')
+
     if (manual) {
       await replyMsg(context, message)
     } else {
       await sendMsg(global.config.bot.admin, message)
     }
+
     if (global.config.update.count === global.config.update.max) {
       clearInterval(global.config.bot.id)
     }
   }
 
-  if (remote_version) {
+  if (remote_version && local_version) {
     if (compare(local_version, remote_version, '<')) {
       //需要更新，通知admin
       const message = [
@@ -55,11 +62,13 @@ export const checkUpdate = async (manual = false, context) => {
         `最新版本${remote_version}`,
         `当前版本${local_version}`
       ].join('\n')
+
       if (manual) {
         await replyMsg(context, message)
       } else {
         await sendMsg(global.config.bot.admin, message)
       }
+
       clearInterval(global.config.update.id)
       //开启新的计时器
       global.config.update.now = Date.now()
