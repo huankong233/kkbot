@@ -71,6 +71,7 @@ export const handler = async context => {
   let userContext = makeContext(context)
 
   let response
+  let fail = false
   try {
     if (global.config.bing.websocket) {
       response = await get(params[0], userContext)
@@ -81,28 +82,32 @@ export const handler = async context => {
       throw new Error(response.error)
     }
   } catch (error) {
+    fail = true
     await errorParse(context, error)
   }
 
-  // 查找有suggestedResponses的那一个
-  response.item.messages.forEach(async item => {
-    if (item.suggestedResponses) {
-      let message = item.adaptiveCards[0].body[0].text.trim()
-      await replyMsg(context, `${message}`, false, true)
-      global.config.bing.data[context.user_id].push(
-        ...[
-          {
-            tag: '[user](#message)',
-            text: params[0]
-          },
-          {
-            tag: '[assistant](#message)',
-            text: message
-          }
-        ]
-      )
-    }
-  })
+  if (!fail) {
+    // 查找有suggestedResponses的那一个
+    let message
+    response.item.messages.forEach(async item => {
+      if (item.suggestedResponses) message = item.adaptiveCards[0].body[0].text.trim()
+    })
+
+    await replyMsg(context, `${message}`, false, true)
+
+    global.config.bing.data[context.user_id].push(
+      ...[
+        {
+          tag: '[user](#message)',
+          text: params[0]
+        },
+        {
+          tag: '[assistant](#message)',
+          text: message
+        }
+      ]
+    )
+  }
 }
 
 export const makeContext = context => {

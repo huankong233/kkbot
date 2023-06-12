@@ -28,11 +28,10 @@ export const checkffmpeg = async () => {
 export const dinggong = async context => {
   const { path, records, ffmpeg } = global.config.dinggong
   if (ffmpeg) {
+    const record = records[randomMaxToMin(records.length - 1, 0)]
     //语音回复
-    await replyMsg(
-      context,
-      CQ.record(`file:///${path + records[randomMaxToMin(records.length - 1, 0)]}`)
-    )
+    await replyMsg(context, CQ.record(`file:///${path + record}`))
+    await replyMsg(context, record.slice(0, record.length - 4).trim())
   } else {
     //正常回复
     await replyMsg(context, '缺少ffmpeg,请联系管理员')
