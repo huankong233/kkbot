@@ -61,12 +61,13 @@ export const Vits = async context => {
   //TODO: 判断语言是否可用
   //困惑: 不支持的语言一样可以生成，但是不清楚是否生成正确
 
-  if (!fail) {
-    const base64 = Buffer.from(data).toString('base64')
-    await replyMsg(context, CQ.record(`base64://${base64}`))
-  } else {
+  if (fail) {
     await replyMsg(context, '获取语音文件失败')
+    return
   }
+
+  const base64 = Buffer.from(data).toString('base64')
+  await replyMsg(context, CQ.record(`base64://${base64}`))
 }
 
 export const getList = async () => {
@@ -77,22 +78,23 @@ export const getList = async () => {
   if (fail) {
     global.config.vits.speakers = 'fail'
     msgToConsole('请求speakers失败')
-  } else {
-    if (!data.VITS.length) {
-      console.error('[VITS] empty model list', data)
-      return `Error: VITS 模型列表为空`
-    }
-
-    const voiceMap = new Map()
-    data.VITS.forEach(item => {
-      if (item.id) voiceMap.set(item.id, item)
-
-      const keys = Object.keys(item)
-      const id = keys.length === 1 ? Math.ceil(keys[0]) : NaN
-      if (!Number.isNaN(id)) voiceMap.set(id, { id, name: item[id] })
-    })
-
-    global.config.vits.defaultVoiceId = Object.keys(data.VITS[0])[0] || ''
-    global.config.vits.speakers = voiceMap
+    return
   }
+
+  if (!data.VITS.length) {
+    console.error('[VITS] empty model list', data)
+    return `Error: VITS 模型列表为空`
+  }
+
+  const voiceMap = new Map()
+  data.VITS.forEach(item => {
+    if (item.id) voiceMap.set(item.id, item)
+
+    const keys = Object.keys(item)
+    const id = keys.length === 1 ? Math.ceil(keys[0]) : NaN
+    if (!Number.isNaN(id)) voiceMap.set(id, { id, name: item[id] })
+  })
+
+  global.config.vits.defaultVoiceId = Object.keys(data.VITS[0])[0] || ''
+  global.config.vits.speakers = voiceMap
 }
