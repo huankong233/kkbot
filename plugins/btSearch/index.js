@@ -10,7 +10,6 @@ function event() {
   RegEvent('message', async (event, context, tags) => {
     if (context.command) {
       if (context.command.name === 'BT搜索') {
-        await replyMsg(context, '搜索中~')
         await init(context)
       }
     }
@@ -28,6 +27,9 @@ export const init = async context => {
   if (!keyword) {
     return replyMsg(context, '请指定关键词')
   }
+
+  await replyMsg(context, '搜索中~')
+
   const page = context.command.params[1] ? context.command.params[1] : 1
   const data = await search(keyword, page)
 

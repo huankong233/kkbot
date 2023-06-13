@@ -1,10 +1,8 @@
-export const enable = false
+export const enable = true
 
 export default async () => {
   await loadConfig('vits.jsonc', true)
-
   event()
-
   getList()
 }
 
@@ -39,7 +37,7 @@ export const Vits = async context => {
   }
 
   const id = parseFloat(params[0])
-  if (global.config.vits.speakers.get(id)) {
+  if (!global.config.vits.speakers.get(id)) {
     return await replyMsg(
       context,
       '此id不存在,可前往 https://huggingface.co/spaces/Artrajz/vits-simple-api 查看'
@@ -55,25 +53,34 @@ export const Vits = async context => {
   const response = await nodeFetch(`${global.config.vits.url}vits?text=${text}&id=${id}`, {
     responseType: 'arraybuffer'
   })
-    .then(res => res.arraybuffer())
-    .catch(async error => (fail = true))
-
-  //TODO: 判断语言是否可用
-  //困惑: 不支持的语言一样可以生成，但是不清楚是否生成正确
+    .then(res => res.arrayBuffer())
+    .catch(async error => {
+      if (global.config.bot.debug) console.log(error)
+      fail = true
+    })
 
   if (fail) {
     await replyMsg(context, '获取语音文件失败')
     return
   }
 
-  const base64 = Buffer.from(data).toString('base64')
+  const decoder = new TextDecoder('utf-8')
+  if (decoder.decode(response).indexOf('500 Internal Server Error') !== -1) {
+    await replyMsg(context, '获取语音文件失败,请尝试换别的模型')
+    return
+  }
+
+  const base64 = Buffer.from(response).toString('base64')
   await replyMsg(context, CQ.record(`base64://${base64}`))
 }
 
 export const getList = async () => {
   const { url } = global.config.vits
   let fail = false
-  const data = await fetch(`${url}speakers`).catch(error => (fail = true))
+  const data = await fetch(`${url}speakers`).catch(error => {
+    if (global.config.bot.debug) console.log(error)
+    fail = true
+  })
 
   if (fail) {
     global.config.vits.speakers = 'fail'
