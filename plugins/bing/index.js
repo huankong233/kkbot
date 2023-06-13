@@ -135,7 +135,7 @@ export const errorParse = async (context, error) => {
   if (error === 'Sorry, you need to login first to access this service.') {
     await replyMsg(
       context,
-      ['提示:bing账号过期，请联系管理员', `报错:${e.toString()}`].join('\n'),
+      ['提示:bing账号过期，请联系管理员', `报错:${error.toString()}`].join('\n'),
       false,
       true
     )
@@ -145,11 +145,11 @@ export const errorParse = async (context, error) => {
   ) {
     await replyMsg(
       context,
-      ['提示:请不要使用不合时宜的词汇。', `报错:${e.toString()}`].join('\n'),
+      ['提示:请不要使用不合时宜的词汇。', `报错:${error.toString()}`].join('\n'),
       false,
       true
     )
   } else {
-    await replyMsg(context, ['提示:未知错误', `报错:${e.toString()}`].join('\n'), false, true)
+    await replyMsg(context, ['提示:未知错误', `报错:${error.toString()}`].join('\n'), false, true)
   }
 }
