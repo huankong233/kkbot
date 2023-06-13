@@ -1,6 +1,6 @@
 export default () => {
   global.config.dinggong = {}
-  checkffmpeg()
+  init()
   event()
 }
 
@@ -15,25 +15,21 @@ function event() {
 }
 
 import fs from 'fs'
-export const checkffmpeg = async () => {
-  if ((await bot('can_send_record')).data.yes) {
-    global.config.dinggong.ffmpeg = true
+export const init = async () => {
+  if (global.config.bot.ffmpeg) {
     global.config.dinggong.path = getDirName(import.meta.url) + '/../../resources/record/dinggong/'
     global.config.dinggong.records = fs.readdirSync(global.config.dinggong.path)
-  } else {
-    global.config.dinggong.ffmpeg = false
   }
 }
 
 export const dinggong = async context => {
-  const { path, records, ffmpeg } = global.config.dinggong
-  if (ffmpeg) {
+  const { path, records } = global.config.dinggong
+  if (global.config.bot.ffmpeg) {
     const record = records[randomMaxToMin(records.length - 1, 0)]
     //语音回复
     await replyMsg(context, CQ.record(`file:///${path + record}`))
     await replyMsg(context, record.slice(0, record.length - 4).trim())
   } else {
-    //正常回复
     await replyMsg(context, '缺少ffmpeg,请联系管理员')
   }
 }
