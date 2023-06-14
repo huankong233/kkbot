@@ -65,7 +65,7 @@ export const Vits = async context => {
   }
 
   const decoder = new TextDecoder('utf-8')
-  if (decoder.decode(response).indexOf('500 Internal Server Error') !== -1) {
+  if (decoder.decode(response).includes('500 Internal Server Error')) {
     await replyMsg(context, '获取语音文件失败,请尝试换别的模型')
     return
   }
