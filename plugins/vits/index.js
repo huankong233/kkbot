@@ -18,6 +18,7 @@ async function event() {
 }
 
 import nodeFetch from 'node-fetch'
+import { add, reduce } from '../pigeon/index.js'
 
 export const Vits = async context => {
   // 检查ffmpeg
@@ -38,15 +39,16 @@ export const Vits = async context => {
 
   const id = parseFloat(params[0])
   if (!global.config.vits.speakers.get(id)) {
-    return await replyMsg(
-      context,
-      '此id不存在,可前往 https://huggingface.co/spaces/Artrajz/vits-simple-api 查看'
-    )
+    return await replyMsg(context, `此id不存在,可前往 ${global.config.vits.helpUrl} 查看`)
   }
 
   const text = CQ.unescape(params[1].trim())
   if (!text) {
     return await replyMsg(context, '你还没告诉我要说什么呢')
+  }
+
+  if (!(await reduce(context.user_id, global.config.vits.cost, `Vits生成`))) {
+    return await replyMsg(context, `生成失败,鸽子不足~`, false, true)
   }
 
   let fail = false
@@ -61,12 +63,14 @@ export const Vits = async context => {
 
   if (fail) {
     await replyMsg(context, '获取语音文件失败')
+    await add(context.user_id, global.config.vits.cost, `Vits生成失败`)
     return
   }
 
   const decoder = new TextDecoder('utf-8')
   if (decoder.decode(response).includes('500 Internal Server Error')) {
     await replyMsg(context, '获取语音文件失败,请尝试换别的模型')
+    await add(context.user_id, global.config.vits.cost, `Vits生成失败`)
     return
   }
 

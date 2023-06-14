@@ -25,7 +25,7 @@ function event() {
   )
 }
 
-import { getUserData, add, reduce } from '../pigeon/index.js'
+import { add, reduce } from '../pigeon/index.js'
 
 //我的鸽子
 export const give = async context => {

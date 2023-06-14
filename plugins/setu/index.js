@@ -15,7 +15,7 @@ function event() {
   })
 }
 
-import { reduce } from '../pigeon/index.js'
+import { reduce, add } from '../pigeon/index.js'
 import { isToday } from '../gugu/index.js'
 import { imgAntiShielding } from './AntiShielding.js'
 import Jimp from 'jimp'
@@ -67,7 +67,7 @@ export const setu = async (context, match) => {
       responseData = (await fetch('https://api.lolicon.app/setu/v2', data, 'POST')).data
     } catch (error) {
       await replyMsg(context, '色图服务器爆炸惹')
-      await reduce(context.user_id, global.config.setu.pigeon, '色图加载失败')
+      await add(context.user_id, global.config.setu.pigeon, '色图加载失败')
       return 0
     }
 
@@ -87,7 +87,7 @@ export const setu = async (context, match) => {
       )
     } catch (error) {
       await replyMsg(context, '短链服务器爆炸惹')
-      await reduce(context.user_id, global.config.setu.pigeon, '色图加载失败')
+      await add(context.user_id, global.config.setu.pigeon, '色图加载失败')
       return 0
     }
 
@@ -106,7 +106,7 @@ export const setu = async (context, match) => {
       }).then(res => res.arrayBuffer())
     } catch (error) {
       await replyMsg(context, '图片获取失败惹')
-      await reduce(context.user_id, global.config.setu.pigeon, '色图加载失败')
+      await add(context.user_id, global.config.setu.pigeon, '色图加载失败')
       return 0
     }
 
@@ -118,7 +118,7 @@ export const setu = async (context, match) => {
       base64 = await imgAntiShielding(img, global.config.setu.antiShieldingMode)
     } catch (error) {
       await replyMsg(context, ['消息:反和谐失败惹', `报错:${error.toString()}`].join('\n'))
-      await reduce(context.user_id, global.config.setu.pigeon, '色图加载失败')
+      await add(context.user_id, global.config.setu.pigeon, '色图加载失败')
       return 0
     }
 
@@ -126,7 +126,7 @@ export const setu = async (context, match) => {
 
     if (message.status === 'failed') {
       await replyMsg(context, '色图发送失败')
-      await reduce(context.user_id, global.config.setu.pigeon, '色图加载失败')
+      await add(context.user_id, global.config.setu.pigeon, '色图加载失败')
     } else {
       //更新数据
       await database
