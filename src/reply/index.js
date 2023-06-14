@@ -30,10 +30,12 @@ export const replyMsg = (context, message, at = false, reply = false) => {
   if (context.message_type !== 'private' && at) {
     message = CQ.at(context.user_id) + ' ' + message
   }
+
   //不是频道，不是私聊，需要回复
   if (context.message_type !== 'guild' && context.message_type !== 'private' && reply) {
-    message = CQ.reply(context.message_id) + ' ' + message
+    message = CQ.reply(context.message_id) + message
   }
+
   switch (context.message_type) {
     case 'private':
       //回复私聊
