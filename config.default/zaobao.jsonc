@@ -1,0 +1,7 @@
+{
+  "api": "https://api.2xb.cn/zaob",
+  // 整点
+  "time": "8",
+  // 需要发送的群组
+  "groups": []
+}

@@ -1,9 +1,10 @@
-export const enable = true
-
 export default async () => {
-  await loadConfig('vits.jsonc', true)
-  event()
-  getList()
+  // 仅限非开发模式启用
+  if (!global.config.bot.debug) {
+    await loadConfig('vits.jsonc', true)
+    event()
+    getList()
+  }
 }
 
 //注册事件
