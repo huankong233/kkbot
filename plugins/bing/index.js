@@ -9,7 +9,7 @@ export default async () => {
 async function event() {
   RegEvent('message', async (event, context, tags) => {
     // 私聊
-    if (global.config.bing.private && context.message_type === 'private') {
+    if (global.config.bing.private && context.message_type === 'private' && !context.command) {
       context.command = {
         params: [context.message]
       }
