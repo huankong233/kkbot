@@ -132,7 +132,7 @@ export const ifSearchMode = context => {
 }
 
 import { add, reduce } from '../pigeon/index.js'
-import { ascii2d, SauceNAO, IqDB, TraceMoe, EHentai, Yandex } from 'image_searcher'
+import { ascii2d, SauceNAO, IqDB, TraceMoe, EHentai, Yandex, AnimeTrace } from 'image_searcher'
 
 //获取通用地址
 export const getUniversalImgURL = (url = '') => {
@@ -162,73 +162,94 @@ export const search = context => {
         refreshTimeOfAutoLeave(context.user_id)
         //图片url
         const imageUrl = getUniversalImgURL(item._data.url)
-        const fileName = getRangeCode(10) + '.temp'
+        const fileName = getRangeCode(10) + '.png'
         const outPath = './temp'
+        // TODO: 改成绝对地址
         const imagePath = `${outPath}/${fileName}`
         await downloadFile(imageUrl, outPath, fileName)
         //请求数据
         const responseData = await request([
+          // {
+          //   name: 'ascii2d',
+          //   callback: ascii2d,
+          //   params: {
+          //     type: 'bovw',
+          //     imagePath,
+          //     proxy: global.config.searchImage.ascii2dProxy
+          //   }
+          // },
+          // {
+          //   name: 'SauceNAO',
+          //   callback: SauceNAO,
+          //   params: {
+          //     hide: false,
+          //     imagePath
+          //   }
+          // },
+          // {
+          //   name: 'IqDB',
+          //   callback: IqDB,
+          //   params: {
+          //     discolor: false,
+          //     services: [
+          //       'danbooru',
+          //       'konachan',
+          //       'yandere',
+          //       'gelbooru',
+          //       'sankaku_channel',
+          //       'e_shuushuu',
+          //       'zerochan',
+          //       'anime_pictures'
+          //     ],
+          //     imagePath
+          //   }
+          // },
+          // {
+          //   name: 'TraceMoe',
+          //   callback: TraceMoe,
+          //   params: {
+          //     cutBorders: true,
+          //     imagePath
+          //   }
+          // },
           {
-            name: 'ascii2d',
-            callback: ascii2d,
+            name: 'AnimeTraceAnime',
+            callback: AnimeTrace,
             params: {
-              type: 'bovw',
-              imagePath,
-              proxy: global.config.searchImage.ascii2dProxy
-            }
-          },
-          {
-            name: 'SauceNAO',
-            callback: SauceNAO,
-            params: {
-              hide: false,
+              model: 'anime_model_lovelive',
+              mode: 0,
+              preview: true,
               imagePath
             }
           },
           {
-            name: 'IqDB',
-            callback: IqDB,
+            name: 'AnimeTraceGame',
+            callback: AnimeTrace,
             params: {
-              discolor: false,
-              services: [
-                'danbooru',
-                'konachan',
-                'yandere',
-                'gelbooru',
-                'sankaku_channel',
-                'e_shuushuu',
-                'zerochan',
-                'anime_pictures'
-              ],
-              imagePath
-            }
-          },
-          {
-            name: 'TraceMoe',
-            callback: TraceMoe,
-            params: {
-              cutBorders: true,
-              imagePath
-            }
-          },
-          {
-            name: 'Yandex',
-            callback: Yandex,
-            params: {
-              url: imageUrl,
-              cookie: global.config.searchImage.YANDEX_COOKIE
-            }
-          },
-          {
-            name: 'E-Hentai',
-            callback: EHentai,
-            params: {
-              site: 'ex',
-              similar: true,
-              EH_COOKIE: global.config.searchImage.EH_COOKIE,
+              model: 'game_model_kirakira',
+              mode: 0,
+              preview: true,
               imagePath
             }
           }
+          // {
+          //   name: 'Yandex',
+          //   callback: Yandex,
+          //   params: {
+          //     url: imageUrl,
+          //     cookie: global.config.searchImage.YANDEX_COOKIE
+          //   }
+          // },
+          // {
+          //   name: 'E-Hentai',
+          //   callback: EHentai,
+          //   params: {
+          //     site: 'ex',
+          //     similar: true,
+          //     EH_COOKIE: global.config.searchImage.EH_COOKIE,
+          //     imagePath
+          //   }
+          // }
         ])
 
         await parse(context, responseData, imageUrl)
@@ -374,6 +395,11 @@ export const parse = async (context, res, originUrl) => {
                 ``
               ].join('\n')
               break
+            case 'AnimeTraceAnime':
+              // message += [`${CQ.image()}`]
+              break
+            case 'AnimeTraceGame':
+              break
           }
         }
       }
@@ -399,6 +425,7 @@ export const parse = async (context, res, originUrl) => {
   })
 
   //发送
+  console.dir(messages, { depth: null })
   const data = await send_forward_msg(context, messages)
   if (data.status === 'failed') {
     await replyMsg(context, '发送合并消息失败，可以尝试私聊我哦~(鸽子已返还)')
