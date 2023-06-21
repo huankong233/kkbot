@@ -10,7 +10,8 @@ export default () => {
  */
 export const format = message => {
   const prefix = global.config.bot.prefix
-  //去头去尾空格
+  // 去头去尾空格
+  // 反转义
   message = message.trim()
   if (prefix === '' || message[0] === prefix) {
     //空格分割

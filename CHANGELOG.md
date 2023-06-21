@@ -2,6 +2,10 @@
 
 ## 2023
 
+### 06-21 v0.0.7.0
+
+- 完成更新插件`searchImage`
+
 ### 06-20 v0.0.6.5
 
 - 跟随上游`ImageSearcher`包更新插件`searchImage`

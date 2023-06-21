@@ -67,6 +67,7 @@ export const newBot = async () => {
     //事件处理
     bot.on('message', async (event, context, tags) => {
       let events = compare(global.events.message, 'priority')
+      context.message = CQ.unescape(context.message)
       for (let i = 0; i < events.length; i++) {
         if (
           (await events[i].callback(
@@ -81,6 +82,7 @@ export const newBot = async () => {
     })
     bot.on('notice', async context => {
       let events = compare(global.events.notice, 'priority')
+      context.message = CQ.unescape(context.message)
       for (let i = 0; i < events.length; i++) {
         if ((await events[i].callback(context)) === 'quit') {
           break
@@ -89,6 +91,7 @@ export const newBot = async () => {
     })
     bot.on('request', async context => {
       let events = compare(global.events.request, 'priority')
+      context.message = CQ.unescape(context.message)
       for (let i = 0; i < events.length; i++) {
         if ((await events[i].callback(context)) === 'quit') {
           break

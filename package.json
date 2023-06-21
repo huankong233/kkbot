@@ -1,6 +1,6 @@
 {
   "name": "kkbot",
-  "version": "0.0.6.6",
+  "version": "0.0.7.0",
   "description": "simple qqbot",
   "type": "module",
   "scripts": {
@@ -18,7 +18,7 @@
     "compare-versions": "^6.0.0-rc.1",
     "dayjs": "^1.11.7",
     "go-cqwebsocket": "^6.2.2",
-    "image_searcher": "^0.0.13",
+    "image_searcher": "^0.1.0",
     "jimp": "^0.16.2",
     "jsonc": "^2.0.0",
     "knex": "^2.3.0",

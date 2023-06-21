@@ -169,49 +169,49 @@ export const search = context => {
         await downloadFile(imageUrl, outPath, fileName)
         //请求数据
         const responseData = await request([
-          // {
-          //   name: 'ascii2d',
-          //   callback: ascii2d,
-          //   params: {
-          //     type: 'bovw',
-          //     imagePath,
-          //     proxy: global.config.searchImage.ascii2dProxy
-          //   }
-          // },
-          // {
-          //   name: 'SauceNAO',
-          //   callback: SauceNAO,
-          //   params: {
-          //     hide: false,
-          //     imagePath
-          //   }
-          // },
-          // {
-          //   name: 'IqDB',
-          //   callback: IqDB,
-          //   params: {
-          //     discolor: false,
-          //     services: [
-          //       'danbooru',
-          //       'konachan',
-          //       'yandere',
-          //       'gelbooru',
-          //       'sankaku_channel',
-          //       'e_shuushuu',
-          //       'zerochan',
-          //       'anime_pictures'
-          //     ],
-          //     imagePath
-          //   }
-          // },
-          // {
-          //   name: 'TraceMoe',
-          //   callback: TraceMoe,
-          //   params: {
-          //     cutBorders: true,
-          //     imagePath
-          //   }
-          // },
+          {
+            name: 'ascii2d',
+            callback: ascii2d,
+            params: {
+              type: 'bovw',
+              imagePath,
+              proxy: global.config.searchImage.ascii2dProxy
+            }
+          },
+          {
+            name: 'SauceNAO',
+            callback: SauceNAO,
+            params: {
+              hide: false,
+              imagePath
+            }
+          },
+          {
+            name: 'IqDB',
+            callback: IqDB,
+            params: {
+              discolor: false,
+              services: [
+                'danbooru',
+                'konachan',
+                'yandere',
+                'gelbooru',
+                'sankaku_channel',
+                'e_shuushuu',
+                'zerochan',
+                'anime_pictures'
+              ],
+              imagePath
+            }
+          },
+          {
+            name: 'TraceMoe',
+            callback: TraceMoe,
+            params: {
+              cutBorders: true,
+              imagePath
+            }
+          },
           {
             name: 'AnimeTraceAnime',
             callback: AnimeTrace,
@@ -231,7 +231,7 @@ export const search = context => {
               preview: true,
               imagePath
             }
-          }
+          },
           // {
           //   name: 'Yandex',
           //   callback: Yandex,
@@ -240,16 +240,16 @@ export const search = context => {
           //     cookie: global.config.searchImage.YANDEX_COOKIE
           //   }
           // },
-          // {
-          //   name: 'E-Hentai',
-          //   callback: EHentai,
-          //   params: {
-          //     site: 'ex',
-          //     similar: true,
-          //     EH_COOKIE: global.config.searchImage.EH_COOKIE,
-          //     imagePath
-          //   }
-          // }
+          {
+            name: 'E-Hentai',
+            callback: EHentai,
+            params: {
+              site: 'ex',
+              similar: true,
+              EH_COOKIE: global.config.searchImage.EH_COOKIE,
+              imagePath
+            }
+          }
         ])
 
         await parse(context, responseData, imageUrl)
@@ -396,9 +396,16 @@ export const parse = async (context, res, originUrl) => {
               ].join('\n')
               break
             case 'AnimeTraceAnime':
-              // message += [`${CQ.image()}`]
-              break
             case 'AnimeTraceGame':
+              if (item.preview !== 'fail unsupport image type') {
+                message += `${CQ.image(`base64://${item.preview}`)}\n`
+              }
+              message += `第${i + 1}名角色\n`
+              item.char.forEach((char, index) => {
+                message += [`角色名: ${char.name}`, `动漫名: ${char.cartoonname}`, ``, ``].join(
+                  '\n'
+                )
+              })
               break
           }
         }
@@ -425,7 +432,6 @@ export const parse = async (context, res, originUrl) => {
   })
 
   //发送
-  console.dir(messages, { depth: null })
   const data = await send_forward_msg(context, messages)
   if (data.status === 'failed') {
     await replyMsg(context, '发送合并消息失败，可以尝试私聊我哦~(鸽子已返还)')
