@@ -1,6 +1,6 @@
 {
   "name": "kkbot",
-  "version": "0.0.7.0",
+  "version": "0.0.7.1",
   "description": "simple qqbot",
   "type": "module",
   "scripts": {
