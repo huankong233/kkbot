@@ -1,5 +1,6 @@
 import fs from 'fs'
 import { jsonc } from 'jsonc'
+import { logger } from './logger.js'
 
 /**
  * 加载单个配置文件
@@ -9,16 +10,23 @@ import { jsonc } from 'jsonc'
  */
 export function loadConfig(configName, RegToGlobal = true) {
   //获取json内容
-  const config = jsonc.parse(fs.readFileSync(`./config/${configName}.jsonc`).toString())
-  if (!global.config) {
-    global.config = {}
-  }
+  let config
+  try {
+    config = jsonc.parse(fs.readFileSync(`./config/${configName}.jsonc`).toString())
 
-  if (RegToGlobal) {
-    global.config[config.configName ?? configName] = config
-  }
+    if (!global.config) {
+      global.config = {}
+    }
 
-  return config
+    if (RegToGlobal) {
+      global.config[config.configName ?? configName] = config
+    }
+
+    return config
+  } catch (error) {
+    logger.WARNING(`配置文件${configName}加载失败,请检查`)
+    if (global.debug) logger.DEBUG(error)
+  }
 }
 
 /**

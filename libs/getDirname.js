@@ -14,5 +14,5 @@ export function getDirName(importMetaUrl) {
  * 获取初始路径
  */
 export function getBaseDir() {
-  return path.join(getDirName(import.meta.url), '../../')
+  return path.join(getDirName(import.meta.url), '..')
 }
