@@ -20,7 +20,8 @@
     "mysql2": "3.4.1",
     "node-fetch": "^3.3.1",
     "node-global-proxy": "1.0.1",
-    "qs": "^6.11.2"
+    "qs": "^6.11.2",
+    "ws": "^8.13.0"
   },
   "devDependencies": {
     "nodemon": "^2.0.22"
