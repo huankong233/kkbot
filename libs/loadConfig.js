@@ -12,7 +12,7 @@ export function loadConfig(configName, RegToGlobal = true) {
   //获取json内容
   let config
   try {
-    config = jsonc.parse(fs.readFileSync(`./config/${configName}.jsonc`).toString())
+    config = jsonc.parse(fs.readFileSync(`./config/${configName}.jsonc`, { encoding: 'utf-8' }))
 
     if (!global.config) {
       global.config = {}

@@ -1,0 +1,1 @@
+{"kkbot_plugin_version":2,"name":"knex","description":"快捷操作数据库","version":"0.0.1","author":[{"name":"huan_kong","link":"https://github.com/huankong233"}],"dependencies":{"knex":"^2.4.2","mysql2":"^3.4.1"},"installed":true}

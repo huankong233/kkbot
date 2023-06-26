@@ -9,7 +9,11 @@ global.baseDir = getBaseDir()
 import { newBot } from './libs/bot.js'
 await newBot()
 
-import { loadPluginDir, loadPlugin } from './libs/loadPlugin.js'
+// 初始化package.json内容
+import { getVersion } from './libs/loadVersion.js'
+getVersion()
+
+import { loadPluginDir } from './libs/loadPlugin.js'
 
 // 加载前置插件
 await loadPluginDir('plugins_dependencies')
