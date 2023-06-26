@@ -3,6 +3,7 @@ const TIMEOUT = 60000
 
 import nodeFetch, { AbortError } from 'node-fetch'
 import { logger } from './logger.js'
+import { stringify } from 'qs'
 
 import AbortController from 'abort-controller'
 
@@ -17,7 +18,9 @@ export async function get(url, data = {}, timeOut = TIMEOUT) {
     method: 'GET',
     headers: {
       Accept: 'application/json',
-      'Content-Type': 'application/json'
+      'Content-Type': 'application/json',
+      'User-Agent':
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36'
     },
     mode: 'cors',
     cache: 'force-cache',
@@ -25,15 +28,7 @@ export async function get(url, data = {}, timeOut = TIMEOUT) {
   }
 
   if (Object.keys(data).length !== 0) {
-    let queryParams = ''
-
-    Object.keys(data).forEach(key => {
-      queryParams += key + '=' + data[key] + '&'
-    })
-
-    queryParams = queryParams.substring(0, queryParams.length - 1)
-
-    url += `?${queryParams}`
+    url += `?${stringify(data)}`
   }
 
   try {
@@ -59,7 +54,9 @@ export async function post(url, data, timeOut = TIMEOUT) {
     method: 'POST',
     headers: {
       Accept: 'application/json',
-      'Content-Type': 'application/json'
+      'Content-Type': 'application/json',
+      'User-Agent':
+        'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/113.0.0.0 Safari/537.36'
     },
     mode: 'cors',
     cache: 'force-cache',

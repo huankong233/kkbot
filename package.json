@@ -19,7 +19,8 @@
     "knex": "2.4.2",
     "mysql2": "3.4.1",
     "node-fetch": "^3.3.1",
-    "node-global-proxy": "1.0.1"
+    "node-global-proxy": "1.0.1",
+    "qs": "^6.11.2"
   },
   "devDependencies": {
     "nodemon": "^2.0.22"
