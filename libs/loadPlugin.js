@@ -1,7 +1,8 @@
 import { logger } from './logger.js'
 import { pathToFileURL } from 'url'
-import { readFileSync, writeFileSync } from 'fs'
+import { readdirSync, readFileSync, writeFileSync } from 'fs'
 import { execSync } from 'child_process'
+import { jsonc } from 'jsonc'
 
 /**
  * 加载单个插件
@@ -22,12 +23,15 @@ export async function loadPlugin(pluginName, pluginDir = 'plugins') {
     return
   }
 
-  if (manifest.kkbot_plugin_version !== global.kkbot_plugin_version) {
+  if (manifest.kkbot_plugin_version !== kkbot_plugin_version) {
     logger.NOTICE(`插件${pluginName}与当前框架兼容版本不一致，可能有兼容问题`)
   }
 
   const { dependencies, installed } = manifest
-  if (!installed) {
+
+  // 如果还没安装就安装一次,如果不是debug就一直安装
+  if (!installed || !debug) {
+    // 如果还没安装
     let installCommand = 'yarn add'
     for (const key in dependencies) {
       const value = dependencies[key]
@@ -103,8 +107,6 @@ export async function loadPlugins(plugins, pluginDir = 'plugins') {
   }
 }
 
-import { readdirSync } from 'fs'
-import { jsonc } from 'jsonc'
 /**
  * 加载指定文件夹中的所有插件
  * @param {String} pluginDir
