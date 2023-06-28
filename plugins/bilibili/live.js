@@ -4,9 +4,9 @@ import { logger } from '../../libs/logger.js'
 
 export const getLiveRoomInfo = async id => {
   try {
-    const data = await get(
-      `https://api.live.bilibili.com/xlive/web-room/v1/index/getInfoByRoom?room_id=${id}`
-    ).then(res => res.json())
+    const data = await get({
+      url: `https://api.live.bilibili.com/xlive/web-room/v1/index/getInfoByRoom?room_id=${id}`
+    }).then(res => res.json())
 
     let {
       data: {

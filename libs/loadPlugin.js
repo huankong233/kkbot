@@ -32,13 +32,13 @@ export async function loadPlugin(pluginName, pluginDir = 'plugins') {
   // 如果还没安装就安装一次,如果不是debug就一直安装
   if (!installed || !debug) {
     // 如果还没安装
-    let installCommand = 'yarn add'
+    let installCommand = 'pnpm install'
     for (const key in dependencies) {
       const value = dependencies[key]
       installCommand += ` ${key}@${value}`
     }
 
-    if (installCommand !== 'yarn add') {
+    if (installCommand !== 'pnpm install') {
       try {
         execSync(installCommand).toString()
       } catch (error) {

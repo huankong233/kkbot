@@ -102,7 +102,7 @@ import { get } from '../../libs/fetch.js'
 import { logger } from '../../libs/logger.js'
 const getIdFromShortLink = async shortLink => {
   try {
-    const data = await get(shortLink)
+    const data = await get({ url: shortLink })
     return getIdFromNormalLink(data.url)
   } catch (error) {
     logger.WARNING(`bilibili head short link ${shortLink}`)

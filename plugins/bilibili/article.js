@@ -4,9 +4,10 @@ import { get } from '../../libs/fetch.js'
 
 export const getArticleInfo = async id => {
   try {
-    const data = await get(`https://api.bilibili.com/x/article/viewinfo?id=${id}`).then(res =>
-      res.json()
+    const data = await get({ url: `https://api.bilibili.com/x/article/viewinfo?id=${id}` }).then(
+      res => res.json()
     )
+
     let {
       data: {
         stats: { view, reply },

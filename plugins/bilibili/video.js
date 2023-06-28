@@ -5,9 +5,9 @@ import { logger } from '../../libs/logger.js'
 
 export const getVideoInfo = async param => {
   try {
-    const data = await get(
-      `https://api.bilibili.com/x/web-interface/view?${stringify(param)}`
-    ).then(res => res.json())
+    const data = await get({
+      url: `https://api.bilibili.com/x/web-interface/view?${stringify(param)}`
+    }).then(res => res.json())
 
     if (data.code === -404) return '该视频已被删除'
     if (data.code !== 0) return data.message

@@ -93,10 +93,13 @@ const formatDynamic = async item => {
 
 export const getDynamicInfo = async id => {
   try {
-    const { data } = await get('https://api.bilibili.com/x/polymer/web-dynamic/v1/detail', {
-      timezone_offset: new Date().getTimezoneOffset(),
-      id,
-      features: 'itemOpusStyle'
+    const { data } = await get({
+      url: 'https://api.bilibili.com/x/polymer/web-dynamic/v1/detail',
+      data: {
+        timezone_offset: new Date().getTimezoneOffset(),
+        id,
+        features: 'itemOpusStyle'
+      }
     }).then(res => res.json())
 
     if (!data?.item) {

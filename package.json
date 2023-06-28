@@ -13,10 +13,12 @@
   "dependencies": {
     "@tsuk1ko/cq-websocket": "^2.3.1",
     "abort-controller": "^3.0.0",
+    "cheerio": "^1.0.0-rc.12",
     "cli-color": "^2.0.3",
     "go-cqwebsocket": "^6.2.2",
     "jsonc": "^2.0.0",
     "knex": "2.4.2",
+    "lodash": "^4.17.21",
     "mysql2": "3.4.1",
     "node-fetch": "^3.3.1",
     "node-global-proxy": "1.0.1",

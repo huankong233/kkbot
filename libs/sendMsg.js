@@ -56,7 +56,7 @@ export async function replyMsg(context, message, at, reply) {
  * @param {Object} context 消息对象
  * @param {Array} messages
  */
-export async function send_forward_msg(context, messages) {
+export async function sendForwardMsg(context, messages) {
   const { message_type } = context
   switch (message_type) {
     case 'group':

@@ -6,7 +6,7 @@ import { logger } from './logger.js'
 import { sendMsg } from './sendMsg.js'
 
 /**
- * 启动机器人线程，注册事件等
+ * 启动机器人,注册事件等
  */
 export async function newBot() {
   loadConfig('bot')
