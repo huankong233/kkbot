@@ -1,9 +1,1 @@
-{
-  "kkbot_plugin_version": 2,
-  "name": "bilibili",
-  "description": "对bilibili信息进行处理",
-  "version": "0.0.1",
-  "author": [{ "name": "huan_kong", "link": "https://github.com/huankong233" }],
-  "dependencies": {},
-  "installed": true
-}
+{"kkbot_plugin_version":2,"name":"bilibili","description":"对bilibili信息进行处理","version":"0.0.1","author":[{"name":"huan_kong","link":"https://github.com/huankong233"}],"dependencies":{},"installed":true}
