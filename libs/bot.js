@@ -66,8 +66,13 @@ export async function newBot() {
 
     // connect
     bot.connect()
+
+    return new Promise((resolve, reject) => {
+      bot.on('socket.connect', resolve)
+    })
   } catch (error) {
-    logger.WARNING(error)
+    logger.WARNING('机器人启动失败!!!')
+    if (global.debug) logger.DEBUG(error)
     throw new Error('请检查机器人配置文件!!!')
   }
 }
