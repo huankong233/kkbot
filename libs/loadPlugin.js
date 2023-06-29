@@ -27,7 +27,7 @@ export async function loadPlugin(pluginName, pluginDir = 'plugins') {
     logger.NOTICE(`插件${pluginName}与当前框架兼容版本不一致，可能有兼容问题`)
   }
 
-  const { dependencies, installed } = manifest
+  const { dependencies, installed, depends } = manifest
 
   // 如果还没安装就安装一次,如果不是debug就一直安装
   if (!installed || !debug) {
@@ -53,12 +53,23 @@ export async function loadPlugin(pluginName, pluginDir = 'plugins') {
     writeFileSync(`${pluginDir}manifest.json`, JSON.stringify(manifest))
   }
 
+  // 检查是否存在依赖
+  if (depends) {
+    for (let index = 0; index < depends.length; index++) {
+      const element = depends[index]
+      if (!global.pluginNames.find(item => item.name === element)) {
+        logger.WARNING(`插件${pluginName}缺少依赖${element}`)
+        return
+      }
+    }
+  }
+
   let program
 
   try {
     program = await import(pathToFileURL(`${pluginDir}index.js`))
   } catch (error) {
-    logger.WARNING(`插件${pluginName}不存在`)
+    logger.WARNING(`插件${pluginName}不存在或插件损坏`)
     if (debug) logger.DEBUG(error)
     return
   }
@@ -74,7 +85,7 @@ export async function loadPlugin(pluginName, pluginDir = 'plugins') {
 
   // 循环检查是否存在
   if (global.pluginNames.find(item => item.name === pluginName)) {
-    if (debug) logger.NOTICE(`插件${pluginName}已经加载过了`)
+    if (debug) logger.DEBUG(`插件${pluginName}已经加载过了`)
     return
   }
 

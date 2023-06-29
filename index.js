@@ -13,10 +13,11 @@ await newBot()
 import { getVersion } from './libs/loadVersion.js'
 getVersion()
 
-import { loadPluginDir } from './libs/loadPlugin.js'
+import { loadPlugins, loadPluginDir } from './libs/loadPlugin.js'
 
 // 加载前置插件
 await loadPluginDir('plugins_dependencies')
+await loadPlugins(['pigeon'])
 
 // 再加载剩余的插件
 await loadPluginDir('plugins')

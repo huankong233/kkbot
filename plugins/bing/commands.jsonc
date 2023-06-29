@@ -1,6 +1,10 @@
 [
   {
     "commandName": "bing",
-    "commandDescription": "需一个参数可为想说的话或开启新的会话来开启新的会话"
+    "commandDescription": [
+      "bing [参数1]",
+      "参数1可以是你需要询问的问题或者开启新的会话",
+      "如果是开启新的会话会清除前面所有的context"
+    ]
   }
 ]

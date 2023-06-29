@@ -25,47 +25,49 @@ import { replyMsg, sendForwardMsg } from '../../libs/sendMsg.js'
 
 //启动函数
 export const init = async context => {
-  const { user_id, command } = context
+  const { user_id, command, self_id } = context
+  const { btSearch, bot } = global.config
 
-  if (!(await reduce({ user_id, number: global.config.btSearch.cost, reason: `BT搜索` }))) {
+  if (!(await reduce({ user_id, number: btSearch.cost, reason: `BT搜索` }))) {
     return await replyMsg(context, `搜索失败,鸽子不足~`, true)
   }
 
   const keyword = command.params[0]
   if (!keyword) {
-    return replyMsg(context, '请指定关键词')
+    return await replyMsg(context, '请指定关键词')
   }
 
   const page = command.params[1] ?? 1
   const data = await search(keyword, page)
 
-  if (data === '获取失败') {
+  if (data === '获取信息失败') {
     await replyMsg(context, '获取信息失败')
-    await add({ user_id, number: global.config.btSearch.cost, reason: `BT搜索失败` })
+    await add({ user_id, number: btSearch.cost, reason: `BT搜索失败` })
   } else if (data === '没有搜索结果') {
     await replyMsg(context, '没有搜索结果')
-    await add({ user_id, number: global.config.btSearch.cost, reason: `BT搜索没有搜索结果` })
-  } else if (data.data) {
+    await add({ user_id, number: btSearch.cost, reason: `BT搜索没有搜索结果` })
+  } else {
     let messages = [
       CQ.node(
-        global.config.bot.botName,
-        context.self_id,
-        data.lastPage === '获取失败'
+        bot.botName,
+        self_id,
+        data.lastPage === '获取信息失败'
           ? '获取失败'
           : [
               `共${data.lastPage}页`,
-              `可使用命令"${global.config.bot.prefix}BT搜索 ${keyword} 指定页数"来进行翻页`
+              `可使用命令"${bot.prefix}BT搜索 ${keyword} 指定页数"来进行翻页`
             ].join('\n')
       )
     ]
+
     if (data.data.length === 0) {
-      messages.push(CQ.node(global.config.bot.botName, context.self_id, `没有匹配内容`))
+      messages.push(CQ.node(bot.botName, self_id, `没有匹配内容`))
     } else {
       data.data.forEach(datum => {
         messages.push(
           CQ.node(
-            global.config.bot.botName,
-            context.self_id,
+            bot.botName,
+            self_id,
             [
               `文件名:${datum.title}`,
               `文件类型:${datum.type}`,
@@ -81,11 +83,7 @@ export const init = async context => {
       const status = await sendForwardMsg(context, messages)
       if (status.status === 'failed') {
         await replyMsg(context, '发送合并消息失败，可以尝试私聊我哦~(鸽子已返还)')
-        await add({
-          user_id,
-          number: global.config.btSearch.cost,
-          reason: `BT搜索_合并消息发送失败赔偿`
-        })
+        await add({ user_id, number: btSearch.cost, reason: `BT搜索_合并消息发送失败赔偿` })
       }
     }
   }
@@ -94,18 +92,18 @@ export const init = async context => {
 import { get } from '../../libs/fetch.js'
 //搜索
 export const search = async (keyword, page) => {
-  const { site } = global.config.btSearch
-
-  const url = `${site}/s/${keyword}_rel_${page}.html`
+  const { btSearch } = global.config
 
   let html
 
   try {
-    html = await get({ url }).then(res => res.text())
+    html = await get({ url: `${btSearch.site}/s/${keyword}_rel_${page}.html` }).then(res =>
+      res.text()
+    )
   } catch (error) {
-    logger.WARNING(`请求${site}失败`)
+    logger.WARNING(`BT搜索请求接口失败`)
     if (global.debug) logger.DEBUG(error)
-    return '获取失败'
+    return '获取信息失败'
   }
 
   const data = parse(html)
@@ -148,10 +146,10 @@ export const parse = html => {
 export const getLastPage = html => {
   const $ = cheerio.load(html, { decodeEntities: true })
   const last = $('.last_p').html()
-  //获取失败，判断有几条数据
   if (last) {
     return last.match('_rel_(.*).html')[1]
   } else {
+    //获取失败，判断有几条数据
     const count = $('.search-statu', html).text()
     const number = parseInt(count.match('大约(.*)条结果')[1])
     if (count) {
@@ -160,10 +158,10 @@ export const getLastPage = html => {
       } else if (number <= 10) {
         return '1'
       } else {
-        return '有多'
+        return parseInt(number / 10).toString()
       }
     } else {
-      return '获取失败'
+      return '获取信息失败'
     }
   }
 }
@@ -177,10 +175,10 @@ export const getDownloadLink = async href => {
   } catch (error) {
     logger.WARNING('获取磁力地址失败')
     if (global.debug) logger.DEBUG(error)
-    return '获取失败'
+    return '获取信息失败'
   }
 
   const $ = cheerio.load(data, { decodeEntities: true })
   const link = $('#down-url', data).attr('href')
-  return link ?? '获取失败'
+  return link ?? '获取信息失败'
 }

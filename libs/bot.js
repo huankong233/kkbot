@@ -192,7 +192,7 @@ export function format(message) {
   message = message.trim()
 
   // 判断是否是一个命令
-  if (message.indexOf(prefix) === -1) {
+  if (message[0] !== prefix) {
     return false
   }
 
