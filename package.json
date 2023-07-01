@@ -9,12 +9,6 @@
     "publish": "node publish.js",
     "prepare": "husky install"
   },
-  "husky": {
-    "hooks": {
-      "pre-commit": "pnpm run publish",
-      "commit-msg": "commitlint -e $HUSKY_GIT_PARAMS"
-    }
-  },
   "repository": "https://github.com/huankong233/kkbot",
   "author": "huan_kong",
   "license": "MIT",
