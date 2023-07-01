@@ -47,7 +47,6 @@ export const corpus = async context => {
     if (!isCtxMatchScence(context, scene)) continue
 
     // 执行正则判断
-    console.log(regexp)
     const reg = new RegExp(regexp)
     const exec = reg.exec(context.message)
     if (!exec) continue

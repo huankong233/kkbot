@@ -28,13 +28,6 @@ export async function newBot() {
       logger.INFO(`连接中[${wsType}]#${attempts}`)
     })
 
-    bot.on('socket.failed', (wsType, attempts) => {
-      if (attempts === connect.reconnectionAttempts) {
-        logger.WARNING(`连接失败次数超过设置的${connect.reconnectionAttempts}次!`)
-        throw new Error(`connect to the websocket server failed`)
-      }
-    })
-
     bot.on('socket.error', (wsType, err) => {
       logger.WARNING(`连接错误[${wsType}]`)
       if (debug) logger.DEBUG(err)
@@ -69,6 +62,11 @@ export async function newBot() {
 
     return new Promise((resolve, reject) => {
       bot.on('socket.connect', resolve)
+      bot.on('socket.failed', (wsType, attempts) =>
+        attempts >= connect.reconnectionAttempts
+          ? reject(`连接失败次数超过设置的${connect.reconnectionAttempts}次!`)
+          : null
+      )
     })
   } catch (error) {
     logger.WARNING('机器人启动失败!!!')
@@ -87,16 +85,16 @@ function initEvents() {
 
   //事件处理
   bot.on('message', async (event, context, tags) => {
-    if (global.config.bot.debug) {
+    if (global.debug) {
       switch (context.message_type) {
         case 'group':
           logger.DEBUG(
-            `收到来自群组(${context.group_id})/用户(${context.user_id})发送消息的: ${context.message}`
+            `收到来自群组(${context.group_id}),用户(${context.user_id})发送消息的: ${context.message}`
           )
           break
         case 'discuss':
           logger.DEBUG(
-            `收到来自讨论组(${context.group_id})/用户(${context.user_id})发送消息的: ${context.message}`
+            `收到来自讨论组(${context.group_id}),用户(${context.user_id})发送消息的: ${context.message}`
           )
           break
         case 'private':
@@ -126,7 +124,7 @@ function initEvents() {
   })
 
   bot.on('notice', async context => {
-    if (global.config.bot.debug) logger.DEBUG(`收到类型为${context.notice_type}的通知`)
+    if (global.debug) logger.DEBUG(`收到类型为${context.notice_type}的通知`)
 
     let events = compare(global.events.notice, 'priority')
     for (let i = 0; i < events.length; i++) {
@@ -143,7 +141,7 @@ function initEvents() {
   })
 
   bot.on('request', async context => {
-    if (global.config.bot.debug) logger.DEBUG(`收到类型为${context.request_type}的请求`)
+    if (global.debug) logger.DEBUG(`收到类型为${context.request_type}的请求`)
 
     let events = compare(global.events.request, 'priority')
     for (let i = 0; i < events.length; i++) {

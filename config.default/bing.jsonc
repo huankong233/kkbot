@@ -1,0 +1,10 @@
+{
+  // docker部署: https://hub.docker.com/r/huankong233/edgegpt
+  // 如果设置了websocket就优先websocket（结尾必须有/）
+  // 例子: ws://服务器地址/ws/
+  // "websocket": "ws://host:port/ws/",
+  "websocket": false,
+  "cost": 10,
+  // 私聊启用
+  "private": true
+}

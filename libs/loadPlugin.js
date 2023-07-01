@@ -1,8 +1,10 @@
-import { logger } from './logger.js'
 import { pathToFileURL } from 'url'
 import { readdirSync, readFileSync, writeFileSync } from 'fs'
 import { execSync } from 'child_process'
 import { jsonc } from 'jsonc'
+import { logger } from './logger.js'
+import clc from 'cli-color'
+import path from 'path'
 
 /**
  * 加载单个插件
@@ -10,13 +12,14 @@ import { jsonc } from 'jsonc'
  */
 export async function loadPlugin(pluginName, pluginDir = 'plugins') {
   const { debug, kkbot_plugin_version } = global
-  pluginDir = `${global.baseDir}/${pluginDir}/${pluginName}/`
+
+  pluginDir = path.join(global.baseDir, pluginDir, pluginName)
 
   let manifest
 
   // 检查插件兼容情况
   try {
-    manifest = jsonc.parse(readFileSync(`${pluginDir}manifest.json`, { encoding: 'utf-8' }))
+    manifest = jsonc.parse(readFileSync(`${pluginDir}/manifest.json`, { encoding: 'utf-8' }))
   } catch (error) {
     logger.WARNING(`插件${pluginName}manifest加载失败`)
     if (debug) logger.DEBUG(error)
@@ -24,13 +27,13 @@ export async function loadPlugin(pluginName, pluginDir = 'plugins') {
   }
 
   if (manifest.kkbot_plugin_version !== kkbot_plugin_version) {
-    logger.NOTICE(`插件${pluginName}与当前框架兼容版本不一致，可能有兼容问题`)
+    logger.NOTICE(`插件${pluginName}与当前框架的插件系统兼容版本不一致，可能有兼容问题`)
   }
 
   const { dependencies, installed, depends } = manifest
 
-  // 如果还没安装就安装一次,如果不是debug就一直安装
-  if (!installed || !debug) {
+  // 如果还没安装就安装一次
+  if (!installed) {
     // 如果还没安装
     let installCommand = 'pnpm install'
     for (const key in dependencies) {
@@ -50,7 +53,7 @@ export async function loadPlugin(pluginName, pluginDir = 'plugins') {
 
     // 回写manifest文件
     manifest.installed = true
-    writeFileSync(`${pluginDir}manifest.json`, JSON.stringify(manifest))
+    writeFileSync(`${pluginDir}/manifest.json`, JSON.stringify(manifest))
   }
 
   // 检查是否存在依赖
@@ -58,7 +61,7 @@ export async function loadPlugin(pluginName, pluginDir = 'plugins') {
     for (let index = 0; index < depends.length; index++) {
       const element = depends[index]
       if (!global.pluginNames.find(item => item.name === element)) {
-        logger.WARNING(`插件${pluginName}缺少依赖${element}`)
+        logger.WARNING(`插件${pluginName}缺少依赖${clc.bold(element)}`)
         return
       }
     }
@@ -67,7 +70,7 @@ export async function loadPlugin(pluginName, pluginDir = 'plugins') {
   let program
 
   try {
-    program = await import(pathToFileURL(`${pluginDir}index.js`))
+    program = await import(pathToFileURL(`${pluginDir}/index.js`))
   } catch (error) {
     logger.WARNING(`插件${pluginName}不存在或插件损坏`)
     if (debug) logger.DEBUG(error)
@@ -89,7 +92,7 @@ export async function loadPlugin(pluginName, pluginDir = 'plugins') {
     return
   }
 
-  global.pluginNames.push(manifest)
+  global.pluginNames.push({ ...manifest, dir: pluginDir })
 
   if (!program.default) {
     logger.WARNING(`加载插件${pluginName}失败，插件不存在默认导出函数`)
@@ -133,4 +136,5 @@ export async function loadPluginDir(pluginDir) {
   }
 
   await loadPlugins(plugins, pluginDir)
+  if (global.debug) logger.DEBUG(`文件夹: ${clc.underline(pluginDir)} 中的插件已全部加载!`)
 }

@@ -7,6 +7,11 @@ import { stringify } from 'qs'
 
 import AbortController from 'abort-controller'
 
+/**
+ * 不带重试的Get请求
+ * @param {Object} req
+ * @returns
+ */
 export async function fetchGet({ url, data = {}, timeOut = TIMEOUT } = {}) {
   if (!url) {
     logger.WARNING(`url参数不存在`)
@@ -49,6 +54,11 @@ export async function fetchGet({ url, data = {}, timeOut = TIMEOUT } = {}) {
   }
 }
 
+/**
+ * 不带重试的Post请求
+ * @param {Object} req
+ * @returns
+ */
 export async function fetchPost({ url, data = {}, timeOut = TIMEOUT } = {}) {
   if (!url) {
     logger.WARNING(`url参数不存在`)
@@ -109,21 +119,27 @@ export async function retryAsync(func, times = 3) {
 /**
  * 自动尝试Get请求
  * @param {Object} req 请求参数
+ * @param {Number} times 重试次数
  * @returns
  */
-export async function get(req = {}, times) {
-  return await retryAsync(async () => {
-    return await fetchGet(req, true)
-  }, times)
+export async function get({ url, data, timeOut } = {}, times) {
+  try {
+    return await retryAsync(async () => {
+      return await fetchGet({ url, data, timeOut }, true)
+    }, times)
+  } catch (error) {
+    throw new Error(error)
+  }
 }
 
 /**
  * 自动尝试Post请求
  * @param {Object} req 请求参数
+ * @param {Number} times 重试次数
  * @returns
  */
-export async function post(req = {}, times) {
+export async function post({ url, data, timeOut } = {}, times) {
   return await retryAsync(async () => {
-    return await fetchPost(req, true)
+    return await fetchPost({ url, data, timeOut }, true)
   }, times)
 }

@@ -93,7 +93,9 @@ const formatDynamic = async item => {
 
 export const getDynamicInfo = async id => {
   try {
-    const { data } = await get({
+    const {
+      data: { data, code, message }
+    } = await get({
       url: 'https://api.bilibili.com/x/polymer/web-dynamic/v1/detail',
       data: {
         timezone_offset: new Date().getTimezoneOffset(),
@@ -102,9 +104,18 @@ export const getDynamicInfo = async id => {
       }
     }).then(res => res.json())
 
-    if (!data?.item) {
+    if (code === 4101131 || code === 4101105) {
       return '动态不存在'
     }
+
+    if (code !== 0) {
+      return `Error: (${code})${message}`
+    }
+
+    if (!data?.item) {
+      return 'Error: 无内容'
+    }
+
     const lines = await formatDynamic(data.item)
     return lines.join('\n')
   } catch (error) {

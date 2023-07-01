@@ -21,3 +21,6 @@ await loadPlugins(['pigeon'])
 
 // 再加载剩余的插件
 await loadPluginDir('plugins')
+
+import { logger } from './libs/logger.js'
+logger.SUCCESS('机器人已启动成功')
