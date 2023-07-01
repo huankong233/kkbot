@@ -8,7 +8,7 @@
     "dev": "nodemon",
     "publish": "node publish.js",
     "commitlint": "commitlint --config commitlint.config.cjs -e -V",
-    "commit": "git-cz",
+    "commit": "git add . && cz-customizable",
     "prepare": "husky install"
   },
   "config": {
@@ -16,7 +16,7 @@
       "path": "./node_modules/cz-customizable"
     },
     "cz-customizable": {
-      "config": "./.cz-config.cjs"
+      "config": ".cz-config.cjs"
     }
   },
   "repository": "https://github.com/huankong233/kkbot",
@@ -42,9 +42,11 @@
     "@commitlint/cli": "^17.6.6",
     "@commitlint/config-conventional": "^17.6.6",
     "commitizen": "^4.3.0",
+    "commitlint-config-cz": "^0.13.3",
+    "commitlint-config-git-commit-emoji": "^1.0.0",
     "cz-conventional-changelog": "^3.3.0",
     "cz-customizable": "^7.0.0",
-    "husky": "^8.0.0",
+    "husky": "^8.0.3",
     "nodemon": "^2.0.22"
   }
 }
