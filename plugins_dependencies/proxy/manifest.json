@@ -1,1 +1,1 @@
-{"kkbot_plugin_version":2,"name":"proxy","description":"对nodejs的请求进行全局代理","version":"0.0.1","author":[{"name":"huan_kong","link":"https://github.com/huankong233"}],"dependencies":{"node-global-proxy":"^1.0.1"}}
+{"kkbot_plugin_version":2,"name":"proxy","description":"对nodejs的请求进行全局代理","version":"0.0.1","author":[{"name":"huan_kong","link":"https://github.com/huankong233"}],"dependencies":{"node-global-proxy":"^1.0.1"},"installed":true}
