@@ -5,6 +5,7 @@
   "scripts": {
     "start": "node index.js",
     "dev": "nodemon",
+    "docker": "pip install -r requirements.txt --upgrade && pnpm install && pnpm run start",
     "publish": "node publish.js",
     "commitlint": "commitlint --config commitlint.config.cjs -e -V",
     "commit": "pnpm run publish && git add . && cz-customizable && git push",

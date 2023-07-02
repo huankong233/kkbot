@@ -4,7 +4,8 @@ import { loadPlugins, loadPluginDir, loadPlugin } from './libs/loadPlugin.js'
 import logger from './libs/logger.js'
 
 // 是否启用DEBUG模式
-global.debug = process.argv[2] === '--dev'
+const isDev = typeof process.argv.find(item => item === '--dev') !== 'undefined'
+global.debug = isDev
 
 // 定义起始地址
 global.baseDir = getBaseDir()
