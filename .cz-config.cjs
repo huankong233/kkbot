@@ -24,7 +24,7 @@ module.exports = {
   },
 
   // 跳过步骤
-  skipQuestions: ['scope', 'body', 'footer'],
+  skipQuestions: ['scope', 'body'],
 
   // 默认长度
   subjectLimit: 72
