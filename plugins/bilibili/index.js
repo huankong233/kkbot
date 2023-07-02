@@ -1,8 +1,4 @@
-import { loadConfig } from '../../libs/loadConfig.js'
-
 export default () => {
-  loadConfig('bilibili')
-
   event()
 }
 
@@ -15,10 +11,10 @@ function event() {
 }
 
 import { replyMsg } from '../../libs/sendMsg.js'
-import { getVideoInfo } from './video.js'
-import { getDynamicInfo } from './dynamic.js'
-import { getArticleInfo } from './article.js'
-import { getLiveRoomInfo } from './live.js'
+import { getVideoInfo } from './libs/video.js'
+import { getDynamicInfo } from './libs/dynamic.js'
+import { getArticleInfo } from './libs/article.js'
+import { getLiveRoomInfo } from './libs/live.js'
 
 //主程序
 const bilibiliHandler = async context => {

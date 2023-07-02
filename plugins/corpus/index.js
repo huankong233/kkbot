@@ -1,8 +1,4 @@
-import { loadConfig } from '../../libs/loadConfig.js'
-
 export default async () => {
-  loadConfig('corpus')
-
   await loadRules()
 
   event()
@@ -97,7 +93,7 @@ export const learn = async (context, params) => {
   }
 
   if (params.length !== 4) {
-    return await replyMsg(context, '参数错误~请查看帮助')
+    return await replyMsg(context, `参数错误,请发送"${bot.prefix}帮助 ${bot.botName}学习"查看细节`)
   }
 
   const messages = CQ.parse(params[0].trim())
@@ -121,11 +117,17 @@ export const learn = async (context, params) => {
 
   //判断参数是否合法
   if (!available.mode.includes(mode)) {
-    return await replyMsg(context, '参数错误~模式不合法')
+    return await replyMsg(
+      context,
+      `模式不合法,请发送"${bot.prefix}帮助 ${bot.botName}学习"查看细节`
+    )
   }
 
   if (!available.scene.includes(scene)) {
-    return await replyMsg(context, '参数错误~生效范围不合法')
+    return await replyMsg(
+      context,
+      `生效范围不合法,请发送"${bot.prefix}帮助 ${bot.botName}学习"查看细节`
+    )
   }
 
   //确保不重复
@@ -153,7 +155,7 @@ export const forget = async (context, params) => {
   }
 
   if (params.length !== 1) {
-    return await replyMsg(context, '参数错误~请查看帮助')
+    return await replyMsg(context, `参数错误,请发送"${bot.prefix}帮助 ${bot.botName}忘记"查看细节`)
   }
 
   const keyword = emoji.unemojify(params[0])
@@ -173,6 +175,4 @@ export const forget = async (context, params) => {
     await loadRules()
     return await replyMsg(context, '删除成功啦~')
   }
-
-  return await replyMsg(context, '删除失败，问题:数据库侧')
 }

@@ -32,7 +32,7 @@ export function eventReg(type, callback, priority = 1) {
   }
 }
 
-import { format } from './bot.js'
+import { format } from '../plugins_dependencies/bot/index.js'
 /**
  * 检查是否@了机器人
  * @param {Object} context

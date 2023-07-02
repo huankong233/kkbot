@@ -1,8 +1,4 @@
-import { loadConfig } from '../../libs/loadConfig.js'
-
 export default () => {
-  loadConfig('gugu')
-
   event()
 }
 

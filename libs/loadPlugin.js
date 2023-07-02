@@ -5,7 +5,9 @@ import { jsonc } from 'jsonc'
 import { logger } from './logger.js'
 import clc from 'cli-color'
 import path from 'path'
+import fs from 'fs'
 import { compare } from 'compare-versions'
+import { loadConfig } from './loadConfig.js'
 
 /**
  * 加载单个插件
@@ -27,11 +29,17 @@ export async function loadPlugin(pluginName, pluginDir = 'plugins') {
     return
   }
 
-  if (compare(manifest.kkbot_plugin_version.toString(), kkbot_plugin_version, '<')) {
+  if (compare(manifest.kkbot_plugin_version, kkbot_plugin_version, '<')) {
     logger.NOTICE(`插件${pluginName}与当前框架的插件系统兼容版本不一致，可能有兼容问题`)
   }
 
-  const { dependencies, installed, depends } = manifest
+  const {
+    dependencies,
+    installed,
+    depends,
+    disableAutoLoadConfig = false,
+    configName = 'config'
+  } = manifest
 
   // 如果还没安装就安装一次
   if (!installed) {
@@ -59,11 +67,37 @@ export async function loadPlugin(pluginName, pluginDir = 'plugins') {
 
   // 检查是否存在依赖
   if (depends) {
-    for (let index = 0; index < depends.length; index++) {
-      const element = depends[index]
-      if (!global.pluginNames.find(item => item.name === element)) {
-        logger.WARNING(`插件${pluginName}缺少依赖${clc.bold(element)}`)
-        return
+    for (const key in depends) {
+      if (Object.hasOwnProperty.call(depends, key)) {
+        const requireVersion = depends[key]
+        const depend = global.pluginNames.find(item => item.name === key)
+
+        if (!depend) {
+          logger.WARNING(
+            `插件${pluginName}缺少依赖,所需的依赖有: ${clc.bold(Object.keys(depends).toString())}`
+          )
+          return
+        }
+
+        const dependVersion = depend.version
+
+        if (compare(dependVersion, requireVersion, '<')) {
+          logger.NOTICE(`插件${pluginName}所依赖的 ${clc.bold(key)} 偏旧,可能存在兼容性问题`)
+        }
+      }
+    }
+  }
+
+  // 自动加载配置文件
+  if (!disableAutoLoadConfig) {
+    // 检查配置文件是否存在
+    if (fs.existsSync(path.join(pluginDir, `${configName}.jsonc`))) {
+      loadConfig(configName, true, pluginDir, pluginName)
+    } else {
+      if (debug) logger.DEBUG(`插件${pluginName}不存在自动加载的配置文件`)
+      // 判断是否存在 default 文件夹
+      if (fs.existsSync(path.join(pluginDir, `${configName}.default.jsonc`))) {
+        logger.WARNING(`插件${pluginName}需要手动配置信息`)
       }
     }
   }
@@ -110,6 +144,8 @@ export async function loadPlugin(pluginName, pluginDir = 'plugins') {
     if (debug) logger.DEBUG(error)
     return
   }
+
+  return 'success'
 }
 
 /**

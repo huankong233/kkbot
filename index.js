@@ -1,19 +1,21 @@
+import { getBaseDir } from './libs/getDirname.js'
+import { getVersion } from './libs/loadVersion.js'
+import { loadPlugins, loadPluginDir, loadPlugin } from './libs/loadPlugin.js'
+import logger from './libs/logger.js'
+
 // 是否启用DEBUG模式
-global.debug = true
+global.debug = process.argv[2] === '--dev'
 
 // 定义起始地址
-import { getBaseDir } from './libs/getDirname.js'
 global.baseDir = getBaseDir()
 
-// 初始化机器人
-import { newBot } from './libs/bot.js'
-await newBot()
-
 // 初始化package.json内容
-import { getVersion } from './libs/loadVersion.js'
 getVersion()
 
-import { loadPlugins, loadPluginDir } from './libs/loadPlugin.js'
+// 初始化机器人
+if ((await loadPlugin('bot', 'plugins_dependencies')) !== 'success') {
+  throw new Error('机器人加载失败')
+}
 
 // 加载前置插件
 await loadPluginDir('plugins_dependencies')
@@ -22,5 +24,4 @@ await loadPlugins(['pigeon'])
 // 再加载剩余的插件
 await loadPluginDir('plugins')
 
-import logger from './libs/logger.js'
 logger.SUCCESS('机器人已启动成功')

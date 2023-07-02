@@ -1,16 +1,17 @@
 import { CQ } from 'go-cqwebsocket'
 import { CQWebSocket } from '@tsuk1ko/cq-websocket'
-import { loadConfig } from './loadConfig.js'
-import { globalReg } from './globalReg.js'
-import { logger } from './logger.js'
-import { sendMsg } from './sendMsg.js'
+import { globalReg } from '../../libs/globalReg.js'
+import { logger } from '../../libs/logger.js'
+import { sendMsg } from '../../libs/sendMsg.js'
+
+export default async function () {
+  await newBot()
+}
 
 /**
  * 启动机器人,注册事件等
  */
 export async function newBot() {
-  loadConfig('bot')
-
   try {
     const { connect, timeZone, online, admin } = global.config.bot
     const { debug } = global

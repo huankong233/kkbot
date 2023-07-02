@@ -1,6 +1,6 @@
 {
   "watch": ["."],
-  "ext": ".js,.jsonc",
+  "ext": ".js,.jsonc,.json",
   "ignore": [],
-  "exec": "node index.js"
+  "exec": "node index.js --dev"
 }

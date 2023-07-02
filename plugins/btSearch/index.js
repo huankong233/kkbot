@@ -1,9 +1,4 @@
-import { loadConfig } from '../../libs/loadConfig.js'
-
 export default () => {
-  loadConfig('btSearch')
-
-  //注册事件
   event()
 }
 

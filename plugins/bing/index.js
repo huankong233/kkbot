@@ -1,9 +1,6 @@
-import { loadConfig } from '../../libs/loadConfig.js'
 import { replyMsg } from '../../libs/sendMsg.js'
 
 export default async () => {
-  loadConfig('bing')
-
   global.config.bing.data = {}
 
   event()

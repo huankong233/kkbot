@@ -1,11 +1,8 @@
 import knex from 'knex'
-import { loadConfig } from '../../libs/loadConfig.js'
 import { logger } from '../../libs/logger.js'
 import { globalReg } from '../../libs/globalReg.js'
 
 export default async () => {
-  loadConfig('knex')
-
   try {
     const database = knex(global.config.knex)
 

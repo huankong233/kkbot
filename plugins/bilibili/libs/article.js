@@ -1,6 +1,6 @@
-import { logger } from '../../libs/logger.js'
 import { humanNum } from './utils.js'
-import { get } from '../../libs/fetch.js'
+import { get } from '../../../libs/fetch.js'
+import { logger } from '../../../libs/logger.js'
 
 export const getArticleInfo = async id => {
   try {

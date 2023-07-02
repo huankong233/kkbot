@@ -1,9 +1,6 @@
-import { loadConfig } from '../../libs/loadConfig.js'
 import { eventReg } from '../../libs/eventReg.js'
 
 export default () => {
-  loadConfig('admin')
-
   event()
 }
 

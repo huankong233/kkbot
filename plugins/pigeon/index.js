@@ -2,6 +2,10 @@ import { eventReg, haveAt } from '../../libs/eventReg.js'
 import { replyMsg } from '../../libs/sendMsg.js'
 
 export default () => {
+  event()
+}
+
+function event() {
   //判断用户是否注册过了
   eventReg(
     'message',
