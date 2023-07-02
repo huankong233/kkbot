@@ -1,11 +1,1 @@
-{
-  "kkbot_plugin_version": "2",
-  "name": "pigeon",
-  "description": "鸽子核心功能",
-  "version": "0.0.1",
-  "author": [{ "name": "huan_kong", "link": "https://github.com/huankong233" }],
-  "disableAutoLoadConfig": true,
-  "dependencies": {},
-  "depends": { "knex": "0.0.1" },
-  "installed": true
-}
+{"kkbot_plugin_version":"2","name":"pigeon","description":"鸽子核心功能","version":"0.0.1","author":[{"name":"huan_kong","link":"https://github.com/huankong233"}],"disableAutoLoadConfig":true,"dependencies":{},"depends":{"knex":"0.0.1"}}

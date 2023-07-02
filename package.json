@@ -7,7 +7,7 @@
     "dev": "nodemon",
     "publish": "node publish.js",
     "commitlint": "commitlint --config commitlint.config.cjs -e -V",
-    "commit": "git add . && cz-customizable && git push",
+    "commit": "pnpm run publish && git add . && cz-customizable && git push",
     "prepare": "husky install"
   },
   "config": {
