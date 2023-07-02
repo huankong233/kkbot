@@ -1,15 +1,12 @@
 export const logger = {
-  info: INFO,
   INFO,
-  success: SUCCESS,
   SUCCESS,
-  warning: WARNING,
   WARNING,
-  notice: NOTICE,
   NOTICE,
-  debug: DEBUG,
   DEBUG
 }
+
+export default logger
 
 import clc from 'cli-color'
 

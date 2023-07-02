@@ -17,6 +17,9 @@ dependencies:
   cli-color:
     specifier: ^2.0.3
     version: 2.0.3
+  compare-versions:
+    specifier: 6.0.0-rc.2
+    version: 6.0.0-rc.2
   go-cqwebsocket:
     specifier: ^6.2.2
     version: 6.2.2
@@ -740,6 +743,10 @@ packages:
       array-ify: 1.0.0
       dot-prop: 5.3.0
     dev: true
+
+  /compare-versions@6.0.0-rc.2:
+    resolution: {integrity: sha512-ztnHU6I8C3erXS1RcbBWekJKGfC3Chu5OOBWrHJbzHI6WSuXxCT3+fzLChWpWVHboQ2E43DWKuzQqPA4Bpay7w==}
+    dev: false
 
   /concat-map@0.0.1:
     resolution: {integrity: sha512-/Srv4dswyQNBfohGpz9o6Yb3Gz3SrUDqBH5rTuhGR7ahtlbYKnVxw2bCFMRljaA7EXHaXZ8wsHdodFvbkhKmqg==}

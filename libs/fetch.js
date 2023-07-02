@@ -10,7 +10,7 @@ import AbortController from 'abort-controller'
 /**
  * 不带重试的Get请求
  * @param {Object} req
- * @returns
+ * @returns {Promise}
  */
 export async function fetchGet({ url, data = {}, timeOut = TIMEOUT } = {}) {
   if (!url) {
@@ -57,7 +57,7 @@ export async function fetchGet({ url, data = {}, timeOut = TIMEOUT } = {}) {
 /**
  * 不带重试的Post请求
  * @param {Object} req
- * @returns
+ * @returns {Promise}
  */
 export async function fetchPost({ url, data = {}, timeOut = TIMEOUT } = {}) {
   if (!url) {
@@ -117,10 +117,10 @@ export async function retryAsync(func, times = 3) {
 }
 
 /**
- * 自动尝试Get请求
+ * 带重试的Get请求
  * @param {Object} req 请求参数
  * @param {Number} times 重试次数
- * @returns
+ * @returns {Promise}
  */
 export async function get({ url, data, timeOut } = {}, times) {
   try {
@@ -133,10 +133,10 @@ export async function get({ url, data, timeOut } = {}, times) {
 }
 
 /**
- * 自动尝试Post请求
+ * 带重试的Post请求
  * @param {Object} req 请求参数
  * @param {Number} times 重试次数
- * @returns
+ * @returns {Promise}
  */
 export async function post({ url, data, timeOut } = {}, times) {
   return await retryAsync(async () => {

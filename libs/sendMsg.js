@@ -1,21 +1,10 @@
 /**
- * 发送私信
- * @param {number} user_id
- * @param {string} message
- */
-export async function sendMsg(user_id, message) {
-  return await bot('send_private_msg', {
-    user_id,
-    message
-  })
-}
-
-/**
  * 回复消息
- * @param {object} context 消息上下文
- * @param {string} message 回复内容
- * @param {boolean} at 是否at发送者
- * @param {boolean} reply 是否使用回复形式
+ * @param {Object} context 消息上下文
+ * @param {String} message 回复内容
+ * @param {Boolean} at 是否at发送者
+ * @param {Boolean} reply 是否使用回复形式
+ * @returns {Object}
  */
 export async function replyMsg(context, message, at, reply) {
   const { message_type, user_id, group_id, message_id, discuss_id } = context
@@ -51,10 +40,24 @@ export async function replyMsg(context, message, at, reply) {
 }
 
 /**
+ * 发送私信
+ * @param {Number} user_id
+ * @param {String} message
+ * @returns {Object}
+ */
+export async function sendMsg(user_id, message) {
+  return await bot('send_private_msg', {
+    user_id,
+    message
+  })
+}
+
+/**
  * 合并信息发送
  * docs:https://docs.go-cqhttp.org/cqcode/#合并转发
  * @param {Object} context 消息对象
  * @param {Array} messages
+ * @returns {Object}
  */
 export async function sendForwardMsg(context, messages) {
   const { message_type } = context

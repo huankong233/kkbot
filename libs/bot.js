@@ -163,7 +163,7 @@ function initEvents() {
  * @param {Array} arr
  * @param {String} property
  * @param {String} sortType up->升序 down->降序
- * @returns
+ * @returns {Array}
  */
 export function compare(arr, property, sortType = 'up') {
   return arr.sort((a, b) => {
@@ -181,8 +181,8 @@ export function compare(arr, property, sortType = 'up') {
 
 /**
  * 格式化消息
- * @param message
- * @returns
+ * @param {String} message
+ * @returns {Object}
  */
 export function format(message) {
   const { prefix } = global.config.bot

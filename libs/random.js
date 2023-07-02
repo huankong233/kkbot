@@ -1,6 +1,7 @@
 /**
  * 随机x位字符串
  * @param {Number} len
+ * @returns {String}
  */
 export function getRangeCode(len = 6) {
   const orgStr = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'

@@ -1,7 +1,7 @@
 /**
  * 格式化时间,将秒转换为HH:MM:SS的格式
- * @param {number} second
- * @returns {object}
+ * @param {Number} seconds
+ * @returns {Object}
  */
 export function formatTime(seconds) {
   // 使用padStart方法补零

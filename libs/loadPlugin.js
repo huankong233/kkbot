@@ -5,6 +5,7 @@ import { jsonc } from 'jsonc'
 import { logger } from './logger.js'
 import clc from 'cli-color'
 import path from 'path'
+import { compare } from 'compare-versions'
 
 /**
  * 加载单个插件
@@ -26,7 +27,7 @@ export async function loadPlugin(pluginName, pluginDir = 'plugins') {
     return
   }
 
-  if (manifest.kkbot_plugin_version !== kkbot_plugin_version) {
+  if (compare(manifest.kkbot_plugin_version.toString(), kkbot_plugin_version, '<')) {
     logger.NOTICE(`插件${pluginName}与当前框架的插件系统兼容版本不一致，可能有兼容问题`)
   }
 
@@ -114,6 +115,7 @@ export async function loadPlugin(pluginName, pluginDir = 'plugins') {
 /**
  * 加载多个插件
  * @param {Array} plugins
+ * @param {String} pluginDir
  */
 export async function loadPlugins(plugins, pluginDir = 'plugins') {
   for (const pluginName of plugins) {

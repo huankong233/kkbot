@@ -36,7 +36,7 @@ import { format } from './bot.js'
 /**
  * 检查是否@了机器人
  * @param {Object} context
- * @returns
+ * @returns {Object}
  */
 export function haveAt(context) {
   const { message, self_id } = context

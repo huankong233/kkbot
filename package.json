@@ -1,6 +1,5 @@
 {
   "name": "kkbot",
-  "version": "0.1.0",
   "description": "simple qqbot",
   "type": "module",
   "scripts": {
@@ -27,6 +26,7 @@
     "abort-controller": "^3.0.0",
     "cheerio": "1.0.0-rc.12",
     "cli-color": "^2.0.3",
+    "compare-versions": "6.0.0-rc.2",
     "go-cqwebsocket": "^6.2.2",
     "jsonc": "^2.0.0",
     "knex": "2.4.2",

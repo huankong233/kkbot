@@ -1,11 +1,12 @@
-const bannedHosts = ['danbooru.donmai.us', 'konachan.com', 'fanbox.cc', 'pixiv.net']
+export const bannedHosts = ['danbooru.donmai.us', 'konachan.com', 'fanbox.cc', 'pixiv.net']
 
 /**
  * 链接混淆
- * @param {string} url
- * @returns {string}
+ * @param {String} url
+ * @param {Boolean} force
+ * @returns {String}
  */
-export function confuseURL(url, force) {
+export function confuseURL(url, force = false) {
   url = pixivShorten(url)
 
   if (force) {
@@ -28,8 +29,8 @@ export function confuseURL(url, force) {
 
 /**
  * pixiv 短链接
- * @param {string} url
- * @returns {string}
+ * @param {String} url
+ * @returns {String}
  */
 export function pixivShorten(url) {
   const pidSearch = /pixiv.+illust_id=([0-9]+)/.exec(url) || /pixiv.+artworks\/([0-9]+)/.exec(url)
@@ -43,7 +44,7 @@ export function pixivShorten(url) {
 /**
  * 获取纯净url
  * @param {String} url
- * @returns
+ * @returns {String}
  */
 export const getUniversalImgURL = (url = '') => {
   if (/^https?:\/\/(c2cpicdw|gchat)\.qpic\.cn\/(offpic|gchatpic)_new\//.test(url)) {
