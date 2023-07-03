@@ -4,6 +4,15 @@
 
 ### 07-03 v0.1.0-dev
 
+- 优化现有插件的依赖关系
+- 移植两个插件( `epicgames` `dinggong` )
+- 修改 `manifest.json` 中 两个不合理的字段名
+- 新增 `sleep` 支持库
+- 优化 `sendMsg` 支持库 开发模式中会输出发送了哪些消息以及 `stack`
+- 优化 `publish.js`
+
+### 07-03 v0.1.0-dev
+
 - 修复插件 `bot` 异步堵塞缺少的判断
 
 ### 07-02 v0.1.0-dev

@@ -3,6 +3,7 @@ import { CQWebSocket } from '@tsuk1ko/cq-websocket'
 import { globalReg } from '../../libs/globalReg.js'
 import { logger } from '../../libs/logger.js'
 import { sendMsg } from '../../libs/sendMsg.js'
+import { format } from '../../libs/eventReg.js'
 
 export default async function () {
   await newBot()
@@ -178,28 +179,4 @@ export function compare(arr, property, sortType = 'up') {
 
     return 0
   })
-}
-
-/**
- * 格式化消息
- * @param {String} message
- * @returns {Object}
- */
-export function format(message) {
-  const { prefix } = global.config.bot
-  // 去头去尾空格
-  message = message.trim()
-
-  // 判断是否是一个命令
-  if (message[0] !== prefix) {
-    return false
-  }
-
-  // 参数分割
-  let command = message.split(' ').filter(value => value !== '')
-
-  return {
-    name: command[0].replace('/', ''),
-    params: command.slice(1, command.length)
-  }
 }

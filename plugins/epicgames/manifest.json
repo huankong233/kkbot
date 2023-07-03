@@ -1,0 +1,1 @@
+{"kkbot_plugin_version":"2","name":"epicgames","description":"定期通知epicgames的免费游戏","version":"0.0.1","author":[{"name":"huan_kong","link":"https://github.com/huankong233"}],"dependPackages":{"dayjs":"^1.11.9","cron":"^2.3.1"},"dependPlugins":{}}

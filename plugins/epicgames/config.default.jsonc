@@ -1,0 +1,6 @@
+{
+  // 参考: https://crontab.guru/
+  "crontab": "0 8 * * *",
+  // 需要发送的群组
+  "groups": []
+}
