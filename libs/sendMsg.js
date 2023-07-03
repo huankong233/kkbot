@@ -1,3 +1,5 @@
+import logger from './logger.js'
+
 /**
  * 回复消息
  * @param {Object} context 消息上下文
@@ -15,6 +17,12 @@ export async function replyMsg(context, message, at, reply) {
 
     //不是私聊，可以回复
     if (reply) message = `${CQ.reply(message_id)}${message}`
+  }
+
+  if (global.debug) {
+    const stack = new Error().stack.split('\n')
+    logger.DEBUG(`发送消息:${message},stack信息:`)
+    console.log(stack.slice(1, stack.length).join('\n'))
   }
 
   switch (message_type) {
@@ -46,6 +54,12 @@ export async function replyMsg(context, message, at, reply) {
  * @returns {Object}
  */
 export async function sendMsg(user_id, message) {
+  if (global.debug) {
+    const stack = new Error().stack.split('\n')
+    logger.DEBUG(`发送私聊消息:${message},stack信息:`)
+    console.log(stack.slice(1, stack.length).join('\n'))
+  }
+
   return await bot('send_private_msg', {
     user_id,
     message
@@ -61,6 +75,16 @@ export async function sendMsg(user_id, message) {
  */
 export async function sendForwardMsg(context, messages) {
   const { message_type } = context
+
+  if (global.debug) {
+    logger.DEBUG(`发送合并消息:`)
+    console.log(messages.join('\n'))
+
+    logger.DEBUG(`stack信息:`)
+    const stack = new Error().stack.split('\n')
+    console.log(stack.slice(1, stack.length).join('\n'))
+  }
+
   switch (message_type) {
     case 'group':
       return await bot('send_group_forward_msg', {

@@ -25,7 +25,7 @@ async function gugu(context) {
     await replyMsg(context, `新用户!赠送${global.config.gugu.newUserAdd}只鸽子~`)
     await database.insert({ user_id }).into('pigeon')
     await add({ user_id, number: global.config.gugu.newUserAdd, reason: '新用户赠送' })
-    gugu(context)
+    await gugu(context)
   } else {
     //判断今天还能不能签到
     let data = (await getUserData(user_id))[0]

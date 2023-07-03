@@ -1,1 +1,1 @@
-{"kkbot_plugin_version":"2","name":"btSearch","description":"调用bt搜索接口","version":"0.0.1","author":[{"name":"huan_kong","link":"https://github.com/huankong233"}],"dependencies":{"cheerio":"^1.0.0-rc.12","lodash":"^4.17.21"},"depends":{}}
+{"kkbot_plugin_version":"2","name":"btSearch","description":"调用bt搜索接口","version":"0.0.1","author":[{"name":"huan_kong","link":"https://github.com/huankong233"}],"dependPackages":{"cheerio":"^1.0.0-rc.12","lodash":"^4.17.21"},"dependPlugins":{"pigeon":"0.0.1"}}

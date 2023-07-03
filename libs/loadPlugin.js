@@ -34,9 +34,9 @@ export async function loadPlugin(pluginName, pluginDir = 'plugins') {
   }
 
   const {
-    dependencies,
+    dependPackages,
+    dependPlugins,
     installed,
-    depends,
     disableAutoLoadConfig = false,
     configName = 'config'
   } = manifest
@@ -45,8 +45,8 @@ export async function loadPlugin(pluginName, pluginDir = 'plugins') {
   if (!installed) {
     // 如果还没安装
     let installCommand = 'pnpm install'
-    for (const key in dependencies) {
-      const value = dependencies[key]
+    for (const key in dependPackages) {
+      const value = dependPackages[key]
       installCommand += ` ${key}@${value}`
     }
 
@@ -66,15 +66,17 @@ export async function loadPlugin(pluginName, pluginDir = 'plugins') {
   }
 
   // 检查是否存在依赖
-  if (depends) {
-    for (const key in depends) {
-      if (Object.hasOwnProperty.call(depends, key)) {
-        const requireVersion = depends[key]
+  if (dependPlugins) {
+    for (const key in dependPlugins) {
+      if (Object.hasOwnProperty.call(dependPlugins, key)) {
+        const requireVersion = dependPlugins[key]
         const depend = global.pluginNames.find(item => item.name === key)
 
         if (!depend) {
           logger.WARNING(
-            `插件${pluginName}缺少依赖,所需的依赖有: ${clc.bold(Object.keys(depends).toString())}`
+            `插件${pluginName}缺少依赖,所需的依赖有: ${clc.bold(
+              Object.keys(dependPlugins).toString()
+            )}`
           )
           return
         }

@@ -18,11 +18,9 @@ if ((await loadPlugin('bot', 'plugins_dependencies')) !== 'success') {
   throw new Error('机器人加载失败')
 }
 
-// 加载前置插件
+// 加载插件(存在依赖关系在里面)
 await loadPluginDir('plugins_dependencies')
-await loadPlugins(['pigeon'])
-
-// 再加载剩余的插件
+await loadPlugins(['pigeon', 'query'])
 await loadPluginDir('plugins')
 
 logger.SUCCESS('机器人已启动成功')

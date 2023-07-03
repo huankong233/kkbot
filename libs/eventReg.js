@@ -32,7 +32,6 @@ export function eventReg(type, callback, priority = 1) {
   }
 }
 
-import { format } from '../plugins_dependencies/bot/index.js'
 /**
  * 检查是否@了机器人
  * @param {Object} context
@@ -51,4 +50,28 @@ export function haveAt(context) {
   // 获取参数
   const parsedMessage = message.substring(index + findString.length, message.length).trim()
   return format(`${prefix}@ ${parsedMessage}`)
+}
+
+/**
+ * 格式化消息
+ * @param {String} message
+ * @returns {Object}
+ */
+export function format(message) {
+  const { prefix } = global.config.bot
+  // 去头去尾空格
+  message = message.trim()
+
+  // 判断是否是一个命令
+  if (message[0] !== prefix) {
+    return false
+  }
+
+  // 参数分割
+  let command = message.split(' ').filter(value => value !== '')
+
+  return {
+    name: command[0].replace('/', ''),
+    params: command.slice(1, command.length)
+  }
 }
