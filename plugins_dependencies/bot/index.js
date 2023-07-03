@@ -62,7 +62,7 @@ export async function newBot() {
     bot.connect()
 
     return new Promise((resolve, reject) => {
-      bot.on('socket.connect', resolve)
+      bot.on('socket.connect', wsType => (wsType === '/api' ? resolve() : null))
       bot.on('socket.failed', (wsType, attempts) =>
         attempts >= connect.reconnectionAttempts
           ? reject(`连接失败次数超过设置的${connect.reconnectionAttempts}次!`)
