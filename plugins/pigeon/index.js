@@ -1,10 +1,27 @@
+import { eventReg, haveAt } from '../../libs/eventReg.js'
+import { replyMsg } from '../../libs/sendMsg.js'
+
 export default () => {
+  event()
+}
+
+function event() {
   //判断用户是否注册过了
-  RegEvent(
+  eventReg(
     'message',
     async (event, context, tags) => {
+      const { user_id } = context
+
+      const at = haveAt(context)
+      if (at) {
+        if (!(await getUserData(user_id))) {
+          await replyMsg(context, `请先使用"${global.config.bot.prefix}咕咕"注册账户`)
+          return 'quit'
+        }
+      }
+
       if (context.command) {
-        if (!(await getUserData(context.user_id))) {
+        if (!(await getUserData(user_id))) {
           if (context.command.name.search('咕咕') === -1) {
             await replyMsg(context, `请先使用"${global.config.bot.prefix}咕咕"注册账户`)
             return 'quit'
@@ -17,42 +34,33 @@ export default () => {
 }
 
 /**
- * 判断是否为新用户
- * @param {Double} user_id
+ * 获取用户信息
+ * @param {Object} context
  * @returns false:新用户
  * @returns data:不是新用户
  */
 export const getUserData = async user_id => {
   const data = await database.select().from('pigeon').where('user_id', user_id)
-  if (data.length === 0) {
-    return false
-  } else {
-    return data
-  }
+  return data.length > 0 ? data : false
 }
 
 /**
  * 增加鸽子
- * @param {Double} user_id
- * @param {Double} num
- * @param {String} reason
- * @param {Object} extra
+ * @param {Object} params
  * @returns true 成功
  * @returns false 失败
  */
-export const add = async (user_id, num, reason = '没有指定原因', extra = {}, context) => {
+export const add = async params => {
+  const { number, reason, extra, user_id } = params
+
   //不允许增加负数的鸽子
-  if (num < 0) {
+  if (number < 0) {
     return false
   }
+
   //获取拥有的鸽子数
-  let origin_pigeon = await getUserData(user_id)
-  if (!origin_pigeon) {
-    await replyMsg(context, `请先使用"${global.config.bot.prefix}咕咕"注册账户`)
-    return false
-  }
-  origin_pigeon = origin_pigeon[0].pigeon_num
-  let now_pigeon = origin_pigeon + num
+  let origin_pigeon = (await getUserData(user_id))[0].pigeon_num
+  let now_pigeon = origin_pigeon + number
   //更新数据库
   await database
     .update({
@@ -65,38 +73,34 @@ export const add = async (user_id, num, reason = '没有指定原因', extra = {
   await database
     .insert({
       user_id,
-      operation: num,
+      operation: number,
       origin_pigeon,
       now_pigeon,
       update_time: Date.now(),
-      reason
+      reason: reason ?? '没有指定原因'
     })
     .into('pigeon_history')
+
   return true
 }
 
 /**
  * 减少鸽子
- * @param {Double} user_id
- * @param {Double} num
- * @param {String} reason
- * @param {Object} extra
+ * @param {Object} params
  * @returns true 成功
  * @returns false 失败
  */
-export const reduce = async (user_id, num, reason = '没有指定原因', extra = {}, context) => {
+export const reduce = async params => {
+  const { number, reason, extra, user_id } = params
+
   //不允许减少负数的鸽子
-  if (num < 0) {
+  if (number < 0) {
     return false
   }
+
   //获取拥有的鸽子数
-  let origin_pigeon = await getUserData(user_id)
-  if (!origin_pigeon) {
-    await replyMsg(context, `请先使用"${global.config.bot.prefix}咕咕"注册账户`)
-    return false
-  }
-  origin_pigeon = origin_pigeon[0].pigeon_num
-  let now_pigeon = origin_pigeon - num
+  let origin_pigeon = (await getUserData(user_id))[0].pigeon_num
+  let now_pigeon = origin_pigeon - number
   if (now_pigeon < 0) {
     //无法扣除
     return false
@@ -109,17 +113,19 @@ export const reduce = async (user_id, num, reason = '没有指定原因', extra 
       })
       .from('pigeon')
       .where('user_id', user_id)
+
     //插入历史记录
     await database
       .insert({
         user_id,
-        operation: -num,
+        operation: -number,
         origin_pigeon,
         now_pigeon,
         update_time: Date.now(),
-        reason
+        reason: reason ?? '没有指定原因'
       })
       .into('pigeon_history')
+
     return true
   }
 }

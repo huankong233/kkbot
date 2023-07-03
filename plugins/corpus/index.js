@@ -1,22 +1,26 @@
 export default async () => {
-  loadConfig('corpus.jsonc', true)
   await loadRules()
 
   event()
 }
 
-import emoji from 'node-emoji'
+import * as emoji from 'node-emoji'
+import { eventReg } from '../../libs/eventReg.js'
+import { replyMsg } from '../../libs/sendMsg.js'
 
 function event() {
-  RegEvent('message', async (event, context, tags) => {
+  eventReg('message', async (event, context, tags) => {
+    const { bot } = global.config
     context.message = emoji.unemojify(context.message)
-    await corpus(context)
+
     if (context.command) {
-      if (context.command.name === global.config.bot.botName + '学习') {
+      if (context.command.name === `${bot.botName}学习`) {
         await learn(context, context.command.params)
-      } else if (context.command.name === global.config.bot.botName + '忘记') {
+      } else if (context.command.name === `${bot.botName}忘记`) {
         await forget(context, context.command.params)
       }
+    } else {
+      await corpus(context)
     }
   })
 }
@@ -81,15 +85,16 @@ const available = {
 
 // 学习
 export const learn = async (context, params) => {
-  if (!(await reduce(context.user_id, global.config.corpus.add, '添加关键字'))) {
+  const { user_id } = context
+  const { corpus, bot } = global.config
+
+  if (!(await reduce({ user_id, number: corpus.add, reason: '添加关键字' }))) {
     return await replyMsg(context, '鸽子不足~')
   }
 
   if (params.length !== 4) {
-    return await replyMsg(context, '参数错误~请查看帮助')
+    return await replyMsg(context, `参数错误,请发送"${bot.prefix}帮助 ${bot.botName}学习"查看细节`)
   }
-
-  const user_id = context.user_id
 
   const messages = CQ.parse(params[0].trim())
   let keyword, mode
@@ -101,7 +106,7 @@ export const learn = async (context, params) => {
       type = message._type
       type === 'text'
         ? ([keyword, mode] = [emoji.unemojify(message._data.text), parseInt(params[1].trim())])
-        : ([keyword, mode] = [`\\[CQ:image,file=${message.file}`, 0])
+        : ([keyword, mode] = [`[CQ:image,file=${message.file}`, 0])
     } else {
       return await replyMsg(context, `不能同时存在图片或文字哦~`)
     }
@@ -112,35 +117,45 @@ export const learn = async (context, params) => {
 
   //判断参数是否合法
   if (!available.mode.includes(mode)) {
-    return await replyMsg(context, '参数错误~模式不合法')
+    return await replyMsg(
+      context,
+      `模式不合法,请发送"${bot.prefix}帮助 ${bot.botName}学习"查看细节`
+    )
   }
+
   if (!available.scene.includes(scene)) {
-    return await replyMsg(context, '参数错误~生效范围不合法')
+    return await replyMsg(
+      context,
+      `生效范围不合法,请发送"${bot.prefix}帮助 ${bot.botName}学习"查看细节`
+    )
   }
 
   //确保不重复
-  const repeat = await database.select().from('corpus').where({ keyword: keyword, hide: 0 })
+  const repeat = await database.select().from('corpus').where({ keyword, hide: 0 })
   if (repeat.length !== 0) {
     return await replyMsg(context, '这个"触发词"已经存在啦~')
   }
 
   if (await database.insert({ user_id, keyword, mode, reply, scene }).into('corpus')) {
     await loadRules()
-    await replyMsg(context, `${global.config.bot.botName}学会啦~`)
+    await replyMsg(context, `${bot.botName}学会啦~`)
   } else {
     await replyMsg(context, '学习失败~')
-    await add(user_id, global.config.corpus.add, '添加关键字')
+    await add({ user_id, number: corpus.add, reason: '添加关键字' })
   }
 }
 
 //忘记
 export const forget = async (context, params) => {
-  if (!(await reduce(context.user_id, global.config.corpus.delete, '删除关键字'))) {
+  const { user_id } = context
+  const { corpus } = global.config
+
+  if (!(await reduce({ user_id, number: corpus.delete, reason: '删除关键字' }))) {
     return await replyMsg(context, '鸽子不足~')
   }
 
   if (params.length !== 1) {
-    return await replyMsg(context, '参数错误~请查看帮助')
+    return await replyMsg(context, `参数错误,请发送"${bot.prefix}帮助 ${bot.botName}忘记"查看细节`)
   }
 
   const keyword = emoji.unemojify(params[0])
@@ -157,8 +172,7 @@ export const forget = async (context, params) => {
   }
 
   if (await database('corpus').where('id', data.id).update({ hide: 1 })) {
-    loadRules()
+    await loadRules()
     return await replyMsg(context, '删除成功啦~')
   }
-  return await replyMsg(context, '删除失败，数据库侧')
 }

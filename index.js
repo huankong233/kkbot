@@ -1,13 +1,28 @@
-//加载库
-import { loadLibs } from './src/load/index.js'
+import { getBaseDir } from './libs/getDirname.js'
+import { getVersion } from './libs/loadVersion.js'
+import { loadPlugins, loadPluginDir, loadPlugin } from './libs/loadPlugin.js'
+import logger from './libs/logger.js'
 
-//执行src文件夹内容的default方法
-await loadLibs()
+// 是否启用DEBUG模式
+const isDev = typeof process.argv.find(item => item === '--dev') !== 'undefined'
+global.debug = isDev
 
-//初始化机器人
-newBot()
+// 定义起始地址
+global.baseDir = getBaseDir()
 
-//确保需要预先加载的插件
-await loadPlugins(['./plugins/proxy', './plugins/knex', './plugins/checkffmpeg'])
-//加载其余插件
-await loadPluginDir('./plugins')
+// 初始化package.json内容
+getVersion()
+
+// 初始化机器人
+if ((await loadPlugin('bot', 'plugins_dependencies')) !== 'success') {
+  throw new Error('机器人加载失败')
+}
+
+// 加载前置插件
+await loadPluginDir('plugins_dependencies')
+await loadPlugins(['pigeon'])
+
+// 再加载剩余的插件
+await loadPluginDir('plugins')
+
+logger.SUCCESS('机器人已启动成功')

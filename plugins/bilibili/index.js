@@ -1,20 +1,76 @@
 export default () => {
-  loadConfig('bilibili.jsonc', true)
-
   event()
 }
 
+import { eventReg } from '../../libs/eventReg.js'
+
 function event() {
-  RegEvent('message', async (event, context, tags) => {
+  eventReg('message', async (event, context, tags) => {
     await bilibiliHandler(context)
   })
 }
 
-import fetch from 'node-fetch'
-import { getVideoInfo } from './video.js'
-import { getDynamicInfo } from './dynamic.js'
-import { getArticleInfo } from './article.js'
-import { getLiveRoomInfo } from './live.js'
+import { replyMsg } from '../../libs/sendMsg.js'
+import { getVideoInfo } from './libs/video.js'
+import { getDynamicInfo } from './libs/dynamic.js'
+import { getArticleInfo } from './libs/article.js'
+import { getLiveRoomInfo } from './libs/live.js'
+
+//主程序
+const bilibiliHandler = async context => {
+  const setting = global.config.bilibili
+
+  if (
+    !(
+      setting.getVideoInfo ||
+      setting.getDynamicInfo ||
+      setting.getArticleInfo ||
+      setting.getLiveRoomInfo
+    )
+  ) {
+    return
+  }
+
+  const { message } = context
+  const param = await getIdFromMsg(message)
+  const { aid, bvid, dyid, arid, lrid } = param
+
+  //解析视频
+  if (setting.getVideoInfo && (aid || bvid)) {
+    const reply = await getVideoInfo({ aid, bvid })
+    if (reply) {
+      await replyMsg(context, reply)
+    }
+    return
+  }
+
+  //解析动态
+  if (setting.getDynamicInfo && dyid) {
+    const reply = await getDynamicInfo(dyid)
+    if (reply) {
+      await replyMsg(context, reply)
+    }
+    return
+  }
+
+  //解析文章
+  if (setting.getArticleInfo && arid) {
+    const reply = await getArticleInfo(arid)
+    if (reply) {
+      await replyMsg(context, reply)
+    }
+    return
+  }
+
+  //解析直播或音频
+  if (setting.getLiveRoomInfo && lrid) {
+    const reply = await getLiveRoomInfo(lrid)
+    if (reply) {
+      await replyMsg(context, reply)
+    }
+    return
+  }
+}
 
 const getIdFromNormalLink = link => {
   if (typeof link !== 'string') return null
@@ -38,13 +94,15 @@ const getIdFromNormalLink = link => {
   }
 }
 
+import { get } from '../../libs/fetch.js'
+import { logger } from '../../libs/logger.js'
 const getIdFromShortLink = async shortLink => {
   try {
-    const data = await fetch(shortLink)
+    const data = await get({ url: shortLink })
     return getIdFromNormalLink(data.url)
-  } catch (e) {
-    msgToConsole(`[error] bilibili head short link ${shortLink}`)
-    console.log(e)
+  } catch (error) {
+    logger.WARNING(`bilibili head short link ${shortLink}`)
+    if (global.debug) logger.DEBUG(error)
     return {}
   }
 }
@@ -56,88 +114,4 @@ const getIdFromMsg = async msg => {
     return getIdFromShortLink(`https://${result[0]}`)
   }
   return {}
-}
-
-//回复
-const replyResult = async ({ context, message, at, reply }) => {
-  await replyMsg(context, message, at, reply)
-}
-
-//主程序
-const bilibiliHandler = async context => {
-  const setting = global.config.bilibili
-  if (
-    !(
-      setting.getVideoInfo ||
-      setting.getDynamicInfo ||
-      setting.getArticleInfo ||
-      setting.getLiveRoomInfo
-    )
-  ) {
-    return
-  }
-
-  const { group_id: gid, message: msg } = context
-  const param = await getIdFromMsg(msg)
-  const { aid, bvid, dyid, arid, lrid } = param
-
-  //解析视频
-  if (setting.getVideoInfo && (aid || bvid)) {
-    const { text, ids, reply } = await getVideoInfo({ aid, bvid })
-    if (text) {
-      replyResult({
-        context,
-        message: text,
-        at: false,
-        reply: !!reply,
-        gid,
-        ids
-      })
-    }
-    return true
-  }
-
-  //解析动态
-  if (setting.getDynamicInfo && dyid) {
-    const reply = await getDynamicInfo(dyid)
-    if (reply) {
-      replyResult({
-        context,
-        message: reply.text,
-        at: false,
-        reply: !!reply.reply,
-        gid,
-        ids: [dyid]
-      })
-    }
-    return true
-  }
-
-  //解析文章
-  if (setting.getArticleInfo && arid) {
-    const reply = await getArticleInfo(arid)
-    if (reply) {
-      replyResult({
-        context,
-        message: reply,
-        gid,
-        ids: [arid]
-      })
-    }
-    return true
-  }
-
-  //解析直播或音频
-  if (setting.getLiveRoomInfo && lrid) {
-    const reply = await getLiveRoomInfo(lrid)
-    if (reply) {
-      replyResult({
-        context,
-        message: reply,
-        gid,
-        ids: [lrid]
-      })
-    }
-    return true
-  }
 }

@@ -1,0 +1,14 @@
+[
+  {
+    "commandName": "我的鸽子",
+    "commandDescription": ["查询我的鸽子"]
+  },
+  {
+    "commandName": "查鸽子",
+    "commandDescription": ["查鸽子 (QQ号)", "如果填入了就是查询指定用户的鸽子数,不填则为查询自己的"]
+  },
+  {
+    "commandName": "鸽子排行榜",
+    "commandDescription": ["鸽子排行榜"]
+  }
+]
