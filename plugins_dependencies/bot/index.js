@@ -73,7 +73,7 @@ export async function newBot() {
 
 import { getLoginInfo } from '../../libs/Api.js'
 async function loginComplete(attempts) {
-  const { online } = global.config.bot
+  const { online, admin } = global.config.bot
 
   global.config.bot.info = (await getLoginInfo()).data
 
