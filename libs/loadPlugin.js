@@ -47,7 +47,7 @@ export async function loadPlugin(pluginName, pluginDir = 'plugins', loadFromDir 
   } = manifest
 
   if (disableLoadInDir && loadFromDir) {
-    logger.DEBUG(`插件${pluginName}禁止在文件夹中自动加载`)
+    if (debug) logger.DEBUG(`插件${pluginName}禁止在文件夹中自动加载`)
     return
   }
 
