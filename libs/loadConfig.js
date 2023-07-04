@@ -30,8 +30,13 @@ export function loadConfig(
     }
 
     if (RegToGlobal) {
+      const index = config.configName ?? _pluginName ?? configName
+      if (global.config[index]) {
+        if (debug) logger.DEBUG(`配置${index}已经存在了,不允许重复加载!`)
+        return
+      }
       // 优先配置文件中配置的配置文件名 然后是传入的插件名 如果插件名也不存在就直接使用配置文件的名称
-      global.config[config.configName ?? _pluginName ?? configName] = config
+      global.config[index] = config
     }
 
     return config

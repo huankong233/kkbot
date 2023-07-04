@@ -120,14 +120,15 @@ import { logger } from '../../libs/logger.js'
 export const parse = html => {
   const $ = cheerio.load(html, { decodeEntities: true })
   return _.map($('.search-item'), item => {
-    if ($(item).text() === '没有找到记录！') {
+    item = $(item)
+    if (item.text() === '没有找到记录！') {
       return undefined
     } else {
-      const list = $('span b', item)
-      const a = $('a', item)
+      const list = item.find('span b')
+      const a = item.find('a')
       return {
         title: a.text() ?? '空',
-        type: $('.fileType1', item).text() ?? '空',
+        type: item.find('.fileType1').text() ?? '空',
         createTime: list.eq(0).text() ?? '空',
         fileSize: list.eq(1).text() ?? '空',
         hot: list.eq(2).text() ?? '空',

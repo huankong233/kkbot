@@ -12,8 +12,10 @@ import { loadConfig } from './loadConfig.js'
 /**
  * 加载单个插件
  * @param {String} pluginName 插件名
+ * @param {String} pluginDir 插件路径
+ * @param {Boolean} loadFromDir 是否是使用文件夹加载的
  */
-export async function loadPlugin(pluginName, pluginDir = 'plugins') {
+export async function loadPlugin(pluginName, pluginDir = 'plugins', loadFromDir = false) {
   const { debug, kkbot_plugin_version } = global
 
   pluginDir = path.join(global.baseDir, pluginDir, pluginName)
@@ -22,7 +24,9 @@ export async function loadPlugin(pluginName, pluginDir = 'plugins') {
 
   // 检查插件兼容情况
   try {
-    manifest = jsonc.parse(readFileSync(`${pluginDir}/manifest.json`, { encoding: 'utf-8' }))
+    manifest = jsonc.parse(
+      readFileSync(path.join(pluginDir, `manifest.json`), { encoding: 'utf-8' })
+    )
   } catch (error) {
     logger.WARNING(`插件${pluginName}manifest加载失败`)
     if (debug) logger.DEBUG(error)
@@ -38,8 +42,14 @@ export async function loadPlugin(pluginName, pluginDir = 'plugins') {
     dependPlugins,
     installed,
     disableAutoLoadConfig = false,
+    disableLoadInDir = false,
     configName = 'config'
   } = manifest
+
+  if (disableLoadInDir && loadFromDir) {
+    if (debug) logger.DEBUG(`插件${pluginName}禁止在文件夹中自动加载`)
+    return
+  }
 
   // 如果还没安装就安装一次
   if (!installed) {
@@ -70,7 +80,7 @@ export async function loadPlugin(pluginName, pluginDir = 'plugins') {
     for (const key in dependPlugins) {
       if (Object.hasOwnProperty.call(dependPlugins, key)) {
         const requireVersion = dependPlugins[key]
-        const depend = global.pluginNames.find(item => item.name === key)
+        const depend = global.plugins.find(item => item.name === key)
 
         if (!depend) {
           logger.WARNING(
@@ -119,17 +129,17 @@ export async function loadPlugin(pluginName, pluginDir = 'plugins') {
     return
   }
 
-  if (!global.pluginNames) {
-    global.pluginNames = []
+  if (!global.plugins) {
+    global.plugins = []
   }
 
   // 循环检查是否存在
-  if (global.pluginNames.find(item => item.name === pluginName)) {
+  if (global.plugins.find(item => item.name === pluginName)) {
     if (debug) logger.DEBUG(`插件${pluginName}已经加载过了`)
     return
   }
 
-  global.pluginNames.push({ ...manifest, dir: pluginDir })
+  global.plugins.push({ ...manifest, dir: pluginDir })
 
   if (!program.default) {
     logger.WARNING(`加载插件${pluginName}失败，插件不存在默认导出函数`)
@@ -152,12 +162,13 @@ export async function loadPlugin(pluginName, pluginDir = 'plugins') {
 
 /**
  * 加载多个插件
- * @param {Array} plugins
- * @param {String} pluginDir
+ * @param {Array} plugins 插件名[]
+ * @param {String} pluginDir 插件路径
+ * @param {Boolean} loadFromDir 是否是使用文件夹加载的
  */
-export async function loadPlugins(plugins, pluginDir = 'plugins') {
+export async function loadPlugins(plugins, pluginDir = 'plugins', loadFromDir = false) {
   for (const pluginName of plugins) {
-    await loadPlugin(pluginName, pluginDir)
+    await loadPlugin(pluginName, pluginDir, loadFromDir)
   }
 }
 
@@ -175,6 +186,6 @@ export async function loadPluginDir(pluginDir) {
     return
   }
 
-  await loadPlugins(plugins, pluginDir)
+  await loadPlugins(plugins, pluginDir, true)
   if (global.debug) logger.DEBUG(`文件夹: ${clc.underline(pluginDir)} 中的插件已全部加载!`)
 }

@@ -83,3 +83,35 @@ export const epicApi = async () => {
     })
   return await Promise.all(items)
 }
+
+import * as cheerio from 'cheerio'
+import _ from 'lodash'
+export const steamApi = async () => {
+  const html = await get(
+    {
+      url: 'https://store.steampowered.com/search',
+      data: {
+        maxprice: 'free',
+        supportedlang: 'schinese',
+        specials: 1
+      }
+    },
+    10
+  ).then(res => res.text())
+
+  const $ = cheerio.load(html, { decodeEntities: true })
+  return _.map($('#search_resultsRows a'), item => {
+    item = $(item)
+    const info = item.find('.responsive_search_name_combined')
+    const id = item.attr('data-ds-appid')
+    const releasedTime = dayjs(item.find('.search_released').text()).format('YYYY-MM-DD')
+
+    return {
+      id,
+      url: `https://store.steampowered.com/app/${id}`,
+      img: item.find('.search_capsule img').attr('src'),
+      title: info.find('.search_name .title', item).text(),
+      releasedTime
+    }
+  })
+}
