@@ -14,8 +14,7 @@ export default async function () {
  */
 export async function newBot() {
   try {
-    const { connect, timeZone, online, admin } = global.config.bot
-    const { debug } = global
+    const { connect, timeZone, admin } = global.config.bot
 
     const bot = new CQWebSocket(connect)
 
@@ -30,9 +29,17 @@ export async function newBot() {
       logger.INFO(`连接中[${wsType}]#${attempts}`)
     })
 
-    bot.on('socket.error', (wsType, err) => {
-      logger.WARNING(`连接错误[${wsType}]`)
+    bot.on('socket.error', (wsType, err, attempts) => {
       if (debug) logger.DEBUG(err)
+    })
+
+    bot.on('socket.failed', (wsType, attempts) => {
+      logger.WARNING(`连接失败[${wsType}]#${attempts}`)
+      if (attempts >= global.config.bot.connect.reconnectionAttempts) {
+        throw new Error(
+          `连接失败次数超过设置的${global.config.bot.connect.reconnectionAttempts}次!`
+        )
+      }
     })
 
     bot.on('socket.connect', async (wsType, sock, attempts) => {
@@ -46,15 +53,7 @@ export async function newBot() {
         return logger.NOTICE('未设置管理员账户,请检查!')
       }
 
-      if (debug) {
-        return logger.DEBUG(`当前已打开DEBUG模式,可能会有更多的log被输出,非开发人员请关闭~`)
-      }
-
-      if (!online.enable) {
-        return
-      }
-
-      await sendMsg(admin, `${online.msg}#${attempts}`)
+      await loginComplete(attempts)
     })
 
     initEvents()
@@ -64,17 +63,29 @@ export async function newBot() {
 
     return new Promise((resolve, reject) => {
       bot.on('socket.connect', wsType => (wsType === '/api' ? resolve() : null))
-      bot.on('socket.failed', (wsType, attempts) =>
-        attempts >= connect.reconnectionAttempts
-          ? reject(`连接失败次数超过设置的${connect.reconnectionAttempts}次!`)
-          : null
-      )
     })
   } catch (error) {
     logger.WARNING('机器人启动失败!!!')
     if (global.debug) logger.DEBUG(error)
     throw new Error('请检查机器人配置文件!!!')
   }
+}
+
+import { getLoginInfo } from '../../libs/Api.js'
+async function loginComplete(attempts) {
+  const { online } = global.config.bot
+
+  global.config.bot.info = (await getLoginInfo()).data
+
+  if (debug) {
+    return logger.DEBUG(`当前已打开DEBUG模式,可能会有更多的log被输出,非开发人员请关闭~`)
+  }
+
+  if (!online.enable) {
+    return
+  }
+
+  await sendMsg(admin, `${online.msg}#${attempts}`)
 }
 
 function initEvents() {
@@ -126,7 +137,10 @@ function initEvents() {
   })
 
   bot.on('notice', async context => {
-    if (global.debug) logger.DEBUG(`收到类型为${context.notice_type}的通知`)
+    if (global.debug) {
+      logger.DEBUG(`收到类型为${context.notice_type}的通知`)
+      console.log(context)
+    }
 
     let events = compare(global.events.notice, 'priority')
     for (let i = 0; i < events.length; i++) {
@@ -143,7 +157,10 @@ function initEvents() {
   })
 
   bot.on('request', async context => {
-    if (global.debug) logger.DEBUG(`收到类型为${context.request_type}的请求`)
+    if (global.debug) {
+      logger.DEBUG(`收到类型为${context.request_type}的请求`)
+      console.log(context)
+    }
 
     let events = compare(global.events.request, 'priority')
     for (let i = 0; i < events.length; i++) {

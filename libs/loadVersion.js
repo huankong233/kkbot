@@ -1,4 +1,4 @@
-import { readFileSync } from 'fs'
+import fs from 'fs'
 import { jsonc } from 'jsonc'
 import { globalReg } from './globalReg.js'
 
@@ -7,7 +7,7 @@ import { globalReg } from './globalReg.js'
  */
 export function getVersion() {
   const frameworkInfo = jsonc.parse(
-    readFileSync(`${global.baseDir}/framework.json`, {
+    fs.readFileSync(`${global.baseDir}/framework.json`, {
       encoding: 'utf-8'
     })
   )
