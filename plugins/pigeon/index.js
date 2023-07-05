@@ -13,14 +13,10 @@ function event() {
       const { user_id } = context
 
       const at = haveAt(context)
-
-      const isCommand =
-        context.command &&
-        !(await getUserData(user_id)) &&
-        context.command.name.search('咕咕') === -1
-
-      const isPrivate = context.message_type === 'private' && !context.command
-      const isAt = at && !(await getUserData(user_id))
+      const haveAccount = !(await getUserData(user_id))
+      const isCommand = context.command && haveAccount && context.command.name.search('咕咕') === -1
+      const isPrivate = context.message_type === 'private' && !context.command && haveAccount
+      const isAt = at && haveAccount
 
       if (isCommand || isAt || isPrivate) {
         await replyMsg(context, `请先使用"${global.config.bot.prefix}咕咕"注册账户`)
