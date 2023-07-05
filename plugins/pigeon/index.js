@@ -13,20 +13,18 @@ function event() {
       const { user_id } = context
 
       const at = haveAt(context)
-      if (at) {
-        if (!(await getUserData(user_id))) {
-          await replyMsg(context, `请先使用"${global.config.bot.prefix}咕咕"注册账户`)
-          return 'quit'
-        }
-      }
 
-      if (context.command) {
-        if (!(await getUserData(user_id))) {
-          if (context.command.name.search('咕咕') === -1) {
-            await replyMsg(context, `请先使用"${global.config.bot.prefix}咕咕"注册账户`)
-            return 'quit'
-          }
-        }
+      const isCommand =
+        context.command &&
+        !(await getUserData(user_id)) &&
+        context.command.name.search('咕咕') === -1
+
+      const isPrivate = context.message_type === 'private' && !context.command
+      const isAt = at && !(await getUserData(user_id))
+
+      if (isCommand || isAt || isPrivate) {
+        await replyMsg(context, `请先使用"${global.config.bot.prefix}咕咕"注册账户`)
+        return 'quit'
       }
     },
     101
@@ -50,9 +48,7 @@ export const getUserData = async user_id => {
  * @returns true 成功
  * @returns false 失败
  */
-export const add = async params => {
-  const { number, reason, extra, user_id } = params
-
+export const add = async ({ number, reason, extra, user_id }) => {
   //不允许增加负数的鸽子
   if (number < 0) {
     return false
@@ -90,9 +86,7 @@ export const add = async params => {
  * @returns true 成功
  * @returns false 失败
  */
-export const reduce = async params => {
-  const { number, reason, extra, user_id } = params
-
+export const reduce = async ({ number, reason, extra, user_id }) => {
   //不允许减少负数的鸽子
   if (number < 0) {
     return false

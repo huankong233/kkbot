@@ -1,0 +1,10 @@
+[
+  {
+    "commandName": "鸽子红包",
+    "commandDescription": ["鸽子红包 [红包个数] [鸽子数] (口令)"]
+  },
+  {
+    "commandName": "剩余红包",
+    "commandDescription": ["剩余红包"]
+  }
+]

@@ -6,17 +6,17 @@
 
   //入群
   "invite": {
-    "agree": false,
-    "message": true
+    "message": true,
+    "agree": false
   },
   // 加群
   "add": {
-    "agree": false,
-    "message": true
+    "message": true,
+    "agree": false
   },
   // 好友
   "friend": {
-    "agree": true,
-    "message": true
+    "message": true,
+    "agree": true
   }
 }

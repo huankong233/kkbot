@@ -27,7 +27,7 @@ async function init() {
           await replyMsg(fakeContext, '发送合并消息失败')
         }
 
-        await sleep(5000)
+        await sleep(freegames.cd)
       }
     },
     null,
@@ -98,7 +98,7 @@ async function prepareMessage(context = {}) {
           `${CQ.image(item.img)}`,
           `游戏名:${item.title}`,
           `发行日期:${item.releasedTime}`,
-          `购买链接:${item.link}`
+          `购买链接:${item.url}`
         ].join('\n')
       )
     )

@@ -22,6 +22,15 @@ export function randomInt(min = 0, max = 1) {
   // 确保min和max都是整数
   min = Math.ceil(min)
   max = Math.floor(max)
-  // 使用Math.random()和Math.floor()计算随机整数
   return Math.floor(Math.random() * (max - min + 1)) + min
+}
+
+/**
+ * 生成随机浮点数
+ * @param {Number} min
+ * @param {Number} max
+ * @returns {Number}
+ */
+export function randomFloat(min = 0, max = 1) {
+  return Math.random() * (max - min + 1) + min
 }

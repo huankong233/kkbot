@@ -43,7 +43,7 @@ async function gugu(context) {
 /**
  * 判断时间戳是否是今天的
  * @param {Number} timestamp
- * @returns
+ * @returns {Boolean} true:"是今天" false:"不是今天"
  */
 export function isToday(timestamp) {
   // 获取当前的时间戳

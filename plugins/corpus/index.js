@@ -84,16 +84,15 @@ const available = {
 }
 
 // 学习
+import { missingParams } from '../../libs/eventReg.js'
 export const learn = async (context, params) => {
   const { user_id } = context
   const { corpus, bot } = global.config
 
+  if (await missingParams(context, params, 4)) return
+
   if (!(await reduce({ user_id, number: corpus.add, reason: '添加关键字' }))) {
     return await replyMsg(context, '鸽子不足~')
-  }
-
-  if (params.length !== 4) {
-    return await replyMsg(context, `参数错误,请发送"${bot.prefix}帮助 ${bot.botName}学习"查看细节`)
   }
 
   const messages = CQ.parse(params[0].trim())
@@ -150,12 +149,10 @@ export const forget = async (context, params) => {
   const { user_id } = context
   const { corpus } = global.config
 
+  if (await missingParams(context, params, 1)) return
+
   if (!(await reduce({ user_id, number: corpus.delete, reason: '删除关键字' }))) {
     return await replyMsg(context, '鸽子不足~')
-  }
-
-  if (params.length !== 1) {
-    return await replyMsg(context, `参数错误,请发送"${bot.prefix}帮助 ${bot.botName}忘记"查看细节`)
   }
 
   const keyword = emoji.unemojify(params[0])
