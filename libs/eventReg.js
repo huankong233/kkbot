@@ -75,3 +75,17 @@ export function format(message) {
     params: command.slice(1, command.length)
   }
 }
+
+import { replyMsg } from './sendMsg.js'
+export async function missingParams(context, params, paramsLength) {
+  const { bot } = global.config
+
+  if (params.length < paramsLength) {
+    return await replyMsg(
+      context,
+      `参数不足，请发送"${bot.prefix}帮助 ${context.command.name}"查看帮助`,
+      false,
+      true
+    )
+  }
+}

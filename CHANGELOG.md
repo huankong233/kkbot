@@ -2,10 +2,22 @@
 
 ## 2023
 
+### 07-05 v0.1.2
+
+- 移植了插件 `dog` `music163` `mute` `nbnhhsh` `prprme` `redPacket` `repeat` `russian` `update` `vits` `zaobao`
+- 新增一个方法 `missingParams` 用于格式化输出缺少参数的提醒 位于 `/lib/eventReg.js`
+- 新增一个方法 `randomFloat` 用于随机浮点数 位于 `/lib/random.js`
+- 优化了 `/lib/sendMsg.js` 中调试时的部分描述
+- 修复错误的异步操作
+
+### 07-05 v0.1.1
+
+- 修复插件 `freegames` `steam` 的限免购买链接
+
 ### 07-04 v0.1.1
 
 - 取消对 `python` 的支持
-- `epicgames` 改版为 `freegames` 支持了 `steam` 的限免
+- 插件 `epicgames` 改版为 `freegames` 支持了 `steam` 的限免
 - 新增插件 `help` `mute` `poke`
 - 新增 `api` 支持库,用于对部分接口进行封装
 

@@ -1,0 +1,10 @@
+{
+  //开关
+  "enable": true,
+  //github代理地址
+  "proxy": "",
+  //package.json
+  "url": "https://github.com/huankong233/kkbot/raw/master/framework.json",
+  // 参考: https://crontab.guru/
+  "crontab": "0 8 * * *"
+}

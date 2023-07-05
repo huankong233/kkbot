@@ -40,6 +40,7 @@ import { replyMsg } from '../../libs/sendMsg.js'
 
 async function help(context) {
   const { help } = global.config
+
   const name = context.command.params[0]
 
   if (name) {

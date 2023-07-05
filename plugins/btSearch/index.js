@@ -17,6 +17,7 @@ function event() {
 
 import { add, reduce } from '../pigeon/index.js'
 import { replyMsg, sendForwardMsg } from '../../libs/sendMsg.js'
+import { missingParams } from '../../libs/eventReg.js'
 
 //启动函数
 export const init = async context => {
@@ -27,10 +28,9 @@ export const init = async context => {
     return await replyMsg(context, `搜索失败,鸽子不足~`, true)
   }
 
+  if (await missingParams(context, command.params, 1)) return
+
   const keyword = command.params[0]
-  if (!keyword) {
-    return await replyMsg(context, '请指定关键词')
-  }
 
   const page = command.params[1] ?? 1
   const data = await search(keyword, page)

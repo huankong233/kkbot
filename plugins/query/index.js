@@ -9,11 +9,11 @@ function event() {
   eventReg('message', async (event, context, tags) => {
     if (context.command) {
       if (context.command.name === '我的鸽子') {
-        query(context)
+        await query(context)
       } else if (context.command.name === '查鸽子') {
-        query(context)
+        await query(context)
       } else if (context.command.name === '鸽子排行榜') {
-        rankingList(context)
+        await rankingList(context)
       }
     }
   })
@@ -21,12 +21,13 @@ function event() {
 
 import { getUserData } from '../pigeon/index.js'
 import { replyMsg } from '../../libs/sendMsg.js'
+import { getStrangerInfo } from '../../libs/Api.js'
 
 //我的鸽子
 export const query = async context => {
   let { user_id } = context
 
-  const params = context.command.params
+  const { params } = context.command
   if (params && params.length !== 0) {
     user_id = params[0]
   }
@@ -68,6 +69,6 @@ export const rankingList = async context => {
  * @returns
  */
 export const getUserName = async user_id => {
-  const res = await bot('get_stranger_info', { user_id })
+  const res = await getStrangerInfo({ user_id })
   return res.data.nickname
 }

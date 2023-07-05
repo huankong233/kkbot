@@ -6,9 +6,9 @@ export default async () => {
   event()
 }
 
-import { eventReg, haveAt } from '../../libs/eventReg.js'
+import { eventReg, haveAt, missingParams } from '../../libs/eventReg.js'
 
-async function event() {
+function event() {
   eventReg('message', async (event, context, tags) => {
     // 私聊
     if (global.config.bing.private && context.message_type === 'private' && !context.command) {
@@ -41,14 +41,7 @@ export const handler = async context => {
   const { user_id } = context
   const params = context.command.params
 
-  if (params.length < 1) {
-    return await replyMsg(
-      context,
-      `参数不足，请发送"${global.config.bot.prefix}帮助 bing"查看帮助`,
-      false,
-      true
-    )
-  }
+  if (await missingParams(context, params, 1)) return
 
   if (params[0] === '开启新的会话') {
     global.config.bing.data[user_id] = [
@@ -81,9 +74,12 @@ export const handler = async context => {
       throw new Error(response.error)
     }
   } catch (error) {
-    await errorParse(context, error)
-    logger.WARNING('插件bing请求接口出错')
-    if (global.debug) logger.DEBUG(error)
+    await errorParse(context, error.toString())
+
+    if (global.debug) {
+      logger.DEBUG(error)
+      logger.WARNING('插件bing请求接口出错')
+    }
     return
   }
 
@@ -133,10 +129,13 @@ export const errorParse = async (context, error) => {
   const { user_id } = context
 
   await add({ user_id, number: global.config.bing.cost, reason: `搜索bing失败` })
-  if (error === 'Sorry, you need to login first to access this service.') {
+  if (
+    error === 'Sorry, you need to login first to access this service.' ||
+    error === 'Authentication failed'
+  ) {
     await replyMsg(
       context,
-      ['提示:bing账号过期，请联系管理员', `报错:${error.toString()}`].join('\n'),
+      ['提示:bing账号过期，请联系管理员', `报错:${error}`].join('\n'),
       false,
       true
     )
@@ -146,11 +145,11 @@ export const errorParse = async (context, error) => {
   ) {
     await replyMsg(
       context,
-      ['提示:请不要使用不合时宜的词汇。', `报错:${error.toString()}`].join('\n'),
+      ['提示:请不要使用不合时宜的词汇。', `报错:${error}`].join('\n'),
       false,
       true
     )
   } else {
-    await replyMsg(context, ['提示:未知错误', `报错:${error.toString()}`].join('\n'), false, true)
+    await replyMsg(context, ['提示:未知错误', `报错:${error}`].join('\n'), false, true)
   }
 }

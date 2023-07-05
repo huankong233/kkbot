@@ -1,9 +1,13 @@
-import { eventReg } from '../../libs/eventReg.js'
-
 export default () => {
   event()
 }
 
+/**
+ * 加群 = 请求加群
+ * 入群 = 邀请入群
+ */
+
+import { eventReg } from '../../libs/eventReg.js'
 function event() {
   eventReg('notice', async context => {
     await notice(context)
@@ -15,12 +19,13 @@ function event() {
 
   eventReg('message', async (event, context, tags) => {
     if (context.command) {
-      if (context.command.name === '入群') {
-        await invite(context, context.command.params, 'invite')
-      } else if (context.command.name === '加群') {
-        await invite(context, context.command.params, 'add')
-      } else if (context.command.name === '好友') {
-        await friend(context, context.command.params)
+      const { name, params } = context.command
+      if (name === '入群') {
+        await invite(context, params, 'invite')
+      } else if (name === '加群') {
+        await invite(context, params, 'add')
+      } else if (name === '好友') {
+        await friend(context, params)
       }
     }
   })
@@ -32,6 +37,7 @@ import { getUserName } from '../query/index.js'
 //notice事件处理
 export const notice = async context => {
   const { notice_type, sub_type, self_id, user_id, group_id } = context
+
   //判断不是机器人
   if (self_id === user_id) return
 
@@ -58,18 +64,19 @@ export const notice = async context => {
 //request事件处理
 export const request = async context => {
   const { request_type, sub_type } = context
+  const { admin } = global.config
 
   if (request_type === 'group') {
     if (sub_type === 'add') {
       //申请加群
-      await sendNotice(context, '加群', global.config.admin.add.agree)
-      if (global.config.admin.add.agree) {
+      await sendNotice(context, '加群', admin.add.agree)
+      if (admin.add.agree) {
         await invite(context, ['批准', context.flag], 'add')
       }
     } else if (sub_type === 'invite') {
       //邀请机器人入群
-      await sendNotice(context, '入群', global.config.admin.invite.agree)
-      if (global.config.admin.invite.agree) {
+      await sendNotice(context, '入群', admin.invite.agree)
+      if (admin.invite.agree) {
         await invite(context, ['批准', context.flag], 'invite')
       }
     }
@@ -77,8 +84,8 @@ export const request = async context => {
 
   if (request_type === 'friend') {
     //添加好友
-    await sendNotice(context, '好友', global.config.admin.friend.agree)
-    if (global.config.admin.friend.agree) {
+    await sendNotice(context, '好友', admin.friend.agree)
+    if (admin.friend.agree) {
       await friend(context, ['批准', context.flag])
     }
   }
@@ -87,57 +94,72 @@ export const request = async context => {
 //给admin发送通知
 export const sendNotice = async (context, name, auto) => {
   const { flag, user_id, group_id, comment } = context
+  const { bot } = global.config
 
   let reply = [`用户 : ${user_id}`]
+
   if (name !== '好友') reply.push(`申请${name} : ${group_id}`)
+
   reply.push(`验证信息 : ${comment}`)
+
   if (auto) {
-    reply.push(`批准回复 : ${global.config.bot.prefix}${name} 批准 ${flag}`)
-    let refuse = `拒绝回复 : ${global.config.bot.prefix}${name} 拒绝 ${flag}`
-    if (name !== '好友') refuse += '拒绝原因(可选)'
-    reply.push(refuse)
-  } else {
     reply.push(`已自动同意了哦~`)
+  } else {
+    reply.push(`批准回复 : ${bot.prefix}${name} 批准 ${flag}`)
+
+    reply.push(
+      `拒绝回复 : ${bot.prefix}${name} 拒绝 ${flag} ${name !== '好友' ? '拒绝原因(可选)' : ''}`
+    )
   }
 
-  await sendMsg(global.config.bot.admin, reply.filter(s => s && s.trim()).join('\n'))
+  await sendMsg(bot.admin, reply.join('\n'))
 }
+
+import { missingParams } from '../../libs/eventReg.js'
+import { setGroupAddRequest } from '../../libs/Api.js'
 
 //同意入群/加群请求
 export const invite = async (context, params, sub_type) => {
-  if (params[0] === '批准') {
-    await bot('set_group_add_request', {
-      flag: params[1],
-      sub_type,
-      approve: true
-    })
-  } else if (params[0] === '拒绝') {
-    await bot('set_group_add_request', {
-      flag: params[1],
-      sub_type,
-      approve: false,
-      reason: params[2] ? params[2] : ''
-    })
-  } else {
-    return await replyMsg(context, '方法不存在')
+  const { bot } = global.config
+  // 判断是否为管理员
+  if (bot.admin !== context.user_id) {
+    return await replyMsg(context, '你不是管理员', false, true)
   }
+
+  if (await missingParams(context, params, 2)) return
+
+  const approve = params[0] === '批准'
+  const flag = params[1]
+  const reason = params[2]
+
+  const response = await setGroupAddRequest({ flag, sub_type, approve, reason })
+
+  if (response.status === 'failed') {
+    return await replyMsg(context, [`执行失败,失败原因:`, `${response.message}`].join('\n'))
+  }
+
   await replyMsg(context, '执行成功(不代表处理结果)')
 }
 
 //同意加好友请求
+import { setFriendAddRequest } from '../../libs/Api.js'
 export const friend = async (context, params) => {
-  if (params[0] === '批准') {
-    await bot('set_friend_add_request', {
-      flag: params[1],
-      approve: true
-    })
-  } else if (params[0] === '拒绝') {
-    await bot('set_friend_add_request', {
-      flag: params[1],
-      approve: false
-    })
-  } else {
-    return await replyMsg(context, '方法不存在')
+  const { bot } = global.config
+  // 判断是否为管理员
+  if (bot.admin !== context.user_id) {
+    return await replyMsg(context, '你不是管理员', false, true)
   }
+
+  if (await missingParams(context, params, 2)) return
+
+  const approve = params[0] === '批准'
+  const flag = params[1]
+
+  const response = await setFriendAddRequest({ flag, approve })
+
+  if (response.status === 'failed') {
+    return await replyMsg(context, [`执行失败,失败原因:`, `${response.message}`].join('\n'))
+  }
+
   await replyMsg(context, '执行成功(不代表处理结果)')
 }

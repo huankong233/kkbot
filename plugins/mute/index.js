@@ -7,7 +7,7 @@ function event() {
   eventReg('message', async (event, context, tags) => {
     if (context.command) {
       if (context.command.name === '鸽了') {
-        mute(context)
+        await mute(context)
       }
     }
   })

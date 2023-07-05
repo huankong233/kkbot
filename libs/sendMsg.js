@@ -21,7 +21,7 @@ export async function replyMsg(context, message, at, reply) {
 
   if (global.debug) {
     const stack = new Error().stack.split('\n')
-    logger.DEBUG(`发送消息:${message},stack信息:`)
+    logger.DEBUG(`发送回复消息:${message},stack信息:`)
     console.log(stack.slice(1, stack.length).join('\n'))
   }
 
