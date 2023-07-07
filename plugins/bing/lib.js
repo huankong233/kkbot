@@ -21,8 +21,7 @@ export async function get(userInput, userContext, password) {
     try {
       await connectWebSocket()
     } catch (error) {
-      alert(`WebSocket error: ${error}`)
-      return
+      throw new Error(error)
     }
   }
 
