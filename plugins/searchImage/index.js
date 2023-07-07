@@ -203,11 +203,11 @@ async function parse(context, res, originUrl) {
         CQ.node(
           bot.botName,
           context.self_id,
-          CQ.text(`${datum.name}搜图失败力~已赔偿鸽子${searchImage.claim}只`)
+          CQ.text(`${datum.name}搜图失败力~已赔偿鸽子${searchImage.reduce}只`)
         )
       )
       //赔偿
-      await add({ user_id, number: searchImage.claim, reason: `${datum.name}搜图失败赔偿` })
+      await add({ user_id, number: searchImage.reduce, reason: `${datum.name}搜图失败赔偿` })
     }
 
     let message = `${datum.name}(耗时:${parseInt(datum.cost)}ms):\n`
