@@ -115,6 +115,7 @@ async function handler(context) {
 }
 
 function makeContext(context) {
+  const { bing } = global.config
   let userContext = ''
 
   if (!bing.data[user_id]) {
