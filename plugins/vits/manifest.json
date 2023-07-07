@@ -1,1 +1,1 @@
-{"kkbot_plugin_version":"2","name":"vits","description":"vits","version":"0.0.3","author":[{"name":"huan_kong","link":"https://github.com/huankong233"}],"dependPackages":{},"dependPlugins":{"pigeon":"0.0.1"}}
+{"kkbot_plugin_version":"2","name":"vits","description":"vits","version":"0.0.2","author":[{"name":"huan_kong","link":"https://github.com/huankong233"}],"dependPackages":{},"dependPlugins":{"pigeon":"0.0.2","checkffmpeg":"0.0.1"}}

@@ -2,7 +2,7 @@
  * 净化链接
  * @param {string} link
  */
-export const purgeLink = link => {
+export function purgeLink(link) {
   try {
     const url = new URL(link)
     if (url.hostname === 'live.bilibili.com') {
@@ -23,4 +23,9 @@ export const purgeLink = link => {
 export const purgeLinkInText = text =>
   text.replace(/https?:\/\/[-\w~!@#$%&*()+=;':,.?/]+/g, url => purgeLink(url))
 
+/**
+ * 转换数目
+ * @param {Number} num
+ * @returns
+ */
 export const humanNum = num => (num < 10000 ? num : `${(num / 10000).toFixed(1)}万`)

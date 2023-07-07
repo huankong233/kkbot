@@ -104,7 +104,7 @@ export const steamApi = async () => {
     item = $(item)
     const info = item.find('.responsive_search_name_combined')
     const id = item.attr('data-ds-appid')
-    const releasedTime = dayjs(item.find('.search_released').text()).format('YYYY-MM-DD')
+    const releasedTime = dayjs(item.find('.search_released').text()).format('YYYY年MM月DD日')
 
     return {
       id,

@@ -28,8 +28,8 @@ function event() {
   })
 }
 
-import { add, reduce } from '../pigeon/index.js'
-import { isToday } from '../gugu/index.js'
+import { add, reduce } from '../../plugins/pigeon/index.js'
+import { isToday } from '../../plugins/gugu/index.js'
 import { missingParams } from '../../libs/eventReg.js'
 
 export const createGame = async context => {
@@ -243,7 +243,7 @@ export const startGame = async context => {
   global.russian.start = true
 }
 
-import { getUserName } from '../query/index.js'
+import { getUserName } from '../../plugins/query/index.js'
 
 export const shot = async context => {
   const user_id = context.user_id

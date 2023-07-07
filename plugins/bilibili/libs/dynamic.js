@@ -23,12 +23,12 @@ const additionalFormatters = {
 const majorFormatters = {
   // 图片
   MAJOR_TYPE_DRAW: async ({ draw: { items } }) => {
-    return items.map(({ src }) => CQ.image(src.replace('http', 'https')))
+    return items.map(({ src }) => CQ.image(src.replace('http://', 'https://')))
   },
 
   // 视频
   MAJOR_TYPE_ARCHIVE: ({ archive: { cover, aid, bvid, title, stat } }) => [
-    CQ.image(cover.replace('http', 'https')),
+    CQ.image(cover.replace('http://', 'https://')),
     `av${aid}`,
     CQ.escape(title.trim()),
     `${humanNum(stat.play)}播放 ${humanNum(stat.danmaku)}弹幕`,
@@ -37,7 +37,7 @@ const majorFormatters = {
 
   // 文章
   MAJOR_TYPE_ARTICLE: ({ article: { covers, id, title, desc } }) => [
-    ...(covers.length ? [CQ.image(covers[0].replace('http', 'https'))] : []),
+    ...(covers.length ? [CQ.image(covers[0].replace('http://', 'https://'))] : []),
     CQ.escape(title.trim()),
     CQ.escape(desc.trim()),
     `https://www.bilibili.com/read/cv${id}`
@@ -45,7 +45,7 @@ const majorFormatters = {
 
   // 音乐
   MAJOR_TYPE_MUSIC: ({ music: { cover, id, title, label } }) => [
-    CQ.image(cover.replace('http', 'https')),
+    CQ.image(cover.replace('http://', 'https://')),
     `au${id}`,
     CQ.escape(title.trim()),
     `分类：${label}`,
@@ -54,7 +54,7 @@ const majorFormatters = {
 
   // 直播
   MAJOR_TYPE_LIVE: ({ live: { cover, title, id, live_state, desc_first, desc_second } }) => [
-    CQ.image(cover.replace('http', 'https')),
+    CQ.image(cover.replace('http://', 'https://')),
     CQ.escape(title),
     `房间号：${id}`,
     `分区：${desc_first}`,
@@ -63,7 +63,7 @@ const majorFormatters = {
   ]
 }
 
-const formatDynamic = async item => {
+async function formatDynamic(item) {
   const { module_author: author, module_dynamic: dynamic } = item.modules
   const lines = [`https://t.bilibili.com/${item.id_str}`, `UP：${CQ.escape(author.name)}`]
 
@@ -91,7 +91,7 @@ const formatDynamic = async item => {
   return lines
 }
 
-export const getDynamicInfo = async id => {
+export async function getDynamicInfo(id) {
   try {
     const {
       data: { data, code, message }
@@ -119,8 +119,10 @@ export const getDynamicInfo = async id => {
     const lines = await formatDynamic(data.item)
     return lines.join('\n')
   } catch (error) {
-    logger.WARNING(`bilibili get dynamic new info ${id}`)
-    if (global.debug) logger.DEBUG(error)
+    if (debug) {
+      logger.WARNING(`bilibili get dynamic new info ${id}`)
+      logger.DEBUG(error)
+    }
     return null
   }
 }

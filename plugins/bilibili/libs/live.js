@@ -2,7 +2,7 @@ import { humanNum } from './utils.js'
 import { get } from '../../../libs/fetch.js'
 import { logger } from '../../../libs/logger.js'
 
-export const getLiveRoomInfo = async id => {
+export async function getLiveRoomInfo(id) {
   try {
     const data = await get({
       url: `https://api.live.bilibili.com/xlive/web-room/v1/index/getInfoByRoom?room_id=${id}`
@@ -27,7 +27,7 @@ export const getLiveRoomInfo = async id => {
     } = data
 
     return [
-      CQ.image(keyframe.replace('http', 'https')),
+      CQ.image(keyframe.replace('http://', 'https://')),
       CQ.escape(title),
       `主播：${CQ.escape(uname)}`,
       `房间号：${room_id}${short_id ? `  短号：${short_id}` : ''}`,
@@ -36,8 +36,10 @@ export const getLiveRoomInfo = async id => {
       `https://live.bilibili.com/${short_id || room_id}`
     ].join('\n')
   } catch (error) {
-    logger.WARNING(`bilibili get live room info ${id}`)
-    if (global.debug) logger.DEBUG(error)
+    if (debug) {
+      logger.WARNING(`bilibili get live room info ${id}`)
+      logger.DEBUG(error)
+    }
     return null
   }
 }

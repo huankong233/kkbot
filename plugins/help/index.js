@@ -8,9 +8,9 @@ import { eventReg } from '../../libs/eventReg.js'
 function event() {
   eventReg('message', async (event, context, tags) => {
     if (context.command) {
-      if (context.command.name === '帮助') {
-        await help(context)
-      } else if (context.command.name === 'help') {
+      const { name } = context.command
+
+      if (name === '帮助' || name === 'help') {
         await help(context)
       }
     }
@@ -39,9 +39,12 @@ async function initial() {
 import { replyMsg } from '../../libs/sendMsg.js'
 
 async function help(context) {
-  const { help } = global.config
+  const { help, bot } = global.config
+  const {
+    command: { params }
+  } = context
 
-  const name = context.command.params[0]
+  const name = params[0]
 
   if (name) {
     const command = help.commandList.find(item => item.commandName === name)
@@ -52,14 +55,15 @@ async function help(context) {
           `命令:${command.commandName}`,
           `简介( [ ] 为必选参数  ( ) 为可选参数 ):`,
           `${command.commandDescription.join('\n')}`
-        ].join('\n')
+        ].join('\n'),
+        { reply: true }
       )
     } else {
-      await replyMsg(context, '没有这个命令哦~')
+      await replyMsg(context, '没有这个命令哦~', { reply: true })
     }
   } else {
-    let str = [`使用"${global.config.bot.prefix}帮助 命令名称"来获取详情`, `命令列表:`]
+    let str = [`使用"${bot.prefix}帮助 命令名称"来获取详情`, `命令列表:`]
     help.commandList.forEach(command => str.push(command.commandName))
-    await replyMsg(context, str.join('\n'))
+    await replyMsg(context, str.join('\n'), { reply: true })
   }
 }

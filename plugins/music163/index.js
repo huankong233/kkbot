@@ -16,20 +16,30 @@ function event() {
 import { get } from '../../libs/fetch.js'
 import { replyMsg } from '../../libs/sendMsg.js'
 
-export const comments_163 = async context => {
-  const data = await get({
-    url: 'https://v2.alapi.cn/api/comment',
-    data: { token: global.config.music163.token }
-  }).then(res => res.json())
+async function comments_163(context) {
+  let data
+  try {
+    data = await get({
+      url: 'https://v2.alapi.cn/api/comment',
+      data: { token: global.config.music163.token }
+    }).then(res => res.json())
+  } catch (error) {
+    if (debug) {
+      logger.WARNING(`music163 get info failed`)
+      logger.DEBUG(error)
+    }
+    return await replyMsg(context, `接口请求失败`, { reply: true })
+  }
 
-  if (!data.data) return await replyMsg(context, `请求失败,原因:${data.msg}`)
+  if (!data.data) return await replyMsg(context, `请求失败,原因:${data.msg}`, { reply: true })
 
   await replyMsg(
     context,
     [
       `歌名:${data.data.title}`,
       `${data.data.comment_nickname}说:${data.data.comment_content}`
-    ].join('\n')
+    ].join('\n'),
+    { reply: true }
   )
 
   await replyMsg(context, CQ.music('163', data.data.song_id))

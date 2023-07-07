@@ -1,8 +1,10 @@
 {
-  // docker部署: https://hub.docker.com/r/huankong233/chat-sydney-fast-api
+  // https://github.com/huankong233/ChatSydney-FastAPI
   // 例子: ws://服务器地址/ws
   // "websocket": "ws://host:port/ws",
   "websocket": false,
+  // 密码字段(新版添加的)
+  "password": "",
   "cost": 10,
   // 私聊启用
   "private": true

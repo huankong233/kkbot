@@ -1,4 +1,4 @@
-export default () => {
+export default async () => {
   event()
 }
 
@@ -35,34 +35,29 @@ import { sendMsg, replyMsg } from '../../libs/sendMsg.js'
 import { getUserName } from '../query/index.js'
 
 //notice事件处理
-export const notice = async context => {
+async function notice(context) {
   const { notice_type, sub_type, self_id, user_id, group_id } = context
+
+  const fakeContext = { message_type: 'group', user_id, group_id }
 
   //判断不是机器人
   if (self_id === user_id) return
 
   if (notice_type === 'group_increase') {
     if (sub_type === 'approve') {
-      await replyMsg(
-        { message_type: 'group', user_id, group_id },
-        `欢迎加群呀~${await getUserName(user_id)}`,
-        true
-      )
+      await replyMsg(fakeContext, `欢迎加群呀~${await getUserName(user_id)}`)
     }
   }
 
   if (notice_type === 'group_decrease') {
     if (sub_type === 'leave') {
-      await replyMsg(
-        { message_type: 'group', user_id, group_id },
-        `${await getUserName(user_id)}退群了 (*>.<*)`
-      )
+      await replyMsg(fakeContext, `${await getUserName(user_id)}退群了 (*>.<*)`)
     }
   }
 }
 
 //request事件处理
-export const request = async context => {
+async function request(context) {
   const { request_type, sub_type } = context
   const { admin } = global.config
 
@@ -92,7 +87,7 @@ export const request = async context => {
 }
 
 //给admin发送通知
-export const sendNotice = async (context, name, auto) => {
+async function sendNotice(context, name, auto) {
   const { flag, user_id, group_id, comment } = context
   const { bot } = global.config
 
@@ -119,12 +114,11 @@ import { missingParams } from '../../libs/eventReg.js'
 import { setGroupAddRequest } from '../../libs/Api.js'
 
 //同意入群/加群请求
-export const invite = async (context, params, sub_type) => {
+async function invite(context, params, sub_type) {
   const { bot } = global.config
+
   // 判断是否为管理员
-  if (bot.admin !== context.user_id) {
-    return await replyMsg(context, '你不是管理员', false, true)
-  }
+  if (bot.admin !== context.user_id) return await replyMsg(context, '你不是管理员', { reply: true })
 
   if (await missingParams(context, params, 2)) return
 
@@ -143,12 +137,10 @@ export const invite = async (context, params, sub_type) => {
 
 //同意加好友请求
 import { setFriendAddRequest } from '../../libs/Api.js'
-export const friend = async (context, params) => {
+async function friend(context, params) {
   const { bot } = global.config
   // 判断是否为管理员
-  if (bot.admin !== context.user_id) {
-    return await replyMsg(context, '你不是管理员', false, true)
-  }
+  if (bot.admin !== context.user_id) return await replyMsg(context, '你不是管理员', { reply: true })
 
   if (await missingParams(context, params, 2)) return
 

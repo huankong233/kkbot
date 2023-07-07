@@ -18,7 +18,7 @@ import fs from 'fs'
 import path from 'path'
 import { getDirName } from '../../libs/getDirname.js'
 
-export const init = async () => {
+async function init() {
   const { bot } = global.config
   if (bot.ffmpeg) {
     const baseDir = getDirName(import.meta.url)
@@ -33,15 +33,15 @@ export const init = async () => {
 import { randomInt } from '../../libs/random.js'
 import { replyMsg } from '../../libs/sendMsg.js'
 
-export const dinggong = async context => {
+async function dinggong(context) {
   const { bot, dinggong } = global.config
   const { resourcesPath, records } = dinggong
   if (bot.ffmpeg) {
     const recordName = records[randomInt(records.length - 1, 0)]
+    await replyMsg(context, path.basename(recordName, '.mp3'), { reply: true })
     //语音回复
     await replyMsg(context, CQ.record(`file:///${path.join(resourcesPath, recordName)}`))
-    await replyMsg(context, path.basename(recordName, '.mp3'))
   } else {
-    await replyMsg(context, '缺少ffmpeg,请联系管理员')
+    await replyMsg(context, '缺少ffmpeg,请联系管理员', { reply: true })
   }
 }

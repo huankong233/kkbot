@@ -16,7 +16,7 @@ async function connectWebSocket() {
   })
 }
 
-export async function get(userInput, userContext) {
+export async function get(userInput, userContext, password) {
   if (!websocket || websocket.readyState !== WebSocket.OPEN) {
     try {
       await connectWebSocket()
@@ -29,7 +29,8 @@ export async function get(userInput, userContext) {
   websocket.send(
     JSON.stringify({
       message: userInput,
-      context: userContext
+      context: userContext,
+      password: password
     })
   )
 

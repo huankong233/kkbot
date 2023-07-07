@@ -6,6 +6,8 @@ export default async () => {
 
 import { CronJob } from 'cron'
 import { sleep } from '../../libs/sleep.js'
+import { replyMsg, sendForwardMsg } from '../../libs/sendMsg.js'
+import logger from '../../libs/logger.js'
 
 async function init() {
   const { freegames } = global.config
@@ -13,7 +15,17 @@ async function init() {
   new CronJob(
     freegames.crontab,
     async function () {
-      const messages = await prepareMessage()
+      let messages
+      try {
+        messages = await prepareMessage()
+      } catch (error) {
+        if (debug) {
+          logger.WARNING(`freegames get info failed`)
+          logger.DEBUG(error)
+        }
+        return
+      }
+
       for (let i = 0; i < freegames.groups.length; i++) {
         const group_id = freegames.groups[i]
 
@@ -22,11 +34,7 @@ async function init() {
           group_id
         }
 
-        const response = await sendForwardMsg(fakeContext, messages)
-        if (response.status === 'failed') {
-          await replyMsg(fakeContext, '发送合并消息失败')
-        }
-
+        await sendForwardMsg(fakeContext, messages)
         await sleep(freegames.cd)
       }
     },
@@ -39,7 +47,9 @@ import { eventReg } from '../../libs/eventReg.js'
 function event() {
   eventReg('message', async (event, context, tags) => {
     if (context.command) {
-      if (context.command.name === 'freegames') {
+      const { name } = context.command
+
+      if (name === 'freegames') {
         await freegames(context)
       }
     }
@@ -47,17 +57,25 @@ function event() {
 }
 
 import { epicApi, steamApi } from './lib.js'
-import { replyMsg, sendForwardMsg } from '../../libs/sendMsg.js'
-export const freegames = async context => {
-  const messages = await prepareMessage(context)
+async function freegames(context) {
+  let messages
+  try {
+    messages = await prepareMessage()
+  } catch (error) {
+    if (debug) {
+      logger.WARNING(`freegames get info failed`)
+      logger.DEBUG(error)
+    }
+    return await replyMsg(context, `接口请求失败`, { reply: true })
+  }
   const response = await sendForwardMsg(context, messages)
 
   if (response.status === 'failed') {
-    await replyMsg(context, '发送合并消息失败，可以尝试私聊我哦~')
+    await replyMsg(context, '发送合并消息失败，可以尝试私聊我哦~', { reply: true })
   }
 }
 
-async function prepareMessage(context = {}) {
+async function prepareMessage() {
   const { bot } = global.config
   const epic = await epicApi()
   const steam = await steamApi()

@@ -8,11 +8,13 @@ import { eventReg } from '../../libs/eventReg.js'
 function event() {
   eventReg('message', async (event, context, tags) => {
     if (context.command) {
-      if (context.command.name === '我的鸽子') {
+      const { name } = context.command
+
+      if (name === '我的鸽子') {
         await query(context)
-      } else if (context.command.name === '查鸽子') {
+      } else if (name === '查鸽子') {
         await query(context)
-      } else if (context.command.name === '鸽子排行榜') {
+      } else if (name === '鸽子排行榜') {
         await rankingList(context)
       }
     }
@@ -24,25 +26,30 @@ import { replyMsg } from '../../libs/sendMsg.js'
 import { getStrangerInfo } from '../../libs/Api.js'
 
 //我的鸽子
-export const query = async context => {
-  let { user_id } = context
+async function query(context) {
+  let {
+    user_id,
+    command: { params }
+  } = context
 
-  const { params } = context.command
   if (params && params.length !== 0) {
     user_id = params[0]
   }
 
-  const user_data = await getUserData(user_id)
-  if (!user_data) {
-    await replyMsg(context, `${user_id}是谁呀,咱不认识呢~`, true)
+  const userData = await getUserData(user_id)
+  const username = await getUserName(user_id)
+
+  if (!userData) {
+    await replyMsg(context, `${username}是谁呀,咱不认识呢~`, { reply: true })
     return
   }
 
-  const nickname = user_id === context.user_id ? '你' : `用户${user_id}`
-  await replyMsg(context, `${nickname}拥有${user_data[0].pigeon_num}只鸽子`, true)
+  await replyMsg(context, `用户${username}拥有${userData[0].pigeon_num}只鸽子`, {
+    reply: true
+  })
 }
 
-export const rankingList = async context => {
+async function rankingList(context) {
   // 鸽子排行榜
   const data = await database
     .from('pigeon')
@@ -50,7 +57,7 @@ export const rankingList = async context => {
     .orderBy([{ column: 'pigeon_num', order: 'DESC' }])
 
   if (data.length === 0) {
-    await replyMsg(context, '这个数据库里还没有用户哦~')
+    await replyMsg(context, '这个数据库里还没有用户哦~', { reply: true })
   } else {
     let board = ['排行榜:']
     for (let i = 0; i < data.length; i++) {
@@ -59,7 +66,7 @@ export const rankingList = async context => {
       const username = await getUserName(value.user_id)
       board.push(`第${index}名 名字:${username} 拥有${value.pigeon_num}只鸽子`)
     }
-    await replyMsg(context, board.join('\n'))
+    await replyMsg(context, board.join('\n'), { reply: true })
   }
 }
 
@@ -68,7 +75,5 @@ export const rankingList = async context => {
  * @param {Number} user_id
  * @returns
  */
-export const getUserName = async user_id => {
-  const res = await getStrangerInfo({ user_id })
-  return res.data.nickname
-}
+export const getUserName = async user_id =>
+  await getStrangerInfo({ user_id }).then(res => res.data.nickname)

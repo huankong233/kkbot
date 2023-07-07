@@ -42,3 +42,9 @@ export const isFriend = async ({ user_id }) => {
   const friendList = await getFriendList()
   return friendList.data.find(datum => datum.user_id === user_id)
 }
+
+export const deleteMsg = async ({ message_id }) => {
+  await bot('delete_msg', {
+    message_id
+  })
+}

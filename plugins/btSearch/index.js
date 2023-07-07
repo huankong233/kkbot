@@ -20,32 +20,35 @@ import { replyMsg, sendForwardMsg } from '../../libs/sendMsg.js'
 import { missingParams } from '../../libs/eventReg.js'
 
 //启动函数
-export const init = async context => {
-  const { user_id, command, self_id } = context
+async function init(context) {
+  const {
+    user_id,
+    command: { params }
+  } = context
   const { btSearch, bot } = global.config
 
   if (!(await reduce({ user_id, number: btSearch.cost, reason: `BT搜索` }))) {
-    return await replyMsg(context, `搜索失败,鸽子不足~`, true)
+    return await replyMsg(context, `搜索失败,鸽子不足~`, { reply: true })
   }
 
-  if (await missingParams(context, command.params, 1)) return
+  if (await missingParams(context, params, 1)) return
 
-  const keyword = command.params[0]
+  const keyword = params[0]
+  const page = params[1] ?? 1
 
-  const page = command.params[1] ?? 1
   const data = await search(keyword, page)
 
   if (data === '获取信息失败') {
-    await replyMsg(context, '获取信息失败')
+    await replyMsg(context, '获取信息失败', { reply: true })
     await add({ user_id, number: btSearch.cost, reason: `BT搜索失败` })
   } else if (data === '没有搜索结果') {
-    await replyMsg(context, '没有搜索结果')
+    await replyMsg(context, '没有搜索结果', { reply: true })
     await add({ user_id, number: btSearch.cost, reason: `BT搜索没有搜索结果` })
   } else {
     let messages = [
       CQ.node(
-        bot.botName,
-        self_id,
+        bot.info.nickname,
+        bot.info.user_id,
         data.lastPage === '获取信息失败'
           ? '获取失败'
           : [
@@ -56,13 +59,13 @@ export const init = async context => {
     ]
 
     if (data.data.length === 0) {
-      messages.push(CQ.node(bot.botName, self_id, `没有匹配内容`))
+      messages.push(CQ.node(bot.info.nickname, bot.info.user_id, `没有匹配内容`))
     } else {
       data.data.forEach(datum => {
         messages.push(
           CQ.node(
-            bot.botName,
-            self_id,
+            bot.info.nickname,
+            bot.info.user_id,
             [
               `文件名:${datum.title}`,
               `文件类型:${datum.type}`,
@@ -77,7 +80,7 @@ export const init = async context => {
 
       const status = await sendForwardMsg(context, messages)
       if (status.status === 'failed') {
-        await replyMsg(context, '发送合并消息失败，可以尝试私聊我哦~(鸽子已返还)')
+        await replyMsg(context, '发送合并消息失败，可以尝试私聊我哦~(鸽子已返还)', { reply: true })
         await add({ user_id, number: btSearch.cost, reason: `BT搜索_合并消息发送失败赔偿` })
       }
     }
@@ -86,7 +89,7 @@ export const init = async context => {
 
 import { get } from '../../libs/fetch.js'
 //搜索
-export const search = async (keyword, page) => {
+async function search(keyword, page) {
   const { btSearch } = global.config
 
   let html
@@ -96,8 +99,10 @@ export const search = async (keyword, page) => {
       res.text()
     )
   } catch (error) {
-    logger.WARNING(`BT搜索请求接口失败`)
-    if (global.debug) logger.DEBUG(error)
+    if (global.debug) {
+      logger.WARNING(`BT搜索请求接口失败`)
+      logger.DEBUG(error)
+    }
     return '获取信息失败'
   }
 
@@ -115,9 +120,9 @@ export const search = async (keyword, page) => {
 
 import * as cheerio from 'cheerio'
 import _ from 'lodash'
-import { logger } from '../../libs/logger.js'
+import logger from '../../libs/logger.js'
 //获取页面详细
-export const parse = html => {
+function parse(html) {
   const $ = cheerio.load(html, { decodeEntities: true })
   return _.map($('.search-item'), item => {
     item = $(item)
@@ -139,7 +144,7 @@ export const parse = html => {
 }
 
 //获取总页数
-export const getLastPage = html => {
+function getLastPage(html) {
   const $ = cheerio.load(html, { decodeEntities: true })
   const last = $('.last_p').html()
   if (last) {
@@ -163,14 +168,16 @@ export const getLastPage = html => {
 }
 
 //获取磁力地址
-export const getDownloadLink = async href => {
+async function getDownloadLink(href) {
   let data
 
   try {
     data = await get({ url: global.config.btSearch.site + href }).then(res => res.text())
   } catch (error) {
-    logger.WARNING('获取磁力地址失败')
-    if (global.debug) logger.DEBUG(error)
+    if (global.debug) {
+      logger.WARNING('获取磁力地址失败')
+      logger.DEBUG(error)
+    }
     return '获取信息失败'
   }
 

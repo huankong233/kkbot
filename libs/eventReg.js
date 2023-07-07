@@ -37,7 +37,7 @@ export function eventReg(type, callback, priority = 1) {
  * @param {Object} context
  * @returns {Object}
  */
-export function haveAt(context) {
+export function haveAt(context, commandName = '@') {
   const { message, self_id } = context
   const { prefix } = global.config.bot
 
@@ -49,7 +49,7 @@ export function haveAt(context) {
 
   // 获取参数
   const parsedMessage = message.substring(index + findString.length, message.length).trim()
-  return format(`${prefix}@ ${parsedMessage}`)
+  return format(`${prefix}${commandName} ${parsedMessage}`)
 }
 
 /**
@@ -77,6 +77,13 @@ export function format(message) {
 }
 
 import { replyMsg } from './sendMsg.js'
+/**
+ * 缺少参数统一输出
+ * @param {Object} context
+ * @param {Object} params
+ * @param {Number} paramsLength
+ * @returns
+ */
 export async function missingParams(context, params, paramsLength) {
   const { bot } = global.config
 

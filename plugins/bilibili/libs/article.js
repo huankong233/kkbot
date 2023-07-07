@@ -2,7 +2,7 @@ import { humanNum } from './utils.js'
 import { get } from '../../../libs/fetch.js'
 import { logger } from '../../../libs/logger.js'
 
-export const getArticleInfo = async id => {
+export async function getArticleInfo(id) {
   try {
     const data = await get({ url: `https://api.bilibili.com/x/article/viewinfo?id=${id}` }).then(
       res => res.json()
@@ -18,15 +18,17 @@ export const getArticleInfo = async id => {
     } = data
 
     return [
-      `${CQ.image(img.replace('http', 'https'))}`,
+      `${CQ.image(img.replace('http://', 'https://'))}`,
       `${CQ.escape(title)}`,
       `UP：${CQ.escape(author_name)}`,
       `${humanNum(view)}阅读 ${humanNum(reply)}评论`,
       `https://www.bilibili.com/read/cv${id}`
     ].join('\n')
   } catch (error) {
-    logger.WARNING(`bilibili get article info ${id}`)
-    if (global.debug) logger.DEBUG(error)
+    if (debug) {
+      logger.WARNING(`bilibili get article info ${id}`)
+      logger.DEBUG(error)
+    }
     return null
   }
 }

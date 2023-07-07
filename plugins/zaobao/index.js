@@ -9,6 +9,7 @@ import { sleep } from '../../libs/sleep.js'
 
 async function init() {
   const { zaobao } = global.config
+
   if (zaobao.groups.length === 0) return
   new CronJob(
     zaobao.crontab,
@@ -36,7 +37,9 @@ import { eventReg } from '../../libs/eventReg.js'
 function event() {
   eventReg('message', async (event, context, tags) => {
     if (context.command) {
-      if (context.command.name === '早报') {
+      const { name } = context.command
+
+      if (name === '早报') {
         await zaobao(context)
       }
     }
@@ -45,12 +48,24 @@ function event() {
 
 import { get } from '../../libs/fetch.js'
 import { replyMsg } from '../../libs/sendMsg.js'
-export const zaobao = async context => {
+import logger from '../../libs/logger.js'
+
+async function zaobao(context) {
   await replyMsg(context, await prepareMessage())
 }
 
-export const prepareMessage = async () => {
-  const response = await get({ url: 'https://api.2xb.cn/zaob' }).then(res => res.json())
+async function prepareMessage() {
+  let response
+  try {
+    response = await get({ url: 'https://api.2xb.cn/zaob' }).then(res => res.json())
+  } catch (error) {
+    if (debug) {
+      logger.WARNING('早报获取失败')
+      logger.DEBUG(error)
+    }
+    return '早报获取失败'
+  }
+
   if (response.msg === 'Success') {
     return CQ.image(response.imageUrl)
   }

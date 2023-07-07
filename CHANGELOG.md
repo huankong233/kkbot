@@ -2,6 +2,18 @@
 
 ## 2023
 
+### 07-06 v0.1.4
+
+- 优化插件
+- 修复 `missingParas` 方法错误的识别命令名称
+- 新增 `fs` 支持库
+
+### 07-06 v0.1.3
+
+- 新增插件 `setu` `searchImage`
+- 优化支持库 `fetch` 可以自定义 `headers` 变量
+- 跟随上游 [ChatSydney-FastAPI](https://github.com/huankong233/ChatSydney-FastAPI) 更新密码功能
+
 ### 07-05 v0.1.2
 
 - 移植了插件 `dog` `music163` `mute` `nbnhhsh` `prprme` `redPacket` `repeat` `russian` `update` `vits` `zaobao`

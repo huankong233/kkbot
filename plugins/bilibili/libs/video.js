@@ -3,7 +3,7 @@ import { humanNum } from './utils.js'
 import { get } from '../../../libs/fetch.js'
 import { logger } from '../../../libs/logger.js'
 
-export const getVideoInfo = async param => {
+export async function getVideoInfo(param) {
   try {
     const data = await get({
       url: `https://api.bilibili.com/x/web-interface/view?${stringify(param)}`
@@ -24,7 +24,7 @@ export const getVideoInfo = async param => {
     } = data
 
     return [
-      `${CQ.image(pic.replace('http', 'https'))}`,
+      `${CQ.image(pic.replace('http://', 'https://'))}`,
       `av${aid}`,
       `${CQ.escape(title)}`,
       `UP：${CQ.escape(name)}`,
@@ -32,8 +32,10 @@ export const getVideoInfo = async param => {
       `https://www.bilibili.com/video/${bvid}`
     ].join('\n')
   } catch (error) {
-    logger.WARNING(`[error] bilibili get video info ${param}`)
-    if (global.debug) logger.DEBUG(error)
+    if (debug) {
+      logger.WARNING(`[error] bilibili get video info ${param}`)
+      logger.DEBUG(error)
+    }
     return null
   }
 }
