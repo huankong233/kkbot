@@ -1,1 +1,1 @@
-{"kkbot_plugin_version":"2","name":"redPacket","description":"鸽子红包","version":"0.0.1","author":[{"name":"huan_kong","link":"https://github.com/huankong233"}],"disableAutoLoadConfig":true,"dependPackages":{},"dependPlugins":{"pigeon":"0.0.1","query":"0.0.1"}}
+{"kkbot_plugin_version":"2","name":"redPacket","description":"鸽子红包","version":"0.0.2","author":[{"name":"huan_kong","link":"https://github.com/huankong233"}],"disableAutoLoadConfig":true,"dependPackages":{},"dependPlugins":{"knex":"0.0.1","pigeon":"0.0.2","query":"0.0.2"}}

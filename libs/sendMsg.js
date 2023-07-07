@@ -4,11 +4,10 @@ import logger from './logger.js'
  * 回复消息
  * @param {Object} context 消息上下文
  * @param {String} message 回复内容
- * @param {Boolean} at 是否at发送者
- * @param {Boolean} reply 是否使用回复形式
+ * @param {Object} params 是否at/reply发送者
  * @returns {Object}
  */
-export async function replyMsg(context, message, at, reply) {
+export async function replyMsg(context, message, { at = false, reply = false } = {}) {
   const { message_type, user_id, group_id, message_id, discuss_id } = context
 
   if (message_type !== 'private') {
@@ -78,7 +77,7 @@ export async function sendForwardMsg(context, messages) {
 
   if (global.debug) {
     logger.DEBUG(`发送合并消息:`)
-    console.log(messages.join('\n'))
+    console.log(messages)
 
     logger.DEBUG(`stack信息:`)
     const stack = new Error().stack.split('\n')

@@ -1,4 +1,4 @@
-export default () => {
+export default async () => {
   event()
 }
 
@@ -17,15 +17,15 @@ import { getArticleInfo } from './libs/article.js'
 import { getLiveRoomInfo } from './libs/live.js'
 
 //主程序
-const bilibiliHandler = async context => {
-  const setting = global.config.bilibili
+async function bilibiliHandler(context) {
+  const { bilibili } = global.config
 
   if (
     !(
-      setting.getVideoInfo ||
-      setting.getDynamicInfo ||
-      setting.getArticleInfo ||
-      setting.getLiveRoomInfo
+      bilibili.getVideoInfo ||
+      bilibili.getDynamicInfo ||
+      bilibili.getArticleInfo ||
+      bilibili.getLiveRoomInfo
     )
   ) {
     return
@@ -36,7 +36,7 @@ const bilibiliHandler = async context => {
   const { aid, bvid, dyid, arid, lrid } = param
 
   //解析视频
-  if (setting.getVideoInfo && (aid || bvid)) {
+  if (bilibili.getVideoInfo && (aid || bvid)) {
     const reply = await getVideoInfo({ aid, bvid })
     if (reply) {
       await replyMsg(context, reply)
@@ -45,7 +45,7 @@ const bilibiliHandler = async context => {
   }
 
   //解析动态
-  if (setting.getDynamicInfo && dyid) {
+  if (bilibili.getDynamicInfo && dyid) {
     const reply = await getDynamicInfo(dyid)
     if (reply) {
       await replyMsg(context, reply)
@@ -54,7 +54,7 @@ const bilibiliHandler = async context => {
   }
 
   //解析文章
-  if (setting.getArticleInfo && arid) {
+  if (bilibili.getArticleInfo && arid) {
     const reply = await getArticleInfo(arid)
     if (reply) {
       await replyMsg(context, reply)
@@ -63,7 +63,7 @@ const bilibiliHandler = async context => {
   }
 
   //解析直播或音频
-  if (setting.getLiveRoomInfo && lrid) {
+  if (bilibili.getLiveRoomInfo && lrid) {
     const reply = await getLiveRoomInfo(lrid)
     if (reply) {
       await replyMsg(context, reply)
@@ -72,7 +72,7 @@ const bilibiliHandler = async context => {
   }
 }
 
-const getIdFromNormalLink = link => {
+function getIdFromNormalLink(link) {
   if (typeof link !== 'string') return null
   const searchVideo =
     /bilibili\.com\/video\/(?:av(\d+)|(bv[\da-z]+))/i.exec(link) ||
@@ -96,18 +96,20 @@ const getIdFromNormalLink = link => {
 
 import { get } from '../../libs/fetch.js'
 import { logger } from '../../libs/logger.js'
-const getIdFromShortLink = async shortLink => {
+async function getIdFromShortLink(shortLink) {
   try {
     const data = await get({ url: shortLink })
     return getIdFromNormalLink(data.url)
   } catch (error) {
-    logger.WARNING(`bilibili head short link ${shortLink}`)
-    if (global.debug) logger.DEBUG(error)
+    if (debug) {
+      logger.WARNING(`bilibili head short link ${shortLink}`)
+      logger.DEBUG(error)
+    }
     return {}
   }
 }
 
-const getIdFromMsg = async msg => {
+async function getIdFromMsg(msg) {
   let result = getIdFromNormalLink(msg)
   if (Object.values(result).some(id => id)) return result
   if ((result = /((b23|acg)\.tv|bili2233.cn)\/[0-9a-zA-Z]+/.exec(msg))) {

@@ -1,1 +1,1 @@
-{"kkbot_plugin_version":"2","name":"","description":"定期通知免费游戏","version":"0.0.2","author":[{"name":"huan_kong","link":"https://github.com/huankong233"}],"dependPackages":{"dayjs":"^1.11.9","cron":"^2.3.1","cheerio":"^1.0.0-rc.12","lodash":"^4.17.21"},"dependPlugins":{},"disableAutoLoadConfig":true,"disableLoadInDir":true}
+{"kkbot_plugin_version":"2","name":"help","description":"帮助列表","version":"0.0.3","author":[{"name":"huan_kong","link":"https://github.com/huankong233"}],"dependPackages":{},"dependPlugins":{},"disableAutoLoadConfig":true,"disableLoadInDir":true}

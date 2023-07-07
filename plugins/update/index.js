@@ -1,6 +1,7 @@
 export default async () => {
   if (global.config.update.enable) {
     await init()
+
     event()
   }
 }
@@ -13,7 +14,9 @@ async function event() {
   //手动检查更新
   eventReg('message', async (event, context, tags) => {
     if (context.command) {
-      if (context.command.name === '检查更新') {
+      const { name } = context.command
+
+      if (name === '检查更新') {
         await checkUpdate(true, context)
       }
     }
@@ -29,11 +32,12 @@ async function init() {
 //检查更新
 import { compare } from 'compare-versions'
 import { get } from '../../libs/fetch.js'
-export const checkUpdate = async (manual = false, context) => {
+async function checkUpdate(manual = false, context) {
   const { proxy, url } = global.config.update
+  const { bot } = global.config
 
   const local_version = kkbot_framework_version
-  const remote_version = await get({ url: proxy + url })
+  const remote_version = await get({ url: `${global.config.proxy ? '' : proxy}${url}` })
     .then(res => res.json())
     .then(res => res.kkbot_framework_version)
 
@@ -41,9 +45,9 @@ export const checkUpdate = async (manual = false, context) => {
     const message = ['检查更新失败', `当前版本${local_version}`, `请检查您的网络状况！`].join('\n')
 
     if (manual) {
-      await replyMsg(context, message)
+      await replyMsg(context, message, { reply: true })
     } else {
-      await sendMsg(global.config.bot.admin, message)
+      await sendMsg(bot.admin, message)
     }
 
     return
@@ -59,16 +63,17 @@ export const checkUpdate = async (manual = false, context) => {
       ].join('\n')
 
       if (manual) {
-        await replyMsg(context, message)
+        await replyMsg(context, message, { reply: true })
       } else {
-        await sendMsg(global.config.bot.admin, message)
+        await sendMsg(bot.admin, message)
       }
     }
 
     if (manual && compare(local_version, remote_version, '>=')) {
       await replyMsg(
         context,
-        ['kkbot无需更新哟~', `最新版本${remote_version}`, `当前版本${local_version}`].join('\n')
+        ['kkbot无需更新哟~', `最新版本${remote_version}`, `当前版本${local_version}`].join('\n'),
+        { reply: true }
       )
     }
   }

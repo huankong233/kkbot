@@ -1,5 +1,5 @@
 export default () => {
-  global.prprmeCode = {}
+  global.config.prprme = {}
 
   event()
 }
@@ -10,9 +10,11 @@ import { eventReg } from '../../libs/eventReg.js'
 function event() {
   eventReg('message', async (event, context, tags) => {
     if (context.command) {
-      if (context.command.name === '舔我') {
+      const { name } = context.command
+
+      if (name === '舔我') {
         await prprme(context)
-      } else if (context.command.name === '别舔了') {
+      } else if (name === '别舔了') {
         await stoprprme(context)
       }
     }
@@ -23,13 +25,14 @@ import { get } from '../../libs/fetch.js'
 import { isFriend } from '../../libs/Api.js'
 import { replyMsg, sendMsg } from '../../libs/sendMsg.js'
 
-export const prprme = async context => {
+async function prprme(context) {
   const { user_id } = context
+  const { prprme, bot } = global.config
 
   if (await isFriend({ user_id })) {
     await sendMsg(
       user_id,
-      `我真的好喜欢你啊!!\n（回复"${global.config.bot.prefix}别舔了"来停止哦~）`
+      [`我真的好喜欢你啊!!`, `（回复"${bot.prefix}别舔了"来停止哦~）`].join('\n')
     )
 
     let id = setInterval(async () => {
@@ -38,21 +41,29 @@ export const prprme = async context => {
           res => res.json()
         )
         await sendMsg(user_id, data.content)
-      } catch (error) {}
+      } catch (error) {
+        clearInterval(id)
+        if (debug) {
+          logger.WARNING(`prprme get info failed`)
+          logger.DEBUG(error)
+        }
+        return await replyMsg(context, `接口请求失败`)
+      }
     }, 3000)
-    global.prprmeCode[context.user_id] = id
+
+    prprme[user_id] = id
   } else {
-    await replyMsg(context, '先加一下好友叭~咱也是会害羞的')
+    await replyMsg(context, '先加一下好友叭~咱也是会害羞的', { reply: true })
   }
 }
 
-export const stoprprme = async context => {
-  const data = global.prprmeCode[context.user_id]
+async function stoprprme(context) {
+  const { prprme } = global.config
+  const { user_id } = context
+
+  const data = prprme[user_id]
   if (data) {
     clearInterval(data)
-    await bot('send_private_msg', {
-      user_id: context.user_id,
-      message: '呜呜，对不起惹你生气了'
-    })
+    await sendMsg(user_id, '呜呜，对不起惹你生气了')
   }
 }

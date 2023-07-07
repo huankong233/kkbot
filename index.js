@@ -22,6 +22,6 @@ if ((await loadPlugin('bot', 'plugins_dependencies')) !== 'success') {
 await loadPluginDir('plugins_dependencies')
 await loadPlugins(['pigeon', 'query'])
 await loadPluginDir('plugins')
-await loadPlugins(['help'])
+await loadPlugins(['searchImage', 'help'])
 
 logger.SUCCESS('机器人已启动成功')

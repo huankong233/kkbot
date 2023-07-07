@@ -79,33 +79,6 @@ CREATE TABLE `red_packet` (
 -- --------------------------------------------------------
 
 --
--- 表的结构 `russian`
---
-
-CREATE TABLE `russian` (
-  `user_id` double NOT NULL,
-  `count` int(11) NOT NULL DEFAULT 0,
-  `update_time` double NOT NULL DEFAULT 0
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
--- --------------------------------------------------------
-
---
--- 表的结构 `russian_history`
---
-
-CREATE TABLE `russian_history` (
-  `id` int(11) NOT NULL,
-  `from_id` double NOT NULL,
-  `to_id` double NOT NULL,
-  `win` tinyint(1) NOT NULL,
-  `addon` int(11) NOT NULL,
-  `mag` text NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
--- --------------------------------------------------------
-
---
 -- 表的结构 `setu`
 --
 
@@ -144,18 +117,6 @@ ALTER TABLE `red_packet`
   ADD PRIMARY KEY (`id`);
 
 --
--- 表的索引 `russian`
---
-ALTER TABLE `russian`
-  ADD PRIMARY KEY (`user_id`);
-
---
--- 表的索引 `russian_history`
---
-ALTER TABLE `russian_history`
-  ADD PRIMARY KEY (`id`);
-
---
 -- 表的索引 `setu`
 --
 ALTER TABLE `setu`
@@ -182,13 +143,6 @@ ALTER TABLE `pigeon_history`
 --
 ALTER TABLE `red_packet`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
-
---
--- 使用表AUTO_INCREMENT `russian_history`
---
-ALTER TABLE `russian_history`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
-COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;

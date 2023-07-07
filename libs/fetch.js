@@ -12,7 +12,7 @@ import AbortController from 'abort-controller'
  * @param {Object} req
  * @returns {Promise}
  */
-export async function fetchGet({ url, data = {}, timeOut = TIMEOUT } = {}) {
+export async function fetchGet({ url, data = {}, timeOut = TIMEOUT, headers } = {}) {
   if (!url) {
     logger.WARNING(`url参数不存在`)
     return
@@ -26,7 +26,7 @@ export async function fetchGet({ url, data = {}, timeOut = TIMEOUT } = {}) {
   let requestConfig = {
     credentials: 'same-origin',
     method: 'GET',
-    headers: {
+    headers: headers ?? {
       Accept: 'application/json',
       'Content-Type': 'application/json',
       'User-Agent':
@@ -59,7 +59,7 @@ export async function fetchGet({ url, data = {}, timeOut = TIMEOUT } = {}) {
  * @param {Object} req
  * @returns {Promise}
  */
-export async function fetchPost({ url, data = {}, timeOut = TIMEOUT } = {}) {
+export async function fetchPost({ url, data = {}, timeOut = TIMEOUT, headers } = {}) {
   if (!url) {
     logger.WARNING(`url参数不存在`)
     return
@@ -73,7 +73,7 @@ export async function fetchPost({ url, data = {}, timeOut = TIMEOUT } = {}) {
   let requestConfig = {
     credentials: 'same-origin',
     method: 'POST',
-    headers: {
+    headers: headers ?? {
       Accept: 'application/json',
       'Content-Type': 'application/json',
       'User-Agent':
@@ -122,10 +122,10 @@ export async function retryAsync(func, times = 3) {
  * @param {Number} times 重试次数
  * @returns {Promise}
  */
-export async function get({ url, data, timeOut } = {}, times) {
+export async function get({ url, data, timeOut, headers } = {}, times) {
   try {
     return await retryAsync(async () => {
-      return await fetchGet({ url, data, timeOut }, true)
+      return await fetchGet({ url, data, timeOut, headers }, true)
     }, times)
   } catch (error) {
     throw new Error(error)
@@ -138,8 +138,8 @@ export async function get({ url, data, timeOut } = {}, times) {
  * @param {Number} times 重试次数
  * @returns {Promise}
  */
-export async function post({ url, data, timeOut } = {}, times) {
+export async function post({ url, data, timeOut, headers } = {}, times) {
   return await retryAsync(async () => {
-    return await fetchPost({ url, data, timeOut }, true)
+    return await fetchPost({ url, data, timeOut, headers }, true)
   }, times)
 }

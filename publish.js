@@ -2,6 +2,7 @@ import { readdirSync, readFileSync, writeFileSync } from 'fs'
 import { jsonc } from 'jsonc'
 import { logger } from './libs/logger.js'
 import path from 'path'
+import fs from 'fs'
 
 const pluginDirs = ['plugins_dependencies', 'plugins']
 const originPackages = {
@@ -20,7 +21,7 @@ global.baseDir = getBaseDir()
 pluginDirs.forEach(pluginDir => {
   const plugins = readdirSync(pluginDir)
   plugins.forEach(pluginName => {
-    const filePath = path.join(global.baseDir, pluginDir, pluginName, 'manifest.json')
+    const filePath = path.join(baseDir, pluginDir, pluginName, 'manifest.json')
     let manifest
     try {
       manifest = jsonc.parse(readFileSync(filePath, { encoding: 'utf-8' }))
@@ -36,9 +37,13 @@ pluginDirs.forEach(pluginDir => {
   })
 })
 
-const packagePath = path.join(global.baseDir, 'package.json')
+const packagePath = path.join(baseDir, 'package.json')
 let packageJSON = jsonc.parse(readFileSync(packagePath, { encoding: 'utf-8' }))
 
 packageJSON.dependencies = originPackages
 writeFileSync(packagePath, JSON.stringify(packageJSON))
 logger.SUCCESS(`package.json 回写完成`)
+
+// 删除pnpm-lock.yaml
+const pnpmLockPath = path.join(baseDir, 'pnpm-lock.yaml')
+if (fs.existsSync(pnpmLockPath)) fs.unlinkSync(pnpmLockPath)

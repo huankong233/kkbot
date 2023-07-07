@@ -19,7 +19,9 @@ function event() {
       const isAt = at && haveAccount
 
       if (isCommand || isAt || isPrivate) {
-        await replyMsg(context, `请先使用"${global.config.bot.prefix}咕咕"注册账户`)
+        await replyMsg(context, `请先使用"${global.config.bot.prefix}咕咕"注册账户`, {
+          reply: true
+        })
         return 'quit'
       }
     },
@@ -30,10 +32,10 @@ function event() {
 /**
  * 获取用户信息
  * @param {Object} context
- * @returns false:新用户
- * @returns data:不是新用户
+ * @returns false 新用户
+ * @returns data  不是新用户
  */
-export const getUserData = async user_id => {
+export async function getUserData(user_id) {
   const data = await database.select().from('pigeon').where('user_id', user_id)
   return data.length > 0 ? data : false
 }
@@ -41,10 +43,10 @@ export const getUserData = async user_id => {
 /**
  * 增加鸽子
  * @param {Object} params
- * @returns true 成功
+ * @returns true  成功
  * @returns false 失败
  */
-export const add = async ({ number, reason, extra, user_id }) => {
+export async function add({ number, reason, extra, user_id }) {
   //不允许增加负数的鸽子
   if (number < 0) {
     return false
@@ -79,10 +81,10 @@ export const add = async ({ number, reason, extra, user_id }) => {
 /**
  * 减少鸽子
  * @param {Object} params
- * @returns true 成功
+ * @returns true  成功
  * @returns false 失败
  */
-export const reduce = async ({ number, reason, extra, user_id }) => {
+export async function reduce({ number, reason, extra, user_id }) {
   //不允许减少负数的鸽子
   if (number < 0) {
     return false
