@@ -228,7 +228,7 @@ async function parse(context, res, originUrl) {
 
   //发送
   const data = await sendForwardMsg(context, messages)
-  if (data.status !== 'failed') {
+  if (data.status === 'failed') {
     await replyMsg(context, '发送合并消息失败，可以尝试私聊我哦~(鸽子已返还)')
     let count = res.reduce((_count, _item) => _count + (!_item.success ? 1 : 0))
     await add({ user_id, number: searchImage.claim * count, reason: `搜图合并消息发送失败赔偿` })
