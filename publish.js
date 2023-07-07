@@ -45,4 +45,5 @@ writeFileSync(packagePath, JSON.stringify(packageJSON))
 logger.SUCCESS(`package.json 回写完成`)
 
 // 删除pnpm-lock.yaml
-fs.unlinkSync(path.join(baseDir, 'pnpm-lock.yaml'))
+const pnpmLockPath = path.join(baseDir, 'pnpm-lock.yaml')
+if (fs.existsSync(pnpmLockPath)) fs.unlinkSync(pnpmLockPath)
