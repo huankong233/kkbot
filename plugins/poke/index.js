@@ -46,13 +46,10 @@ async function poke(context) {
     if (data) {
       //禁言成功
       replyed = true
-      return await replyMsg(fakeContext, poke.banReply[randomInt(0, poke.banReply.length - 1)], {
-        reply: true
-      })
+      return await replyMsg(fakeContext, poke.banReply[randomInt(0, poke.banReply.length - 1)])
     }
   }
 
   //回复
-  if (!replyed)
-    await replyMsg(fakeContext, poke.reply[randomInt(0, poke.reply.length - 1)], { reply: true })
+  if (!replyed) await replyMsg(fakeContext, poke.reply[randomInt(0, poke.reply.length - 1)])
 }
