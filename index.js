@@ -27,4 +27,4 @@ await loadPlugins(['searchImage', 'help'])
 
 logger.SUCCESS('机器人已启动成功')
 
-await sendMsg(admin, `机器人已启动成功，并加载了所有设定的插件！`)
+await sendMsg(global.config.bot.admin, `机器人已启动成功，并加载了所有设定的插件！`)
