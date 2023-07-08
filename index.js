@@ -1,6 +1,7 @@
 import { getBaseDir } from './libs/getDirname.js'
 import { getVersion } from './libs/loadVersion.js'
 import { loadPlugins, loadPluginDir, loadPlugin } from './libs/loadPlugin.js'
+import { sendMsg } from './libs/sendMsg.js'
 import logger from './libs/logger.js'
 
 // 是否启用DEBUG模式
@@ -25,3 +26,5 @@ await loadPluginDir('plugins')
 await loadPlugins(['searchImage', 'help'])
 
 logger.SUCCESS('机器人已启动成功')
+
+await sendMsg(global.config.bot.admin, `机器人已启动成功，并加载了所有设定的插件！`)
