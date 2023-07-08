@@ -1,13 +1,12 @@
 import WebSocket from 'ws'
 
-let websocket
-
 async function connectWebSocket() {
+  const { bing } = global.config
   return new Promise((resolve, reject) => {
-    websocket = new WebSocket(global.config.bing.websocket)
+    let websocket = new WebSocket(bing.websocket)
 
     websocket.onopen = () => {
-      resolve()
+      resolve(websocket)
     }
 
     websocket.onerror = error => {
@@ -17,12 +16,11 @@ async function connectWebSocket() {
 }
 
 export async function get(userInput, userContext, password) {
-  if (!websocket || websocket.readyState !== WebSocket.OPEN) {
-    try {
-      await connectWebSocket()
-    } catch (error) {
-      throw new Error(error)
-    }
+  let websocket
+  try {
+    websocket = await connectWebSocket()
+  } catch (error) {
+    throw new Error(error)
   }
 
   websocket.send(
@@ -34,16 +32,11 @@ export async function get(userInput, userContext, password) {
   )
 
   return new Promise((resolve, reject) => {
-    function finished(response) {
-      resolve(response)
-      websocket.onmessage = () => {}
-    }
-
     websocket.onmessage = event => {
       const response = JSON.parse(event.data)
       if (response.type === 2) {
         if (response.item.messages[response.item.messages.length - 1].text) {
-          finished(response)
+          resolve(response)
         } else {
           reject('Looks like the user message has triggered the Bing filter')
         }
@@ -51,8 +44,8 @@ export async function get(userInput, userContext, password) {
         reject(response.error)
       }
     }
+
     websocket.onerror = error => {
-      alert(`WebSocket error: ${error}`)
       reject(error)
     }
   })
