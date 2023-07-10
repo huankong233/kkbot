@@ -91,8 +91,7 @@ export async function missingParams(context, params, paramsLength) {
     return await replyMsg(
       context,
       `参数不足，请发送"${bot.prefix}帮助 ${context.command.name}"查看帮助`,
-      false,
-      true
+      { reply: true }
     )
   }
 }
