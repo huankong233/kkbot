@@ -1,7 +1,10 @@
 import fs from 'fs'
 import path from 'path'
 
-//删除文件夹
+/**
+ * 删除文件夹
+ * @param {String} folder
+ */
 export const deleteFolder = folder => {
   if (fs.existsSync(folder)) {
     let files = fs.readdirSync(folder)
