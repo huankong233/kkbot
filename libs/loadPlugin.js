@@ -153,7 +153,11 @@ export async function loadPlugin(pluginName, pluginDir = 'plugins', loadFromDir 
     logger.SUCCESS(`加载插件${pluginName}成功`)
   } catch (error) {
     logger.WARNING(`加载插件${pluginName}失败，失败日志：`)
-    if (debug) logger.DEBUG(error)
+    if (debug) {
+      logger.DEBUG(error)
+    } else {
+      logger.WARNING(error)
+    }
     return
   }
 
