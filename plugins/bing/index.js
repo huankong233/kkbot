@@ -98,7 +98,7 @@ async function handler(context) {
     if (item.suggestedResponses) message = item.adaptiveCards[0].body[0].text.trim()
   })
 
-  await replyMsg(context, `${message}`, { reply: true })
+  await replyMsg(context, `${message.replace(/\[\^\d+\^\]/g, '')}`, { reply: true })
 
   bing.data[user_id].push(
     ...[
@@ -139,6 +139,7 @@ function makeContext(context) {
 
 async function errorParse(context, error) {
   const { user_id } = context
+  const { bot } = global.config
 
   await add({ user_id, number: global.config.bing.cost, reason: `搜索bing失败` })
 
@@ -160,6 +161,15 @@ async function errorParse(context, error) {
     await replyMsg(
       context,
       ['提示:验证码错误,请联系管理员使用接口账户完成一次验证码', `报错:${error}`].join('\n'),
+      { reply: true }
+    )
+  } else if (error === 'Redirect failed') {
+    await replyMsg(
+      context,
+      [
+        `提示:可能是使用了不合时宜的词汇，请使用${bot.prefix}bing 开启新的会话来重置context`,
+        `报错:${error}`
+      ].join('\n'),
       { reply: true }
     )
   } else {
