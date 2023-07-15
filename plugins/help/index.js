@@ -23,15 +23,19 @@ import { jsonc } from 'jsonc'
 
 async function initial() {
   let commandList = []
+  const { plugins } = global
 
-  global.plugins.forEach(plugin => {
-    const commandsPath = path.join(plugin.dir, `commands.jsonc`)
-    const exists = fs.existsSync(commandsPath)
-    if (exists) {
-      const commands = jsonc.parse(fs.readFileSync(commandsPath, { encoding: 'utf-8' }))
-      commandList.push(...commands)
+  for (const key in plugins) {
+    if (Object.hasOwnProperty.call(plugins, key)) {
+      const element = plugins[key]
+      const commandsPath = path.join(element.dir, `commands.jsonc`)
+      const exists = fs.existsSync(commandsPath)
+      if (exists) {
+        const commands = jsonc.parse(fs.readFileSync(commandsPath, { encoding: 'utf-8' }))
+        commandList.push(...commands)
+      }
     }
-  })
+  }
 
   global.config.help = { commandList }
 }

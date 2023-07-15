@@ -133,13 +133,14 @@ async function getAll(context) {
   if (redPacket.length !== 0) {
     let msg = ['剩余红包:']
 
-    redPacket.forEach(item => {
+    for (let i = 0; i < redPacket.length; i++) {
+      const item = redPacket[i]
       msg.push(
-        `由${getUserName(item.send_user_id)}发送的口令为:"${item.code}"，剩余${
+        `由${await getUserName(item.send_user_id)}发送的口令为:"${item.code}"，剩余${
           item.pigeon_num
         }只鸽子的红包`
       )
-    })
+    }
 
     await replyMsg(context, msg.join('\n'), { reply: true })
   } else {

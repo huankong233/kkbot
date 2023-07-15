@@ -16,7 +16,11 @@ import { loadConfig } from './loadConfig.js'
  * @param {Boolean} loadFromDir 是否是使用文件夹加载的
  */
 export async function loadPlugin(pluginName, pluginDir = 'plugins', loadFromDir = false) {
-  const { debug, kkbot_plugin_version } = global
+  if (!global.plugins) {
+    global.plugins = {}
+  }
+
+  const { debug, kkbot_plugin_version, plugins } = global
 
   pluginDir = path.join(global.baseDir, pluginDir, pluginName)
 
@@ -80,7 +84,7 @@ export async function loadPlugin(pluginName, pluginDir = 'plugins', loadFromDir 
     for (const key in dependPlugins) {
       if (Object.hasOwnProperty.call(dependPlugins, key)) {
         const requireVersion = dependPlugins[key]
-        const depend = global.plugins.find(item => item.name === key)
+        const depend = plugins[key]
 
         if (!depend) {
           logger.WARNING(
@@ -129,17 +133,13 @@ export async function loadPlugin(pluginName, pluginDir = 'plugins', loadFromDir 
     return
   }
 
-  if (!global.plugins) {
-    global.plugins = []
-  }
-
   // 循环检查是否存在
-  if (global.plugins.find(item => item.name === pluginName)) {
+  if (plugins[pluginName]) {
     if (debug) logger.DEBUG(`插件${pluginName}已经加载过了`)
     return
   }
 
-  global.plugins.push({ ...manifest, dir: pluginDir })
+  plugins[pluginName] = { ...manifest, dir: pluginDir }
 
   if (!program.default) {
     logger.WARNING(`加载插件${pluginName}失败，插件不存在默认导出函数`)
@@ -153,7 +153,11 @@ export async function loadPlugin(pluginName, pluginDir = 'plugins', loadFromDir 
     logger.SUCCESS(`加载插件${pluginName}成功`)
   } catch (error) {
     logger.WARNING(`加载插件${pluginName}失败，失败日志：`)
-    if (debug) logger.DEBUG(error)
+    if (debug) {
+      logger.DEBUG(error)
+    } else {
+      logger.WARNING(error)
+    }
     return
   }
 
