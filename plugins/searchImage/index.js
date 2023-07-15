@@ -230,6 +230,6 @@ async function parse(context, res, originUrl) {
   const data = await sendForwardMsg(context, messages)
   if (data.status === 'failed') {
     await replyMsg(context, '发送合并消息失败，可以尝试私聊我哦~(鸽子已返还)')
-    await add({ user_id, number: searchImage.reduce, reason: `搜图合并消息发送失败赔偿` })
+    await add({ user_id, number: searchImage.back, reason: `搜图合并消息发送失败赔偿` })
   }
 }
