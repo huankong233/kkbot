@@ -2,6 +2,11 @@
 
 ## 2023
 
+### 07-15 v0.1.4.6
+
+- 修复插件 `searchImage` 失败归还鸽子数有误
+- 已知错误: 使用 `jimp` 剪切 `gif` 时返回的 `base64` 是错误的 [详细信息](https://github.com/jimp-dev/jimp/pull/1239) 等待合并
+
 ### 07-15 v0.1.4.5
 
 - 修复插件 `redPacket` 名称显示错误
