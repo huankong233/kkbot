@@ -66,7 +66,7 @@ export async function newBot() {
     })
   } catch (error) {
     logger.WARNING('机器人启动失败!!!')
-    if (global.debug) logger.DEBUG(error)
+    logger.DEBUG(error)
     throw new Error('请检查机器人配置文件!!!')
   }
 }
@@ -129,7 +129,11 @@ function initEvents() {
         )
       } catch (error) {
         logger.WARNING(`插件${events[i].pluginName}运行错误`)
-        if (debug) logger.DEBUG(error)
+        if (debug) {
+          logger.DEBUG(error)
+        } else {
+          logger.WARNING(error)
+        }
       }
 
       if (response === 'quit') break
@@ -149,7 +153,11 @@ function initEvents() {
         response = await events[i].callback(context)
       } catch (error) {
         logger.WARNING(`插件${events[i].pluginName}运行错误`)
-        if (debug) logger.DEBUG(error)
+        if (debug) {
+          logger.DEBUG(error)
+        } else {
+          logger.WARNING(error)
+        }
       }
 
       if (response === 'quit') break
@@ -169,7 +177,11 @@ function initEvents() {
         response = await events[i].callback(context)
       } catch (error) {
         logger.WARNING(`插件${events[i].pluginName}运行错误`)
-        if (debug) logger.DEBUG(error)
+        if (debug) {
+          logger.DEBUG(error)
+        } else {
+          logger.WARNING(error)
+        }
       }
 
       if (response === 'quit') break
