@@ -23,13 +23,13 @@ import { randomInt } from '../../libs/random.js'
 
 async function gugu(context) {
   const { user_id } = context
-  const { gugu } = global.config
+  const { gugu: guguConfig } = global.config
 
   if (!(await getUserData(user_id))) {
     //插入新用户
-    await replyMsg(context, `新用户!赠送${gugu.newUserAdd}只鸽子~`, { reply: true })
+    await replyMsg(context, `新用户!赠送${guguConfig.newUserAdd}只鸽子~`, { reply: true })
     await database.insert({ user_id }).into('pigeon')
-    await add({ user_id, number: gugu.newUserAdd, reason: '新用户赠送' })
+    await add({ user_id, number: guguConfig.newUserAdd, reason: '新用户赠送' })
     await gugu(context)
   } else {
     //判断今天还能不能签到
@@ -39,7 +39,7 @@ async function gugu(context) {
     }
 
     //获得的鸽子数
-    let addon = randomInt(1, gugu.oldUserAdd)
+    let addon = randomInt(1, guguConfig.oldUserAdd)
     await add({ user_id, number: addon, reason: '每日咕咕', extra: { update_time: Date.now() } })
     await replyMsg(context, `咕咕成功~获得${addon}只鸽子~`, { reply: true })
   }
