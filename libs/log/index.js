@@ -61,6 +61,10 @@ function save2File(...msg) {
   const filePath = path.join(fileDir, `${dayjs().format('YYYY-MM-DD')}.log`)
   const fileData = clc.strip(msg.join(' ')) + '\n'
 
+  if (!fs.existsSync(fileDir)) {
+    fs.mkdirSync(fileDir)
+  }
+
   if (!fs.existsSync(filePath)) {
     // 如果不存在则当前文件夹文件数量+1是否超过max
     const files = fs.readdirSync(fileDir)

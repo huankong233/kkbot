@@ -94,7 +94,7 @@ async function handler(context, match) {
       reply: true
     })
     await add({ user_id, number: setu.pigeon, reason: '色图加载失败' })
-    if (error) logger.DEBUG(error)
+    if (debug && error) logger.DEBUG(error)
     return
   }
 
@@ -125,7 +125,7 @@ async function handler(context, match) {
         reply: true
       })
       await add({ user_id, number: setu.pigeon, reason: '短链加载失败' })
-      if (error) logger.DEBUG(error)
+      if (debug && error) logger.DEBUG(error)
       return
     }
   }
@@ -154,7 +154,7 @@ async function handler(context, match) {
       reply: true
     })
     await add({ user_id, number: setu.pigeon, reason: '图片获取失败' })
-    if (error) logger.DEBUG(error)
+    if (debug && error) logger.DEBUG(error)
     return
   }
 
@@ -168,7 +168,7 @@ async function handler(context, match) {
       reply: true
     })
     await add({ user_id, number: setu.pigeon, reason: '反和谐失败' })
-    if (error) logger.DEBUG(error)
+    if (debug && error) logger.DEBUG(error)
     return
   }
 
