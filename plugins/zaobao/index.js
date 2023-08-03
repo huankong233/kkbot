@@ -58,6 +58,10 @@ async function prepareMessage() {
   let response
   try {
     response = await get({ url: 'https://api.2xb.cn/zaob' }).then(res => res.json())
+    if (response.datatime !== new Date().toISOString().slice(0, 10)) {
+      await sleep(1000 * 60 * 30)
+      response = await prepareMessage()
+    }
   } catch (error) {
     if (debug) {
       logger.WARNING('早报获取失败')
