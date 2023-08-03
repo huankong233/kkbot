@@ -49,6 +49,7 @@ function event() {
 import { get } from '../../libs/fetch.js'
 import { replyMsg } from '../../libs/sendMsg.js'
 import logger from '../../libs/logger.js'
+import dayjs from 'dayjs'
 
 async function zaobao(context) {
   await replyMsg(context, await prepareMessage())
@@ -58,7 +59,7 @@ async function prepareMessage() {
   let response
   try {
     response = await get({ url: 'https://api.2xb.cn/zaob' }).then(res => res.json())
-    if (response.datatime !== new Date().toISOString().slice(0, 10)) {
+    if (response.datatime !== dayjs().format('YYYY-MM-DD')) {
       await sleep(1000 * 60 * 30)
       response = await prepareMessage()
     }

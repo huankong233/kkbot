@@ -2,4 +2,5 @@
 /.pnpm-store
 /temp
 /config
+/logs/*
 pnpm-lock.yaml

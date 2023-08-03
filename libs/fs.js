@@ -51,3 +51,27 @@ export async function downloadFile(url, ext = '.png') {
   await _download(url, fullPath)
   return fullPath
 }
+
+/**
+ * 删除指定数量的老文件
+ * @param {String} dirPath
+ * @param {String} count
+ */
+export async function deleteOldestFiles(dirPath, count) {
+  const files = await fs.promises.readdir(dirPath)
+  const sortedFiles = await Promise.all(
+    files.map(async file => {
+      const filePath = path.join(dirPath, file)
+      const { birthtime } = await fs.promises.stat(filePath)
+      return { file, birthtime }
+    })
+  )
+  sortedFiles.sort((a, b) => a.birthtime - b.birthtime)
+  const oldestFiles = sortedFiles.slice(0, count).map(file => file.file)
+  await Promise.all(
+    oldestFiles.map(file => {
+      const filePath = path.join(dirPath, file)
+      return fs.promises.unlink(filePath)
+    })
+  )
+}
