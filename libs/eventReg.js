@@ -5,23 +5,24 @@
  * @param {Number} priority 优先级
  */
 export function eventReg(type, callback, priority = 1) {
+  const { events } = global
   switch (type) {
     case 'message':
-      global.events.message.push({
+      events.message.push({
         callback,
         priority,
         pluginName: global.nowLoadPluginName
       })
       break
     case 'notice':
-      global.events.notice.push({
+      events.notice.push({
         callback,
         priority,
         pluginName: global.nowLoadPluginName
       })
       break
     case 'request':
-      global.events.request.push({
+      events.request.push({
         callback,
         priority,
         pluginName: global.nowLoadPluginName

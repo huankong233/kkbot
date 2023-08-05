@@ -7,7 +7,7 @@ import fs from 'fs'
 const pluginDirs = ['plugins_dependencies', 'plugins']
 const originPackages = {
   dayjs: '^1.11.9',
-  'node-fetch': '^3.3.1',
+  'node-fetch': '^3.3.2',
   qs: '^6.11.2',
   'abort-controller': '^3.0.0',
   'cli-color': '^2.0.3',

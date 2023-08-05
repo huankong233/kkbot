@@ -2,7 +2,7 @@ import { pathToFileURL } from 'url'
 import { readdirSync, readFileSync, writeFileSync } from 'fs'
 import { execSync } from 'child_process'
 import { jsonc } from 'jsonc'
-import { logger } from './logger.js'
+import logger from './logger.js'
 import clc from 'cli-color'
 import path from 'path'
 import fs from 'fs'
@@ -33,7 +33,11 @@ export async function loadPlugin(pluginName, pluginDir = 'plugins', loadFromDir 
     )
   } catch (error) {
     logger.WARNING(`插件${pluginName}manifest加载失败`)
-    if (debug) logger.DEBUG(error)
+    if (debug) {
+      logger.DEBUG(error)
+    } else {
+      logger.WARNING(error)
+    }
     return
   }
 
@@ -69,7 +73,11 @@ export async function loadPlugin(pluginName, pluginDir = 'plugins', loadFromDir 
         execSync(installCommand).toString()
       } catch (error) {
         logger.WARNING(`插件${pluginName}支持库安装失败`)
-        if (debug) logger.DEBUG(error)
+        if (debug) {
+          logger.DEBUG(error)
+        } else {
+          logger.WARNING(error)
+        }
         return
       }
     }
@@ -124,7 +132,11 @@ export async function loadPlugin(pluginName, pluginDir = 'plugins', loadFromDir 
     program = await import(pathToFileURL(`${pluginDir}/index.js`))
   } catch (error) {
     logger.WARNING(`插件${pluginName}不存在或插件损坏`)
-    if (debug) logger.DEBUG(error)
+    if (debug) {
+      logger.DEBUG(error)
+    } else {
+      logger.WARNING(error)
+    }
     return
   }
 
@@ -149,7 +161,7 @@ export async function loadPlugin(pluginName, pluginDir = 'plugins', loadFromDir 
   try {
     global.nowLoadPluginName = pluginName
     await program.default()
-    global.nowLoadPluginName = ''
+    global.nowLoadPluginName = null
     logger.SUCCESS(`加载插件${pluginName}成功`)
   } catch (error) {
     logger.WARNING(`加载插件${pluginName}失败，失败日志：`)
@@ -187,6 +199,11 @@ export async function loadPluginDir(pluginDir) {
     plugins = readdirSync(pluginDir)
   } catch (error) {
     logger.WARNING('获取文件夹内容失败,文件夹可能不存在')
+    if (debug) {
+      logger.DEBUG(error)
+    } else {
+      logger.WARNING(error)
+    }
     return
   }
 

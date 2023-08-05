@@ -21,9 +21,6 @@ export async function newBot() {
     //注册全局变量
     globalReg({ bot, CQ })
 
-    //修改时区
-    process.env.TZ = timeZone
-
     //连接相关监听
     bot.on('socket.connecting', (wsType, attempts) => {
       logger.INFO(`连接中[${wsType}]#${attempts}`)
@@ -66,7 +63,13 @@ export async function newBot() {
     })
   } catch (error) {
     logger.WARNING('机器人启动失败!!!')
-    logger.DEBUG(error)
+
+    if (debug) {
+      logger.DEBUG(error)
+    } else {
+      logger.WARNING(error)
+    }
+
     throw new Error('请检查机器人配置文件!!!')
   }
 }
@@ -77,13 +80,9 @@ async function loginComplete(attempts) {
 
   global.config.bot.info = (await getLoginInfo()).data
 
-  if (debug) {
-    return logger.DEBUG(`当前已打开DEBUG模式,可能会有更多的log被输出,非开发人员请关闭~`)
-  }
+  if (debug) return
 
-  if (!online.enable) {
-    return
-  }
+  if (!online.enable) return
 
   await sendMsg(admin, `${online.msg}#${attempts}`)
 }
@@ -120,6 +119,8 @@ function initEvents() {
 
     context.message = CQ.unescape(context.message)
     for (let i = 0; i < events.length; i++) {
+      global.nowPlugin = events[i].pluginName
+
       let response
       try {
         response = await events[i].callback(
@@ -129,6 +130,7 @@ function initEvents() {
         )
       } catch (error) {
         logger.WARNING(`插件${events[i].pluginName}运行错误`)
+
         if (debug) {
           logger.DEBUG(error)
         } else {
@@ -148,6 +150,8 @@ function initEvents() {
 
     let events = compare(global.events.notice, 'priority')
     for (let i = 0; i < events.length; i++) {
+      global.nowPlugin = events[i].pluginName
+
       let response
       try {
         response = await events[i].callback(context)
@@ -172,6 +176,8 @@ function initEvents() {
 
     let events = compare(global.events.request, 'priority')
     for (let i = 0; i < events.length; i++) {
+      global.nowPlugin = events[i].pluginName
+
       let response
       try {
         response = await events[i].callback(context)

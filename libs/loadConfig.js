@@ -1,14 +1,14 @@
 import fs from 'fs'
 import path from 'path'
+import logger from './logger.js'
 import { jsonc } from 'jsonc'
-import { logger } from './logger.js'
 
 /**
  * 加载单个配置文件
  * @param {String} configName 配置文件名称
  * @param {Boolean} RegToGlobal 是否注册到全局变量
  * @param {String} configPath 配置文件所在的位置
- * @param {String} _pluginName 用于在插件加载时自动加载配置文件(手动加载请勿使用此参数!!!)
+ * @param {String} _pluginName 用于在插件加载时自动加载配置文件(手动加载请勿使用此参数,在配置文件中填写即可!)
  * @returns {JSON} 配置文件
  */
 export function loadConfig(
@@ -42,7 +42,11 @@ export function loadConfig(
     return config
   } catch (error) {
     logger.WARNING(`配置文件${configName}加载失败,请检查`)
-    if (global.debug) logger.DEBUG(error)
+    if (debug) {
+      logger.DEBUG(error)
+    } else {
+      logger.WARNING(error)
+    }
   }
 }
 

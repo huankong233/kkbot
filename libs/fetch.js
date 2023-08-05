@@ -15,7 +15,7 @@ import AbortController from 'abort-controller'
 export async function fetchGet({ url, data = {}, timeOut = TIMEOUT, headers } = {}) {
   if (!url) {
     logger.WARNING(`url参数不存在`)
-    return
+    return `url参数不存在`
   }
 
   const controller = new AbortController()
@@ -48,7 +48,11 @@ export async function fetchGet({ url, data = {}, timeOut = TIMEOUT, headers } = 
       logger.WARNING(`请求${url}时超时`)
     } else {
       logger.WARNING(`请求${url}时失败`)
-      if (global.debug) logger.DEBUG(error)
+      if (debug) {
+        logger.DEBUG(error)
+      } else {
+        logger.WARNING(error)
+      }
     }
     throw new Error(error)
   }
@@ -62,7 +66,7 @@ export async function fetchGet({ url, data = {}, timeOut = TIMEOUT, headers } = 
 export async function fetchPost({ url, data = {}, timeOut = TIMEOUT, headers } = {}) {
   if (!url) {
     logger.WARNING(`url参数不存在`)
-    return
+    return `url参数不存在`
   }
 
   const controller = new AbortController()
@@ -92,7 +96,11 @@ export async function fetchPost({ url, data = {}, timeOut = TIMEOUT, headers } =
       logger.WARNING(`请求${url}时超时`)
     } else {
       logger.WARNING(`请求${url}时失败`)
-      if (global.debug) logger.DEBUG(error)
+      if (debug) {
+        logger.DEBUG(error)
+      } else {
+        logger.WARNING(error)
+      }
     }
     throw new Error(error)
   }

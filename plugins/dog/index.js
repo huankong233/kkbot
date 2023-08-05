@@ -25,10 +25,14 @@ async function dog(context) {
     const data = await get({ url: 'https://api.oick.cn/dog/api.php' }).then(res => res.text())
     await replyMsg(context, data.slice(1, -1), { reply: true })
   } catch (error) {
+    logger.WARNING(`dog request failed`)
+
     if (debug) {
-      logger.WARNING(`dog request failed`)
       logger.DEBUG(error)
+    } else {
+      logger.WARNING(error)
     }
+
     await replyMsg(context, '接口请求失败~', { reply: true })
   }
 }

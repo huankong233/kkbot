@@ -37,9 +37,11 @@ async function nbnhhsh(context) {
       .then(res => res.json())
       .then(res => res[0])
   } catch (error) {
+    logger.WARNING(`nbnhhsh get info failed`)
     if (debug) {
-      logger.WARNING(`nbnhhsh get info failed`)
       logger.DEBUG(error)
+    } else {
+      logger.WARNING(error)
     }
     return await replyMsg(context, `接口请求失败`, { reply: true })
   }

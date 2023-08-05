@@ -58,12 +58,16 @@ async function Vits(context) {
       res.arrayBuffer()
     )
   } catch (error) {
-    if (debug) {
-      logger.WARNING('获取语音文件失败')
-      logger.DEBUG(error)
-    }
     await replyMsg(context, '获取语音文件失败')
     await add({ user_id, number: vits.cost, reason: `Vits生成失败` })
+
+    logger.WARNING('获取语音文件失败')
+
+    if (debug) {
+      logger.DEBUG(error)
+    } else {
+      logger.WARNING(error)
+    }
     return
   }
 

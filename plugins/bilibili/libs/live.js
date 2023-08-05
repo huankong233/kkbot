@@ -36,9 +36,12 @@ export async function getLiveRoomInfo(id) {
       `https://live.bilibili.com/${short_id || room_id}`
     ].join('\n')
   } catch (error) {
+    logger.WARNING(`bilibili get live room info ${id} failed`)
+
     if (debug) {
-      logger.WARNING(`bilibili get live room info ${id}`)
       logger.DEBUG(error)
+    } else {
+      logger.WARNING(error)
     }
     return null
   }

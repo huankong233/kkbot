@@ -32,9 +32,12 @@ export async function getVideoInfo(param) {
       `https://www.bilibili.com/video/${bvid}`
     ].join('\n')
   } catch (error) {
+    logger.WARNING(`[error] bilibili get video info ${param}`)
+
     if (debug) {
-      logger.WARNING(`[error] bilibili get video info ${param}`)
       logger.DEBUG(error)
+    } else {
+      logger.WARNING(error)
     }
     return null
   }

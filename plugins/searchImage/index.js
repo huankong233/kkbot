@@ -85,12 +85,7 @@ import fs from 'fs'
 
 async function imageHandler(context, url) {
   const { searchImage } = global.config
-
-  //图片url
-  const imageUrl = getUniversalImgURL(url)
-  const imagePath = await downloadFile(imageUrl)
-
-  const responseData = await request([
+  const requestParams = [
     {
       name: 'ascii2d',
       callback: ascii2d,
@@ -154,7 +149,13 @@ async function imageHandler(context, url) {
         imagePath
       }
     }
-  ])
+  ]
+
+  //图片url
+  const imageUrl = getUniversalImgURL(url)
+  const imagePath = await downloadFile(imageUrl)
+
+  const responseData = await request(requestParams)
 
   await parse(context, responseData, imageUrl)
 
@@ -179,9 +180,12 @@ async function request(callbacks) {
       responseData.push(obj)
     } catch (error) {
       responseData.push({ success: false, name: item.name, res: error })
+      logger.WARNING(`[搜图] 引擎:${item.name}请求失败`)
+
       if (debug) {
-        logger.WARNING(`[搜图] 引擎:${item.name}请求失败`)
         logger.DEBUG(error)
+      } else {
+        logger.WARNING(error)
       }
     }
   }
@@ -203,11 +207,15 @@ async function parse(context, res, originUrl) {
         CQ.node(
           bot.botName,
           context.self_id,
-          CQ.text(`${datum.name}搜图失败力~已赔偿鸽子${searchImage.reduce}只`)
+          CQ.text(`${datum.name}搜图失败力~已赔偿鸽子${searchImage.back}只`)
         )
       )
       //赔偿
-      await add({ user_id, number: searchImage.reduce, reason: `${datum.name}搜图失败赔偿` })
+      await add({
+        user_id,
+        number: searchImage.back,
+        reason: `${datum.name}搜图失败赔偿`
+      })
     }
 
     let message = `${datum.name}(耗时:${parseInt(datum.cost)}ms):\n`
@@ -230,6 +238,6 @@ async function parse(context, res, originUrl) {
   const data = await sendForwardMsg(context, messages)
   if (data.status === 'failed') {
     await replyMsg(context, '发送合并消息失败，可以尝试私聊我哦~(鸽子已返还)')
-    await add({ user_id, number: searchImage.back, reason: `搜图合并消息发送失败赔偿` })
+    await add({ user_id, number: searchImage.reduce, reason: `搜图合并消息发送失败赔偿` })
   }
 }

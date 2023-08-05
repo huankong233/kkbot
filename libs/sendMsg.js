@@ -1,4 +1,11 @@
 import logger from './logger.js'
+import {
+  sendPrivateMsg,
+  sendGroupMsg,
+  sendDiscussMsg,
+  sendGroupForwardMsg,
+  sendPrivateForwardMsg
+} from './Api.js'
 
 /**
  * 回复消息
@@ -27,19 +34,19 @@ export async function replyMsg(context, message, { at = false, reply = false } =
   switch (message_type) {
     case 'private':
       //回复私聊
-      return await bot('send_private_msg', {
+      return await sendPrivateMsg({
         user_id,
         message
       })
     case 'group':
       //回复群
-      return await bot('send_group_msg', {
+      return await sendGroupMsg({
         group_id,
         message
       })
     case 'discuss':
       //回复讨论组
-      return await bot('send_discuss_msg', {
+      return await sendDiscussMsg({
         discuss_id,
         message
       })
@@ -59,7 +66,7 @@ export async function sendMsg(user_id, message) {
     console.log(stack.slice(1, stack.length).join('\n'))
   }
 
-  return await bot('send_private_msg', {
+  return await sendPrivateMsg({
     user_id,
     message
   })
@@ -86,12 +93,12 @@ export async function sendForwardMsg(context, messages) {
 
   switch (message_type) {
     case 'group':
-      return await bot('send_group_forward_msg', {
+      return await sendGroupForwardMsg({
         group_id: context.group_id,
         messages: messages
       })
     case 'private':
-      return await bot('send_private_forward_msg', {
+      return await sendPrivateForwardMsg({
         user_id: context.user_id,
         messages: messages
       })

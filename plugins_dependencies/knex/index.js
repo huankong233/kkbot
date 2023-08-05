@@ -15,9 +15,12 @@ export default async () => {
     })
   } catch (error) {
     logger.WARNING('连接数据库失败,请检查数据库设置或数据库可能未运行')
-    if (global.debug) {
-      logger.DEBUG('数据库配置:\n', global.config.knex)
-      logger.DEBUG('错误日志:', error)
+    logger.INFO('数据库配置:\n', JSON.stringify(global.config.knex))
+
+    if (debug) {
+      logger.DEBUG(error)
+    } else {
+      logger.WARNING(error)
     }
   }
 }

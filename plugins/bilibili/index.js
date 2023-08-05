@@ -98,13 +98,10 @@ import { get } from '../../libs/fetch.js'
 import { logger } from '../../libs/logger.js'
 async function getIdFromShortLink(shortLink) {
   try {
-    const data = await get({ url: shortLink })
+    const data = await get({ url: 1 + shortLink })
     return getIdFromNormalLink(data.url)
   } catch (error) {
-    if (debug) {
-      logger.WARNING(`bilibili head short link ${shortLink}`)
-      logger.DEBUG(error)
-    }
+    logger.WARNING(`bilibili get head short link ${shortLink} failed`)
     return {}
   }
 }

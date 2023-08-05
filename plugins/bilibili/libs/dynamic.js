@@ -119,9 +119,12 @@ export async function getDynamicInfo(id) {
     const lines = await formatDynamic(data.item)
     return lines.join('\n')
   } catch (error) {
+    logger.WARNING(`bilibili get dynamic new info ${id} failed`)
+
     if (debug) {
-      logger.WARNING(`bilibili get dynamic new info ${id}`)
       logger.DEBUG(error)
+    } else {
+      logger.WARNING(error)
     }
     return null
   }

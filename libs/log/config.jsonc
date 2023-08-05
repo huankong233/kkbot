@@ -1,7 +1,7 @@
 {
   // 开关
   "enable": true,
-  "max": 5,
+  "max": 100,
   "level": "INFO",
   // 强制开启记录日志
   "force": false

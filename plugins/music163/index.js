@@ -24,9 +24,11 @@ async function comments_163(context) {
       data: { token: global.config.music163.token }
     }).then(res => res.json())
   } catch (error) {
+    logger.WARNING(`music163 get info failed`)
     if (debug) {
-      logger.WARNING(`music163 get info failed`)
       logger.DEBUG(error)
+    } else {
+      logger.WARNING(error)
     }
     return await replyMsg(context, `接口请求失败`, { reply: true })
   }
