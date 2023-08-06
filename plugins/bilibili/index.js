@@ -15,6 +15,7 @@ import { getVideoInfo } from './libs/video.js'
 import { getDynamicInfo } from './libs/dynamic.js'
 import { getArticleInfo } from './libs/article.js'
 import { getLiveRoomInfo } from './libs/live.js'
+import { parseJSON } from './libs/utils.js'
 
 //主程序
 async function bilibiliHandler(context) {
@@ -32,8 +33,20 @@ async function bilibiliHandler(context) {
   }
 
   const { message } = context
-  const param = await getIdFromMsg(message)
-  const { aid, bvid, dyid, arid, lrid } = param
+
+  let url = null
+  if (message.includes('com.tencent.miniapp_01')) {
+    // 小程序
+    const data = parseJSON(message)
+    url = data?.meta?.detail_1?.qqdocurl
+  } else if (message.includes('com.tencent.structmsg')) {
+    // 结构化消息
+    const data = parseJSON(message)
+    url = data?.meta?.news?.jumpUrl
+  }
+
+  const param = await getIdFromMsg(url || message)
+  const { aid = null, bvid = null, dyid = null, arid = null, lrid = null } = param
 
   //解析视频
   if (bilibili.getVideoInfo && (aid || bvid)) {
@@ -90,7 +103,8 @@ function getIdFromNormalLink(link) {
     bvid: searchVideo[2],
     dyid: searchDynamic[1],
     arid: searchArticle[1],
-    lrid: searchLiveRoom[1]
+    lrid: searchLiveRoom[1],
+    link
   }
 }
 
@@ -98,7 +112,7 @@ import { get } from '../../libs/fetch.js'
 import { logger } from '../../libs/logger.js'
 async function getIdFromShortLink(shortLink) {
   try {
-    const data = await get({ url: 1 + shortLink })
+    const data = await get({ url: shortLink })
     return getIdFromNormalLink(data.url)
   } catch (error) {
     logger.WARNING(`bilibili get head short link ${shortLink} failed`)
