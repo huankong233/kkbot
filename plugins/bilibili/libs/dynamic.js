@@ -38,7 +38,7 @@ const majorFormatters = {
   // 文章
   MAJOR_TYPE_ARTICLE: ({ article: { covers, id, title, desc } }) => [
     ...(covers.length ? [CQ.image(covers[0].replace('http://', 'https://'))] : []),
-    CQ.escape(title.trim()),
+    `《${CQ.escape(title.trim())}》`,
     CQ.escape(desc.trim()),
     `https://www.bilibili.com/read/cv${id}`
   ],
@@ -60,10 +60,25 @@ const majorFormatters = {
     `分区：${desc_first}`,
     live_state ? `直播中  ${desc_second}` : '未开播',
     `https://live.bilibili.com/${id}`
+  ],
+
+  // 通用动态？
+  MAJOR_TYPE_OPUS: ({
+    opus: {
+      jump_url,
+      pics,
+      summary: { text },
+      title
+    }
+  }) => [
+    ...(pics.length ? [CQ.image(pics[0].url.replace('http://', 'https://'))] : []),
+    `《${CQ.escape(title.trim())}》`,
+    CQ.escape(text.trim()),
+    jump_url.replace(/^\/\//, 'https://')
   ]
 }
 
-async function formatDynamic(item) {
+const formatDynamic = async item => {
   const { module_author: author, module_dynamic: dynamic } = item.modules
   const lines = [`https://t.bilibili.com/${item.id_str}`, `UP：${CQ.escape(author.name)}`]
 
@@ -91,7 +106,17 @@ async function formatDynamic(item) {
   return lines
 }
 
-export async function getDynamicInfo(id) {
+export const getDynamicInfoFromItem = async item => {
+  return {
+    id: item.id_str,
+    type: item.type,
+    text: (await formatDynamic(item)).join('\n')
+  }
+}
+
+export const getDynamicInfo = async id => {
+  const { bilibili } = global.config
+
   try {
     const {
       data: { data, code, message }
@@ -101,6 +126,10 @@ export async function getDynamicInfo(id) {
         timezone_offset: new Date().getTimezoneOffset(),
         id,
         features: 'itemOpusStyle'
+      },
+      headers: {
+        Cookie: bilibili.DEDE_USER_COOKIE,
+        'User-Agent': bilibili.USER_AGENT
       }
     }).then(res => res.json())
 
