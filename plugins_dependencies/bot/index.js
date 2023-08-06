@@ -14,7 +14,7 @@ export default async function () {
  */
 export async function newBot() {
   try {
-    const { connect, timeZone, admin } = global.config.bot
+    const { connect, admin } = global.config.bot
 
     const bot = new CQWebSocket(connect)
 
@@ -97,23 +97,7 @@ function initEvents() {
 
   //事件处理
   bot.on('message', async (event, context, tags) => {
-    if (global.debug) {
-      switch (context.message_type) {
-        case 'group':
-          logger.DEBUG(
-            `收到来自群组(${context.group_id}),用户(${context.user_id})发送消息的: ${context.message}`
-          )
-          break
-        case 'discuss':
-          logger.DEBUG(
-            `收到来自讨论组(${context.group_id}),用户(${context.user_id})发送消息的: ${context.message}`
-          )
-          break
-        case 'private':
-          logger.DEBUG(`收到来自私聊用户(${context.user_id})发送消息的: ${context.message}`)
-          break
-      }
-    }
+    if (debug) logger.DEBUG(`收到信息:\n`, context)
 
     const events = compare(global.events.message, 'priority')
 
@@ -140,13 +124,12 @@ function initEvents() {
 
       if (response === 'quit') break
     }
+
+    global.nowPlugin = null
   })
 
   bot.on('notice', async context => {
-    if (global.debug) {
-      logger.DEBUG(`收到类型为${context.notice_type}的通知`)
-      console.log(context)
-    }
+    if (debug) logger.DEBUG(`收到通知:\n`, context)
 
     let events = compare(global.events.notice, 'priority')
     for (let i = 0; i < events.length; i++) {
@@ -166,13 +149,12 @@ function initEvents() {
 
       if (response === 'quit') break
     }
+
+    global.nowPlugin = null
   })
 
   bot.on('request', async context => {
-    if (global.debug) {
-      logger.DEBUG(`收到类型为${context.request_type}的请求`)
-      console.log(context)
-    }
+    if (debug) logger.DEBUG(`收到请求:\n`, context)
 
     let events = compare(global.events.request, 'priority')
     for (let i = 0; i < events.length; i++) {
@@ -192,6 +174,8 @@ function initEvents() {
 
       if (response === 'quit') break
     }
+
+    global.nowPlugin = null
   })
 }
 

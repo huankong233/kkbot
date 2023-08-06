@@ -2,6 +2,14 @@
 
 ## 2023
 
+### 08-06 v0.1.7
+
+- 修复支持库 `Api` 中错误的参数使用
+- 优化支持库 `eventReg` `fetch` `loadPlugin` `logger` `sendMsg` 中的逻辑
+- 更新依赖
+- 更新插件 `bilibili` `bot`
+- 调整 `init` 中时区设置的顺序
+
 ### 08-05 v0.1.6
 
 - 修复插件 `setu` 的错误的重置次数

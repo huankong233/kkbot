@@ -54,7 +54,7 @@ export async function fetchGet({ url, data = {}, timeOut = TIMEOUT, headers } = 
         logger.WARNING(error)
       }
     }
-    throw new Error(error)
+    throw error
   }
 }
 
@@ -102,7 +102,7 @@ export async function fetchPost({ url, data = {}, timeOut = TIMEOUT, headers } =
         logger.WARNING(error)
       }
     }
-    throw new Error(error)
+    throw error
   }
 }
 
@@ -118,7 +118,7 @@ export async function retryAsync(func, times = 3) {
       return await func()
     } catch (error) {
       if (times === 0) {
-        throw new Error(error)
+        throw error
       }
     }
   }
@@ -131,13 +131,9 @@ export async function retryAsync(func, times = 3) {
  * @returns {Promise}
  */
 export async function get({ url, data, timeOut, headers } = {}, times) {
-  try {
-    return await retryAsync(async () => {
-      return await fetchGet({ url, data, timeOut, headers }, true)
-    }, times)
-  } catch (error) {
-    throw new Error(error)
-  }
+  return await retryAsync(async () => {
+    return await fetchGet({ url, data, timeOut, headers }, true)
+  }, times)
 }
 
 /**

@@ -12,7 +12,7 @@ const originPackages = {
   'abort-controller': '^3.0.0',
   'cli-color': '^2.0.3',
   jsonc: '^2.0.0',
-  'compare-versions': '6.0.0-rc.2'
+  'compare-versions': '^6.0.0'
 }
 
 // 定义起始地址

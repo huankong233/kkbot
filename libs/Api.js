@@ -41,21 +41,21 @@ export const isFriend = async ({ user_id }) => {
   return friendList.data.find(datum => datum.user_id === user_id)
 }
 
-export const deleteMsg = async ({ message_id }) => await bot('delete_msg', {})
+export const deleteMsg = async ({ message_id }) => await bot('delete_msg', { message_id })
 
 export const canSendRecord = async () => await bot('can_send_record')
 
 export const sendPrivateMsg = async ({ user_id, message }) =>
   await bot('send_private_msg', { user_id, message })
 
-export const sendGroupMsg = async ({ user_id, message }) =>
-  await bot('send_group_msg', { user_id, message })
+export const sendGroupMsg = async ({ group_id, message }) =>
+  await bot('send_group_msg', { group_id, message })
 
-export const sendDiscussMsg = async ({ user_id, message }) =>
-  await bot('send_discuss_msg', { user_id, message })
-
-export const sendGroupForwardMsg = async ({ group_id, messages }) =>
-  await bot('send_group_forward_msg', { group_id, messages })
+export const sendDiscussMsg = async ({ discuss_id, message }) =>
+  await bot('send_discuss_msg', { discuss_id, message })
 
 export const sendPrivateForwardMsg = async ({ user_id, messages }) =>
   await bot('send_private_forward_msg', { user_id, messages })
+
+export const sendGroupForwardMsg = async ({ group_id, messages }) =>
+  await bot('send_group_forward_msg', { group_id, messages })

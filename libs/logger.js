@@ -50,14 +50,14 @@ export function DEBUG(...message) {
   if (global.debug) {
     print(clc.magenta(`[DEBUG]`), ...message)
   } else {
-    throw new Error('错误的在非DEBUG模式使用了DEBUG输出!')
+    throw new Error('请检查,避免在非DEBUG模式使用DEBUG模式输出!')
   }
 }
 
 function print(...message) {
   console.log(
     clc.cyan(`[${getTime()}]`),
-    clc.black(`[${global.nowPlugin ?? `${global.nowLoadPluginName ?? 'SYSTEM'}`.toUpperCase()}]`),
+    clc.black(`[${`${global.nowPlugin ?? global.nowLoadPluginName ?? 'SYSTEM'}`.toUpperCase()}]`),
     ...message
   )
 }
@@ -66,6 +66,4 @@ function print(...message) {
  * 获取时间
  * @returns 2023/6/26 09:46:39
  */
-export function getTime() {
-  return new Date().toLocaleString()
-}
+export const getTime = () => new Date().toLocaleString()
