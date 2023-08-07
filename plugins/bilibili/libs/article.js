@@ -25,9 +25,11 @@ export async function getArticleInfo(id) {
       `https://www.bilibili.com/read/cv${id}`
     ].join('\n')
   } catch (error) {
+    logger.WARNING(`bilibili get article info ${id} failed`)
     if (debug) {
-      logger.WARNING(`bilibili get article info ${id}`)
       logger.DEBUG(error)
+    } else {
+      logger.WARNING(error)
     }
     return null
   }

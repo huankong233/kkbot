@@ -31,10 +31,10 @@ async function handler(context, match) {
     return
 
   //判断有没有到上限了
-  let { count = 0, update_time } =
+  let { count = -1, update_time } =
     (await database.select().where('user_id', user_id).from('setu'))[0] || {}
 
-  if (count === 0) {
+  if (count === -1) {
     // 第一次看色图
     await database.insert({ user_id }).into('setu')
   } else {
@@ -94,7 +94,13 @@ async function handler(context, match) {
       reply: true
     })
     await add({ user_id, number: setu.pigeon, reason: '色图加载失败' })
-    if (debug && error) logger.DEBUG(error)
+
+    logger.WARNING('色图加载失败')
+    if (debug) {
+      logger.DEBUG(error)
+    } else {
+      logger.WARNING(error)
+    }
     return
   }
 
@@ -125,7 +131,12 @@ async function handler(context, match) {
         reply: true
       })
       await add({ user_id, number: setu.pigeon, reason: '短链加载失败' })
-      if (debug && error) logger.DEBUG(error)
+      logger.WARNING('短链加载失败')
+      if (debug) {
+        logger.DEBUG(error)
+      } else {
+        logger.WARNING(error)
+      }
       return
     }
   }
@@ -154,7 +165,12 @@ async function handler(context, match) {
       reply: true
     })
     await add({ user_id, number: setu.pigeon, reason: '图片获取失败' })
-    if (debug && error) logger.DEBUG(error)
+    logger.WARNING('图片获取失败')
+    if (debug) {
+      logger.DEBUG(error)
+    } else {
+      logger.WARNING(error)
+    }
     return
   }
 
@@ -168,7 +184,12 @@ async function handler(context, match) {
       reply: true
     })
     await add({ user_id, number: setu.pigeon, reason: '反和谐失败' })
-    if (debug && error) logger.DEBUG(error)
+    logger.WARNING('反和谐失败')
+    if (debug) {
+      logger.DEBUG(error)
+    } else {
+      logger.WARNING(error)
+    }
     return
   }
 

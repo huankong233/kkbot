@@ -14,15 +14,12 @@ export default async function () {
  */
 export async function newBot() {
   try {
-    const { connect, timeZone, admin } = global.config.bot
+    const { connect, admin } = global.config.bot
 
     const bot = new CQWebSocket(connect)
 
     //注册全局变量
     globalReg({ bot, CQ })
-
-    //修改时区
-    process.env.TZ = timeZone
 
     //连接相关监听
     bot.on('socket.connecting', (wsType, attempts) => {
@@ -66,7 +63,13 @@ export async function newBot() {
     })
   } catch (error) {
     logger.WARNING('机器人启动失败!!!')
-    logger.DEBUG(error)
+
+    if (debug) {
+      logger.DEBUG(error)
+    } else {
+      logger.WARNING(error)
+    }
+
     throw new Error('请检查机器人配置文件!!!')
   }
 }
@@ -77,13 +80,9 @@ async function loginComplete(attempts) {
 
   global.config.bot.info = (await getLoginInfo()).data
 
-  if (debug) {
-    return logger.DEBUG(`当前已打开DEBUG模式,可能会有更多的log被输出,非开发人员请关闭~`)
-  }
+  if (debug) return
 
-  if (!online.enable) {
-    return
-  }
+  if (!online.enable) return
 
   await sendMsg(admin, `${online.msg}#${attempts}`)
 }
@@ -98,28 +97,14 @@ function initEvents() {
 
   //事件处理
   bot.on('message', async (event, context, tags) => {
-    if (global.debug) {
-      switch (context.message_type) {
-        case 'group':
-          logger.DEBUG(
-            `收到来自群组(${context.group_id}),用户(${context.user_id})发送消息的: ${context.message}`
-          )
-          break
-        case 'discuss':
-          logger.DEBUG(
-            `收到来自讨论组(${context.group_id}),用户(${context.user_id})发送消息的: ${context.message}`
-          )
-          break
-        case 'private':
-          logger.DEBUG(`收到来自私聊用户(${context.user_id})发送消息的: ${context.message}`)
-          break
-      }
-    }
+    if (debug) logger.DEBUG(`收到信息:\n`, context)
 
     const events = compare(global.events.message, 'priority')
 
     context.message = CQ.unescape(context.message)
     for (let i = 0; i < events.length; i++) {
+      global.nowPlugin = events[i].pluginName
+
       let response
       try {
         response = await events[i].callback(
@@ -129,6 +114,7 @@ function initEvents() {
         )
       } catch (error) {
         logger.WARNING(`插件${events[i].pluginName}运行错误`)
+
         if (debug) {
           logger.DEBUG(error)
         } else {
@@ -138,16 +124,17 @@ function initEvents() {
 
       if (response === 'quit') break
     }
+
+    global.nowPlugin = null
   })
 
   bot.on('notice', async context => {
-    if (global.debug) {
-      logger.DEBUG(`收到类型为${context.notice_type}的通知`)
-      console.log(context)
-    }
+    if (debug) logger.DEBUG(`收到通知:\n`, context)
 
     let events = compare(global.events.notice, 'priority')
     for (let i = 0; i < events.length; i++) {
+      global.nowPlugin = events[i].pluginName
+
       let response
       try {
         response = await events[i].callback(context)
@@ -162,16 +149,17 @@ function initEvents() {
 
       if (response === 'quit') break
     }
+
+    global.nowPlugin = null
   })
 
   bot.on('request', async context => {
-    if (global.debug) {
-      logger.DEBUG(`收到类型为${context.request_type}的请求`)
-      console.log(context)
-    }
+    if (debug) logger.DEBUG(`收到请求:\n`, context)
 
     let events = compare(global.events.request, 'priority')
     for (let i = 0; i < events.length; i++) {
+      global.nowPlugin = events[i].pluginName
+
       let response
       try {
         response = await events[i].callback(context)
@@ -186,6 +174,8 @@ function initEvents() {
 
       if (response === 'quit') break
     }
+
+    global.nowPlugin = null
   })
 }
 

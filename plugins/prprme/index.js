@@ -43,9 +43,12 @@ async function prprme(context) {
         await sendMsg(user_id, data.content)
       } catch (error) {
         clearInterval(id)
+        logger.WARNING(`prprme get info failed`)
+
         if (debug) {
-          logger.WARNING(`prprme get info failed`)
           logger.DEBUG(error)
+        } else {
+          logger.WARNING(error)
         }
         return await replyMsg(context, `接口请求失败`)
       }

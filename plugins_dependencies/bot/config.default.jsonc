@@ -13,8 +13,6 @@
     "enable": true,
     "msg": "已上线"
   },
-  // 时区
-  "timeZone": "Asia/Shanghai",
   // 连接信息
   // 正向websocket(go-cqhttp)
   "connect": {

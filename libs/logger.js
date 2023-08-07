@@ -15,7 +15,7 @@ import clc from 'cli-color'
  * @param  {...String} message
  */
 export function INFO(...message) {
-  console.log(clc.cyan(`[${getTime()}]`), clc.blue(`[INFO]`), message.join(' '))
+  print(clc.blue(`[INFO]`), message.join(' '))
 }
 
 /**
@@ -23,7 +23,7 @@ export function INFO(...message) {
  * @param  {...String} message
  */
 export function SUCCESS(...message) {
-  console.log(clc.cyan(`[${getTime()}]`), clc.green(`[SUCCESS]`), message.join(' '))
+  print(clc.green(`[SUCCESS]`), message.join(' '))
 }
 
 /**
@@ -31,7 +31,7 @@ export function SUCCESS(...message) {
  * @param  {...String} message
  */
 export function WARNING(...message) {
-  console.log(clc.cyan(`[${getTime()}]`), clc.red(`[WARNING]`), clc.redBright(message.join(' ')))
+  print(clc.red(`[WARNING]`), clc.redBright(message.join(' ')))
 }
 
 /**
@@ -39,7 +39,7 @@ export function WARNING(...message) {
  * @param  {...String} message
  */
 export function NOTICE(...message) {
-  console.log(clc.cyan(`[${getTime()}]`), clc.yellow(`[NOTICE]`), message.join(' '))
+  print(clc.yellow(`[NOTICE]`), message.join(' '))
 }
 
 /**
@@ -47,13 +47,23 @@ export function NOTICE(...message) {
  * @param  {...String} message
  */
 export function DEBUG(...message) {
-  console.log(clc.cyan(`[${getTime()}]`), clc.magenta(`[DEBUG]`), ...message)
+  if (global.debug) {
+    print(clc.magenta(`[DEBUG]`), ...message)
+  } else {
+    throw new Error('请检查,避免在非DEBUG模式使用DEBUG模式输出!')
+  }
+}
+
+function print(...message) {
+  console.log(
+    clc.cyan(`[${getTime()}]`),
+    clc.black(`[${`${global.nowPlugin ?? global.nowLoadPluginName ?? 'SYSTEM'}`.toUpperCase()}]`),
+    ...message
+  )
 }
 
 /**
  * 获取时间
  * @returns 2023/6/26 09:46:39
  */
-export function getTime() {
-  return new Date().toLocaleString()
-}
+export const getTime = () => new Date().toLocaleString()

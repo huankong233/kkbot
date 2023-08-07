@@ -19,9 +19,11 @@ async function init() {
       try {
         messages = await prepareMessage()
       } catch (error) {
+        logger.WARNING(`freegames get info failed`)
         if (debug) {
-          logger.WARNING(`freegames get info failed`)
           logger.DEBUG(error)
+        } else {
+          logger.WARNING(error)
         }
         return
       }
@@ -62,9 +64,12 @@ async function freegames(context) {
   try {
     messages = await prepareMessage()
   } catch (error) {
+    logger.WARNING(`freegames get info failed`)
+
     if (debug) {
-      logger.WARNING(`freegames get info failed`)
       logger.DEBUG(error)
+    } else {
+      logger.WARNING(error)
     }
     return await replyMsg(context, `接口请求失败`, { reply: true })
   }

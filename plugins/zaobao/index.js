@@ -64,9 +64,12 @@ async function prepareMessage() {
       response = await prepareMessage()
     }
   } catch (error) {
+    logger.WARNING('早报获取失败')
+
     if (debug) {
-      logger.WARNING('早报获取失败')
       logger.DEBUG(error)
+    } else {
+      logger.WARNING(error)
     }
     return '早报获取失败'
   }

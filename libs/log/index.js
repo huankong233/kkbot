@@ -9,18 +9,26 @@ const levelNumericalCode = {
 import { loadConfig } from '../loadConfig.js'
 import logger from '../logger.js'
 
+/**
+ * 重写conosle
+ */
 export function rewriteConsoleLog() {
   const config = loadConfig('config', false, 'libs/log')
 
   if (!config.enable) {
+    logger.WARNING(`未开启日志功能,推荐开启`)
     return
   }
 
-  if (!config.force && debug) {
-    logger.DEBUG(`处于DEBUG模式中,禁用日志保存功能`)
+  if (!config.force && global.dev) {
+    logger.DEBUG(`处于DEV模式中,禁用日志保存功能`)
     return
   } else if (config.force) {
-    logger.DEBUG(`处于DEBUG模式中,强制启用日志保存功能`)
+    logger.DEBUG(`处于DEV模式中,强制启用日志保存功能`)
+  }
+
+  if (global.debug) {
+    logger.DEBUG(`处于DEBUG模式中,记录所有输出`)
   }
 
   const nowLevel = levelNumericalCode[config.level]
@@ -29,23 +37,24 @@ export function rewriteConsoleLog() {
   console.originLog = console.log
 
   console.log = function (...msg) {
-    try {
-      let type = msg[1].match(regex)
+    if (global.debug) {
+      save2File(...msg)
+    } else {
+      if (msg[1]) {
+        let type = msg[1].match(regex)
 
-      if (type) {
-        type = type[1]
-        let level = levelNumericalCode[type]
-        if (level && level <= nowLevel) {
-          // 存储到日志中
-          save2File(...msg)
+        if (type) {
+          type = type[1]
+          let level = levelNumericalCode[type]
+          if (level && level <= nowLevel) {
+            // 存储到日志中
+            save2File(...msg)
+          }
         }
       }
-
-      console.originLog(...msg)
-    } catch (error) {
-      // 获取type失败
-      console.originLog(...msg)
     }
+
+    console.originLog(...msg)
   }
 }
 
@@ -55,6 +64,10 @@ import dayjs from 'dayjs'
 import clc from 'cli-color'
 import { deleteOldestFiles } from '../fs.js'
 
+/**
+ * 写入日志文件内
+ * @param  {...any} msg
+ */
 function save2File(...msg) {
   const config = loadConfig('config', false, 'libs/log')
   const fileDir = path.join(baseDir, 'logs')

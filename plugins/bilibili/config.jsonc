@@ -6,5 +6,7 @@
   // 是否获取并输出专栏信息
   "getArticleInfo": true,
   // 是否获取并输出直播间信息
-  "getLiveRoomInfo": true
+  "getLiveRoomInfo": true,
+  "USER_AGENT": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36",
+  "DEDE_USER_COOKIE": "DedeUserID=1"
 }

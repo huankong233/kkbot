@@ -5,27 +5,21 @@
  * @param {Number} priority 优先级
  */
 export function eventReg(type, callback, priority = 1) {
+  const { events } = global
+  const obj = {
+    callback,
+    priority,
+    pluginName: global.nowLoadPluginName
+  }
   switch (type) {
     case 'message':
-      global.events.message.push({
-        callback,
-        priority,
-        pluginName: global.nowLoadPluginName
-      })
+      events.message.push(obj)
       break
     case 'notice':
-      global.events.notice.push({
-        callback,
-        priority,
-        pluginName: global.nowLoadPluginName
-      })
+      events.notice.push(obj)
       break
     case 'request':
-      global.events.request.push({
-        callback,
-        priority,
-        pluginName: global.nowLoadPluginName
-      })
+      events.request.push(obj)
       break
     default:
       throw new Error(`"${type}"事件类型不存在`)

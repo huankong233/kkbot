@@ -84,9 +84,12 @@ async function handler(context) {
   } catch (error) {
     await errorParse(context, error.toString())
 
-    if (global.debug) {
-      logger.WARNING('插件bing请求接口出错')
+    logger.WARNING('插件bing请求接口出错')
+
+    if (debug) {
       logger.DEBUG(error)
+    } else {
+      logger.WARNING(error)
     }
 
     return

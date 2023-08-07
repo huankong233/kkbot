@@ -37,14 +37,16 @@ async function nbnhhsh(context) {
       .then(res => res.json())
       .then(res => res[0])
   } catch (error) {
+    logger.WARNING(`nbnhhsh get info failed`)
     if (debug) {
-      logger.WARNING(`nbnhhsh get info failed`)
       logger.DEBUG(error)
+    } else {
+      logger.WARNING(error)
     }
     return await replyMsg(context, `接口请求失败`, { reply: true })
   }
 
-  if (!data) return await replyMsg(context, '空空也不知道这是什么意思呢~', { reply: true })
+  if (!data?.trans) return await replyMsg(context, '空空也不知道这是什么意思呢~', { reply: true })
 
   await replyMsg(context, [`"${data.name}" 可能是:`, `${data.trans.join(',')}`].join('\n'), {
     reply: true

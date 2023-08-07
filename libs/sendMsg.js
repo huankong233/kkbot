@@ -1,4 +1,11 @@
 import logger from './logger.js'
+import {
+  sendPrivateMsg,
+  sendGroupMsg,
+  sendDiscussMsg,
+  sendGroupForwardMsg,
+  sendPrivateForwardMsg
+} from './Api.js'
 
 /**
  * 回复消息
@@ -18,32 +25,37 @@ export async function replyMsg(context, message, { at = false, reply = false } =
     if (reply) message = `${CQ.reply(message_id)}${message}`
   }
 
-  if (global.debug) {
-    const stack = new Error().stack.split('\n')
-    logger.DEBUG(`发送回复消息:${message},stack信息:`)
-    console.log(stack.slice(1, stack.length).join('\n'))
-  }
+  let response
 
   switch (message_type) {
     case 'private':
       //回复私聊
-      return await bot('send_private_msg', {
+      response = await sendPrivateMsg({
         user_id,
         message
       })
     case 'group':
       //回复群
-      return await bot('send_group_msg', {
+      response = await sendGroupMsg({
         group_id,
         message
       })
     case 'discuss':
       //回复讨论组
-      return await bot('send_discuss_msg', {
+      response = await sendDiscussMsg({
         discuss_id,
         message
       })
   }
+
+  if (debug) {
+    logger.DEBUG(`发送回复消息:${message}`)
+    logger.DEBUG(`响应:\n`, response)
+    const stack = new Error().stack.split('\n')
+    logger.DEBUG(`stack信息:\n`, stack.slice(1, stack.length).join('\n'))
+  }
+
+  return response
 }
 
 /**
@@ -53,16 +65,19 @@ export async function replyMsg(context, message, { at = false, reply = false } =
  * @returns {Object}
  */
 export async function sendMsg(user_id, message) {
-  if (global.debug) {
-    const stack = new Error().stack.split('\n')
-    logger.DEBUG(`发送私聊消息:${message},stack信息:`)
-    console.log(stack.slice(1, stack.length).join('\n'))
-  }
-
-  return await bot('send_private_msg', {
+  const response = await sendPrivateMsg({
     user_id,
     message
   })
+
+  if (debug) {
+    logger.DEBUG(`发送私聊消息:${message}`)
+    logger.DEBUG(`响应:\n`, response)
+    const stack = new Error().stack.split('\n')
+    logger.DEBUG(`stack信息:\n`, stack.slice(1, stack.length).join('\n'))
+  }
+
+  return response
 }
 
 /**
@@ -75,25 +90,27 @@ export async function sendMsg(user_id, message) {
 export async function sendForwardMsg(context, messages) {
   const { message_type } = context
 
-  if (global.debug) {
-    logger.DEBUG(`发送合并消息:`)
-    console.log(messages)
-
-    logger.DEBUG(`stack信息:`)
-    const stack = new Error().stack.split('\n')
-    console.log(stack.slice(1, stack.length).join('\n'))
-  }
+  let response
 
   switch (message_type) {
     case 'group':
-      return await bot('send_group_forward_msg', {
+      response = await sendGroupForwardMsg({
         group_id: context.group_id,
         messages: messages
       })
     case 'private':
-      return await bot('send_private_forward_msg', {
+      response = await sendPrivateForwardMsg({
         user_id: context.user_id,
         messages: messages
       })
   }
+
+  if (debug) {
+    logger.DEBUG(`发送合并消息:\n`, message)
+    logger.DEBUG(`响应:\n`, response)
+    const stack = new Error().stack.split('\n')
+    logger.DEBUG(`stack信息:\n`, stack.slice(1, stack.length).join('\n'))
+  }
+
+  return response
 }

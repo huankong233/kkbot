@@ -99,9 +99,11 @@ async function search(keyword, page) {
       res.text()
     )
   } catch (error) {
-    if (global.debug) {
-      logger.WARNING(`BT搜索请求接口失败`)
+    logger.WARNING(`BT搜索请求接口失败`)
+    if (debug) {
       logger.DEBUG(error)
+    } else {
+      logger.WARNING(error)
     }
     return '获取信息失败'
   }
@@ -174,9 +176,12 @@ async function getDownloadLink(href) {
   try {
     data = await get({ url: global.config.btSearch.site + href }).then(res => res.text())
   } catch (error) {
-    if (global.debug) {
-      logger.WARNING('获取磁力地址失败')
+    logger.WARNING('获取磁力地址失败')
+
+    if (debug) {
       logger.DEBUG(error)
+    } else {
+      logger.WARNING(error)
     }
     return '获取信息失败'
   }

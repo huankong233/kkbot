@@ -2,6 +2,8 @@ export default async () => {
   await checkffmpeg()
 }
 
+import { canSendRecord } from '../../libs/Api.js'
+
 export const checkffmpeg = async () => {
-  global.config.bot.ffmpeg = (await bot('can_send_record')).data.yes
+  global.config.bot.ffmpeg = (await canSendRecord()).data.yes
 }
