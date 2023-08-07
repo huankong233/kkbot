@@ -46,7 +46,7 @@ async function nbnhhsh(context) {
     return await replyMsg(context, `接口请求失败`, { reply: true })
   }
 
-  if (!data) return await replyMsg(context, '空空也不知道这是什么意思呢~', { reply: true })
+  if (!data?.trans) return await replyMsg(context, '空空也不知道这是什么意思呢~', { reply: true })
 
   await replyMsg(context, [`"${data.name}" 可能是:`, `${data.trans.join(',')}`].join('\n'), {
     reply: true
