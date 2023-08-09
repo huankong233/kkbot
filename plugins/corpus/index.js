@@ -109,14 +109,14 @@ async function learn(context) {
     if (type === null) {
       type = message._type
       type === 'text'
-        ? ([keyword, mode] = [message._data.text, parseInt(params[1].trim())])
+        ? ([keyword, mode] = [message._data.text, parseInt(params[2].trim())])
         : ([keyword, mode] = [`[CQ:image,file=${message.file}`, 0])
     } else {
       return await replyMsg(context, `不能同时存在图片或文字哦~`, { reply: true })
     }
   }
 
-  const reply = params[2].trim()
+  const reply = params[1].trim()
   const scene = params[3].trim()
 
   //判断参数是否合法
@@ -139,14 +139,14 @@ async function learn(context) {
   //确保不重复
   const repeat = await database.select().from('corpus').where({ keyword, hide: 0 })
   if (repeat.length !== 0) {
-    return await replyMsg(context, '这个"触发词"已经存在啦~', { reply: true })
+    return await replyMsg(context, '这个"关键词"已经存在啦~', { reply: true })
   }
 
   if (await database.insert({ user_id, keyword, mode, reply, scene }).into('corpus')) {
     await loadRules()
     await replyMsg(context, `${bot.botName}学会啦~`, { reply: true })
   } else {
-    await add({ user_id, number: corpus.add, reason: '添加关键字' })
+    await add({ user_id, number: corpus.add, reason: '添加关键词' })
     await replyMsg(context, '学习失败~', { reply: true })
   }
 }
@@ -163,7 +163,7 @@ async function forget(context) {
 
   if (await missingParams(context, params, 1)) return
 
-  if (!(await reduce({ user_id, number: corpus.delete, reason: '删除关键字' }))) {
+  if (!(await reduce({ user_id, number: corpus.delete, reason: '删除关键词' }))) {
     return await replyMsg(context, '鸽子不足~', { reply: true })
   }
 

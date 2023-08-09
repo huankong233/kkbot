@@ -40,7 +40,7 @@ export const turnOnSearchMode = async context => {
     context,
     [
       `${searchImage.word.on_reply}`,
-      `记得说${bot.prefix}${searchImage.word.off}${bot.botName}来退出搜图模式哦~`
+      `记得说"${bot.prefix}${searchImage.word.off}${bot.botName}"来退出搜图模式哦~`
     ].join('\n')
   )
 }
