@@ -40,12 +40,11 @@ export function rewriteConsoleLog() {
     if (global.debug) {
       save2File(...msg)
     } else {
-      if (msg[1]) {
-        let type = msg[1].match(regex)
+      if (msg[2]) {
+        let type = msg[2].match(regex)
 
         if (type) {
-          type = type[1]
-          let level = levelNumericalCode[type]
+          let level = levelNumericalCode[type[1]]
           if (level && level <= nowLevel) {
             // 存储到日志中
             save2File(...msg)

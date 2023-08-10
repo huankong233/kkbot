@@ -85,6 +85,11 @@ import fs from 'fs'
 
 async function imageHandler(context, url) {
   const { searchImage } = global.config
+
+  //图片url
+  const imageUrl = getUniversalImgURL(url)
+  const imagePath = await downloadFile(imageUrl)
+
   const requestParams = [
     {
       name: 'ascii2d',
@@ -150,10 +155,6 @@ async function imageHandler(context, url) {
       }
     }
   ]
-
-  //图片url
-  const imageUrl = getUniversalImgURL(url)
-  const imagePath = await downloadFile(imageUrl)
 
   const responseData = await request(requestParams)
 
