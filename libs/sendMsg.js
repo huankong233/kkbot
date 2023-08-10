@@ -1,11 +1,5 @@
 import logger from './logger.js'
-import {
-  sendPrivateMsg,
-  sendGroupMsg,
-  sendDiscussMsg,
-  sendGroupForwardMsg,
-  sendPrivateForwardMsg
-} from './Api.js'
+import { sendPrivateMsg, sendGroupMsg, sendGroupForwardMsg, sendPrivateForwardMsg } from './Api.js'
 
 /**
  * 回复消息
@@ -34,18 +28,14 @@ export async function replyMsg(context, message, { at = false, reply = false } =
         user_id,
         message
       })
+      break
     case 'group':
       //回复群
       response = await sendGroupMsg({
         group_id,
         message
       })
-    case 'discuss':
-      //回复讨论组
-      response = await sendDiscussMsg({
-        discuss_id,
-        message
-      })
+      break
   }
 
   if (debug) {
@@ -98,11 +88,13 @@ export async function sendForwardMsg(context, messages) {
         group_id: context.group_id,
         messages: messages
       })
+      break
     case 'private':
       response = await sendPrivateForwardMsg({
         user_id: context.user_id,
         messages: messages
       })
+      break
   }
 
   if (debug) {

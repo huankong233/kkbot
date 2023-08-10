@@ -202,6 +202,7 @@ async function handler(context, match) {
       reply: true
     })
     await add({ user_id, number: setu.pigeon, reason: '色图发送失败' })
+    return
   } else {
     //更新数据
     await database

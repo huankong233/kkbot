@@ -51,9 +51,6 @@ export const sendPrivateMsg = async ({ user_id, message }) =>
 export const sendGroupMsg = async ({ group_id, message }) =>
   await bot('send_group_msg', { group_id, message })
 
-export const sendDiscussMsg = async ({ discuss_id, message }) =>
-  await bot('send_discuss_msg', { discuss_id, message })
-
 export const sendPrivateForwardMsg = async ({ user_id, messages }) =>
   await bot('send_private_forward_msg', { user_id, messages })
 
