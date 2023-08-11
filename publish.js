@@ -15,6 +15,8 @@ const originPackages = {
   'compare-versions': '^6.1.0'
 }
 
+global.debug = true
+
 // 定义起始地址
 import { getBaseDir } from './libs/getDirname.js'
 global.baseDir = getBaseDir()

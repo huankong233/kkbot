@@ -16,6 +16,8 @@ import { loadConfig } from './loadConfig.js'
  * @param {Boolean} loadFromDir 是否是使用文件夹加载的
  */
 export async function loadPlugin(pluginName, pluginDir = 'plugins', loadFromDir = false) {
+  global.nowLoadPluginName = pluginName
+
   if (!global.plugins) {
     global.plugins = {}
   }
@@ -32,7 +34,8 @@ export async function loadPlugin(pluginName, pluginDir = 'plugins', loadFromDir 
   }
 
   if (!fs.existsSync(manifestPath)) {
-    logger.WARNING(`插件 ${pluginName} manifest 不存在`)
+    logger.WARNING(`插件 ${pluginName} 的 manifest 不存在`)
+    return
   }
 
   let manifest
@@ -41,12 +44,13 @@ export async function loadPlugin(pluginName, pluginDir = 'plugins', loadFromDir 
   try {
     manifest = jsonc.parse(readFileSync(manifestPath, { encoding: 'utf-8' }))
   } catch (error) {
-    logger.WARNING(`插件 ${pluginName} manifest.json 加载失败`)
+    logger.WARNING(`插件 ${pluginName} manifest 加载失败`)
     if (debug) {
       logger.DEBUG(error)
     } else {
       logger.WARNING(error)
     }
+    global.nowLoadPluginName = null
     return
   }
 
@@ -88,6 +92,7 @@ export async function loadPlugin(pluginName, pluginDir = 'plugins', loadFromDir 
         } else {
           logger.WARNING(error)
         }
+        global.nowLoadPluginName = null
         return
       }
     }
@@ -146,6 +151,8 @@ export async function loadPlugin(pluginName, pluginDir = 'plugins', loadFromDir 
     } else {
       logger.WARNING(error)
     }
+    global.nowLoadPluginName = null
+
     return
   }
 
@@ -168,9 +175,7 @@ export async function loadPlugin(pluginName, pluginDir = 'plugins', loadFromDir 
   }
 
   try {
-    global.nowLoadPluginName = pluginName
     await program.default()
-    global.nowLoadPluginName = null
     logger.SUCCESS(`加载插件 ${pluginName} 成功`)
   } catch (error) {
     logger.WARNING(`加载插件 ${pluginName} 失败,失败日志:`)
@@ -179,8 +184,11 @@ export async function loadPlugin(pluginName, pluginDir = 'plugins', loadFromDir 
     } else {
       logger.WARNING(error)
     }
+    global.nowLoadPluginName = null
     return
   }
+
+  global.nowLoadPluginName = null
 
   return 'success'
 }

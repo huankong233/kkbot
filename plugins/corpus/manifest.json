@@ -1,1 +1,1 @@
-{"kkbot_plugin_version":"2","name":"corpus","description":"语言库","version":"0.0.2","author":[{"name":"huan_kong","link":"https://github.com/huankong233"}],"dependPackages":{"node-emoji":"^2.1.0"},"dependPlugins":{"knex":"0.0.1","pigeon":"0.0.2"}}
+{"kkbot_plugin_version":"2","name":"corpus","description":"语言库","version":"0.0.2","author":[{"name":"huan_kong","link":"https://github.com/huankong233"}],"dependPackages":{},"dependPlugins":{"knex":"0.0.1","pigeon":"0.0.2"}}

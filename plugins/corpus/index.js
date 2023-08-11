@@ -4,7 +4,7 @@ export default async () => {
   event()
 }
 
-import * as emoji from 'node-emoji'
+// import * as emoji from 'node-emoji'
 import { eventReg } from '../../libs/eventReg.js'
 import { replyMsg } from '../../libs/sendMsg.js'
 
@@ -12,7 +12,7 @@ function event() {
   eventReg('message', async (event, context, tags) => {
     const { bot } = global.config
 
-    context.message = emoji.unemojify(context.message)
+    // context.message = emoji.unemojify(context.message)
 
     if (context.command) {
       const { name } = context.command

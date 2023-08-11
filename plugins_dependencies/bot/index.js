@@ -87,6 +87,8 @@ async function loginComplete(attempts) {
   await sendMsg(admin, `${online.msg}#${attempts}`)
 }
 
+import * as emoji from 'node-emoji'
+
 function initEvents() {
   //初始化事件
   global.events = {
@@ -101,7 +103,8 @@ function initEvents() {
 
     const events = compare(global.events.message, 'priority')
 
-    context.message = CQ.unescape(context.message)
+    context.message = emoji.unemojify(CQ.unescape(context.message))
+
     for (let i = 0; i < events.length; i++) {
       global.nowPlugin = events[i].pluginName
 
