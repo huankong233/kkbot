@@ -170,6 +170,7 @@ async function request(callbacks) {
   for (let i = 0; i < callbacks.length; i++) {
     const item = callbacks[i]
     try {
+      if (debug) logger.DEBUG(`[搜图] 引擎:${item.name}搜索中`)
       const start = performance.now()
       let obj = {
         success: true,

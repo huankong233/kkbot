@@ -44,13 +44,13 @@ export async function loadPlugin(pluginName, pluginDir = 'plugins', loadFromDir 
   try {
     manifest = jsonc.parse(readFileSync(manifestPath, { encoding: 'utf-8' }))
   } catch (error) {
+    global.nowLoadPluginName = null
     logger.WARNING(`插件 ${pluginName} manifest 加载失败`)
     if (debug) {
       logger.DEBUG(error)
     } else {
       logger.WARNING(error)
     }
-    global.nowLoadPluginName = null
     return
   }
 
@@ -86,13 +86,13 @@ export async function loadPlugin(pluginName, pluginDir = 'plugins', loadFromDir 
       try {
         execSync(installCommand).toString()
       } catch (error) {
+        global.nowLoadPluginName = null
         logger.WARNING(`插件 ${pluginName} 支持库安装失败`)
         if (debug) {
           logger.DEBUG(error)
         } else {
           logger.WARNING(error)
         }
-        global.nowLoadPluginName = null
         return
       }
     }
@@ -145,14 +145,13 @@ export async function loadPlugin(pluginName, pluginDir = 'plugins', loadFromDir 
   try {
     program = await import(pathToFileURL(path.join(pluginAbsoluteDir, 'index.js')))
   } catch (error) {
+    global.nowLoadPluginName = null
     logger.WARNING(`插件 ${pluginName} 不存在或插件损坏`)
     if (debug) {
       logger.DEBUG(error)
     } else {
       logger.WARNING(error)
     }
-    global.nowLoadPluginName = null
-
     return
   }
 
@@ -176,15 +175,16 @@ export async function loadPlugin(pluginName, pluginDir = 'plugins', loadFromDir 
 
   try {
     await program.default()
+    global.nowLoadPluginName = null
     logger.SUCCESS(`加载插件 ${pluginName} 成功`)
   } catch (error) {
+    global.nowLoadPluginName = null
     logger.WARNING(`加载插件 ${pluginName} 失败,失败日志:`)
     if (debug) {
       logger.DEBUG(error)
     } else {
       logger.WARNING(error)
     }
-    global.nowLoadPluginName = null
     return
   }
 

@@ -20,40 +20,30 @@ export const deleteFolder = folder => {
   }
 }
 
-import { get } from './fetch.js'
-import * as mime from 'mime-types'
+import fetch from 'node-fetch'
 /**
  * 内部方法!!!请勿调用
  * @param {String} url
  * @param {String} fullPath
- * @param {String} ext
  * @returns
  */
-async function _download(url, fullPath, ext) {
-  const res = await get({ url, headers: { 'Content-Type': 'application/octet-stream' } })
-
+async function _download(url, fullPath) {
+  const res = await fetch(url)
+  fullPath += '.temp'
+  const dest = fs.createWriteStream(fullPath)
+  res.body.pipe(dest)
   return new Promise((resolve, reject) => {
-    if (!res.headers) {
-      resolve(res)
-    }
-
-    const contentType = res.headers.get('Content-Type')
-    if (contentType) {
-      let extension = mime.extension(contentType)
-      ext = extension ? '.' + extension : '.jpg'
-    }
-
-    fullPath += ext
-
-    const dest = fs.createWriteStream(fullPath)
-    res.body.pipe(dest)
-
-    dest.on('finish', resolve(fullPath))
-    dest.on('error', reject)
+    dest.on('finish', res => {
+      resolve(fullPath)
+    })
+    dest.on('error', error => {
+      reject(error)
+    })
   })
 }
 
 import { getRangeCode } from './random.js'
+import * as mime from 'mime-types'
 /**
  * 下载文件
  * @param {String} url
@@ -64,7 +54,15 @@ export async function downloadFile(url, ext = '.png') {
   const fileName = getRangeCode(10)
   const outPath = path.join(baseDir, 'temp')
   const fullPath = path.join(outPath, fileName)
-  return await _download(url, fullPath, ext)
+  const tempPath = await _download(url, fullPath)
+  const contentType = mime.lookup(tempPath)
+  if (contentType) {
+    let extension = mime.extension(contentType)
+    ext = extension ? '.' + extension : ext
+  }
+
+  fs.renameSync(tempPath, fullPath + ext)
+  return fullPath + ext
 }
 
 /**

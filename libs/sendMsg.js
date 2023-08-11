@@ -86,19 +86,19 @@ export async function sendForwardMsg(context, messages) {
     case 'group':
       response = await sendGroupForwardMsg({
         group_id: context.group_id,
-        messages: messages
+        messages
       })
       break
     case 'private':
       response = await sendPrivateForwardMsg({
         user_id: context.user_id,
-        messages: messages
+        messages
       })
       break
   }
 
   if (debug) {
-    logger.DEBUG(`发送合并消息:\n`, message)
+    logger.DEBUG(`发送合并消息:\n`, messages)
     logger.DEBUG(`响应:\n`, response)
     const stack = new Error().stack.split('\n')
     logger.DEBUG(`stack信息:\n`, stack.slice(1, stack.length).join('\n'))
