@@ -154,10 +154,8 @@ async function learn(context) {
 //忘记
 async function forget(context) {
   const {
-    user_id,
-    command: {
-      command: { params }
-    }
+    command: { params },
+    user_id
   } = context
   const { corpus, bot } = global.config
 

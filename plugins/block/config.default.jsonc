@@ -1,0 +1,12 @@
+{
+  //这里屏蔽的用户和群组不会触发任何事件！！
+  "blockUsers": [],
+  "blockGroups": [],
+  "defaultReply": "本群在黑名单中，请加群xxx",
+  "blockedCommands": []
+  // 示例:
+  // regexp为匹配规则
+  // reply为空即不回复,如果不设置或null或undefined则使用defaultReply
+  // groupId 可为 *
+  // "blockedCommands": [{ "regexp": "空空搜图", "reply": "已屏蔽", "groupId": [123456] }]
+}
