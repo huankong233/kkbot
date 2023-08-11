@@ -12,7 +12,8 @@ const originPackages = {
   'abort-controller': '^3.0.0',
   'cli-color': '^2.0.3',
   jsonc: '^2.0.0',
-  'compare-versions': '^6.1.0'
+  'compare-versions': '^6.1.0',
+  'mime-types': '^2.1.35'
 }
 
 global.debug = true
