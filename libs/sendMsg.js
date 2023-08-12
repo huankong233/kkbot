@@ -18,7 +18,7 @@ export async function replyMsg(
   const { message_type, user_id, group_id, message_id } = context
   if (toEmoji) {
     if (typeof message === 'string') {
-      message = emoji.unemojify(message)
+      message = emoji.emojify(message)
     } else if (typeof message === 'object') {
       if (message._data.content) message._data.content = emoji.emojify(message._data.content)
     } else {
@@ -72,7 +72,7 @@ export async function replyMsg(
 export async function sendMsg(user_id, message, toEmoji = true) {
   if (toEmoji) {
     if (typeof message === 'string') {
-      message = emoji.unemojify(message)
+      message = emoji.emojify(message)
     } else if (typeof message === 'object') {
       if (message._data.content) message._data.content = emoji.emojify(message._data.content)
     } else {
