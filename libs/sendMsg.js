@@ -7,6 +7,7 @@ import * as emoji from 'node-emoji'
  * @param {Object} context 消息上下文
  * @param {String} message 回复内容
  * @param {Object} params 是否at/reply发送者
+ * @param {boolean} toEmoji 是否转换为emoji
  * @returns {Object}
  */
 export async function replyMsg(
@@ -67,6 +68,7 @@ export async function replyMsg(
  * 发送私信
  * @param {Number} user_id
  * @param {String} message
+ * @param {boolean} toEmoji 是否转换为emoji
  * @returns {Object}
  */
 export async function sendMsg(user_id, message, toEmoji = true) {
@@ -100,6 +102,7 @@ export async function sendMsg(user_id, message, toEmoji = true) {
  * docs:https://docs.go-cqhttp.org/cqcode/#合并转发
  * @param {Object} context 消息对象
  * @param {Array} messages
+ * @param {boolean} toEmoji 是否转换为emoji
  * @returns {Object}
  */
 export async function sendForwardMsg(context, messages, toEmoji = true) {

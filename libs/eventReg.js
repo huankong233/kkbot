@@ -29,6 +29,7 @@ export function eventReg(type, callback, priority = 1) {
 /**
  * 检查是否@了机器人
  * @param {Object} context
+ * @param {String} commandName
  * @returns {Object}
  */
 export function haveAt(context, commandName = '@') {
