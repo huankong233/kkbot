@@ -4,6 +4,14 @@
 
 ### 08-11 v0.1.7.5
 
+- 修复连接 `websocket` 失败超过次数后无法退出运行
+- 函数 `retryAsync` 添加失败后 sleep 时间
+- 支持库 `sendMsg` 新增 `emoji` 转换
+- 修复插件 `zaobao`
+- 优化插件 `searchImage` 中合并转发中机器人的信息
+
+### 08-11 v0.1.7.5
+
 - 修复插件在加载时缺少 `manifest` 时错误的处理
 - 添加配置加载时将数据添加到全局变量中
 - ~~新增插件 `refeshConfig`~~ 鸽了

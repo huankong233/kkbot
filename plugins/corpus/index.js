@@ -4,15 +4,12 @@ export default async () => {
   event()
 }
 
-// import * as emoji from 'node-emoji'
 import { eventReg } from '../../libs/eventReg.js'
 import { replyMsg } from '../../libs/sendMsg.js'
 
 function event() {
   eventReg('message', async (event, context, tags) => {
     const { bot } = global.config
-
-    // context.message = emoji.unemojify(context.message)
 
     if (context.command) {
       const { name } = context.command
@@ -55,7 +52,6 @@ async function corpus(context) {
     reply = reply.replace(/\[CQ:at\]/g, message_type === 'private' ? '' : CQ.at(user_id))
 
     let msg = exec[0].replace(reg, reply)
-    msg = emoji.emojify(msg, name => name)
     if (msg.length) await replyMsg(context, msg)
   }
 }

@@ -78,7 +78,7 @@ async function init(context) {
         )
       })
 
-      const status = await sendForwardMsg(context, messages)
+      const status = await sendForwardMsg(context, messages, false)
       if (status.status === 'failed') {
         await replyMsg(context, '发送合并消息失败，可以尝试私聊我哦~(鸽子已返还)', { reply: true })
         await add({ user_id, number: btSearch.cost, reason: `BT搜索_合并消息发送失败赔偿` })

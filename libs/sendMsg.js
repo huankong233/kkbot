@@ -1,5 +1,6 @@
 import logger from './logger.js'
 import { sendPrivateMsg, sendGroupMsg, sendGroupForwardMsg, sendPrivateForwardMsg } from './Api.js'
+import * as emoji from 'node-emoji'
 
 /**
  * 回复消息
@@ -8,8 +9,22 @@ import { sendPrivateMsg, sendGroupMsg, sendGroupForwardMsg, sendPrivateForwardMs
  * @param {Object} params 是否at/reply发送者
  * @returns {Object}
  */
-export async function replyMsg(context, message, { at = false, reply = false } = {}) {
-  const { message_type, user_id, group_id, message_id, discuss_id } = context
+export async function replyMsg(
+  context,
+  message,
+  { at = false, reply = false } = {},
+  toEmoji = true
+) {
+  const { message_type, user_id, group_id, message_id } = context
+  if (toEmoji) {
+    if (typeof message === 'string') {
+      message = emoji.unemojify(message)
+    } else if (typeof message === 'object') {
+      if (message._data.content) message._data.content = emoji.emojify(message._data.content)
+    } else {
+      throw new Error('未知类型')
+    }
+  }
 
   if (message_type !== 'private') {
     //不是私聊，可以at发送者
@@ -54,7 +69,17 @@ export async function replyMsg(context, message, { at = false, reply = false } =
  * @param {String} message
  * @returns {Object}
  */
-export async function sendMsg(user_id, message) {
+export async function sendMsg(user_id, message, toEmoji = true) {
+  if (toEmoji) {
+    if (typeof message === 'string') {
+      message = emoji.unemojify(message)
+    } else if (typeof message === 'object') {
+      if (message._data.content) message._data.content = emoji.emojify(message._data.content)
+    } else {
+      throw new Error('未知类型')
+    }
+  }
+
   const response = await sendPrivateMsg({
     user_id,
     message
@@ -77,8 +102,15 @@ export async function sendMsg(user_id, message) {
  * @param {Array} messages
  * @returns {Object}
  */
-export async function sendForwardMsg(context, messages) {
+export async function sendForwardMsg(context, messages, toEmoji = true) {
   const { message_type } = context
+
+  if (toEmoji) {
+    messages.map(function (node) {
+      node._data.content = emoji.emojify(node._data.content)
+      return node
+    })
+  }
 
   let response
 
