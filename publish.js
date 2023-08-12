@@ -13,7 +13,8 @@ const originPackages = {
   'cli-color': '^2.0.3',
   jsonc: '^2.0.0',
   'compare-versions': '^6.1.0',
-  'mime-types': '^2.1.35'
+  'mime-types': '^2.1.35',
+  'node-emoji': '^2.1.0'
 }
 
 global.debug = true
