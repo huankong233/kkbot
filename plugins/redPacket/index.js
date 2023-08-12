@@ -99,7 +99,8 @@ async function get(context) {
 
     //领取过
     if (picked_user.indexOf(user_id) !== -1) {
-      return await replyMsg(context, '红包领取过了哦,不要贪心啦~', { reply: true })
+      await replyMsg(context, '红包领取过了哦,不要贪心啦~', { reply: true })
+      continue
     }
 
     //判断剩余红包数(如果剩余1个,全部拿走)
