@@ -9,6 +9,7 @@
 - 支持库 `sendMsg` 新增 `emoji` 转换
 - 修复插件 `zaobao`
 - 优化插件 `searchImage` 中合并转发中机器人的信息
+- 修复插件 `redPacket`
 
 ### 08-11 v0.1.7.5
 

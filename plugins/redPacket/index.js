@@ -89,7 +89,7 @@ async function get(context) {
 
     //口令不正确
     if (message !== item.code) {
-      break
+      continue
     }
 
     //领取过
