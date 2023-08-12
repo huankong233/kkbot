@@ -47,6 +47,11 @@ async function give(context) {
     return await replyMsg(context, '红包发送失败,红包数量和鸽子数都不能<=0', { reply: true })
   }
 
+  const item = await database.select('*').where({ code }).from('red_packet').first()
+  if (item) {
+    return await replyMsg(context, '红包发送失败,该口令已存在', { reply: true })
+  }
+
   //校验合理性
   const pre = pigeon_num / redPacket_num
 
