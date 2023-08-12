@@ -16,7 +16,7 @@ import { loadConfig } from './loadConfig.js'
  * @param {Boolean} loadFromDir 是否是使用文件夹加载的
  */
 export async function loadPlugin(pluginName, pluginDir = 'plugins', loadFromDir = false) {
-  global.nowLoadPluginName = pluginName
+  global.nowLoadPluginName = null
 
   if (!global.plugins) {
     global.plugins = {}
@@ -44,7 +44,6 @@ export async function loadPlugin(pluginName, pluginDir = 'plugins', loadFromDir 
   try {
     manifest = jsonc.parse(readFileSync(manifestPath, { encoding: 'utf-8' }))
   } catch (error) {
-    global.nowLoadPluginName = null
     logger.WARNING(`插件 ${pluginName} manifest 加载失败`)
     if (debug) {
       logger.DEBUG(error)
@@ -126,6 +125,8 @@ export async function loadPlugin(pluginName, pluginDir = 'plugins', loadFromDir 
     }
   }
 
+  global.nowLoadPluginName = pluginName
+
   // 自动加载配置文件
   if (!disableAutoLoadConfig) {
     // 检查配置文件是否存在
@@ -139,6 +140,8 @@ export async function loadPlugin(pluginName, pluginDir = 'plugins', loadFromDir 
       }
     }
   }
+
+  global.nowLoadPluginName = pluginName
 
   let program
 
@@ -156,12 +159,14 @@ export async function loadPlugin(pluginName, pluginDir = 'plugins', loadFromDir 
   }
 
   if (program.enable === false) {
+    global.nowLoadPluginName = null
     logger.NOTICE(`插件 ${pluginName} 未启用`)
     return
   }
 
   // 循环检查是否存在
   if (plugins[pluginName]) {
+    global.nowLoadPluginName = null
     if (debug) logger.DEBUG(`插件 ${pluginName} 已经加载过了`)
     return
   }
@@ -169,6 +174,7 @@ export async function loadPlugin(pluginName, pluginDir = 'plugins', loadFromDir 
   plugins[pluginName] = { ...manifest, dir: pluginAbsoluteDir }
 
   if (!program.default) {
+    global.nowLoadPluginName = null
     logger.WARNING(`加载插件 ${pluginName} 失败，插件不存在默认导出函数`)
     return
   }

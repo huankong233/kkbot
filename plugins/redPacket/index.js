@@ -99,7 +99,7 @@ async function get(context) {
 
     //判断剩余红包数(如果剩余1个,全部拿走)
     const getPigeonNum =
-      redPacket_num === 1 ? pigeon_num : randomInt(1, pigeon_num * randomInt(50, 70))
+      redPacket_num === 1 ? pigeon_num : randomInt(1, (pigeon_num * randomInt(50, 70)) / 100)
 
     picked_user.push(user_id)
 

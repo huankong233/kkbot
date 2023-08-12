@@ -35,6 +35,7 @@ export function loadConfig(
       // 优先配置文件中配置的配置文件名 然后是传入的插件名 如果插件名也不存在就直接使用配置文件的名称
       const indexName = configData.configName ?? global.nowLoadPluginName ?? configName
       const oldConfig = config[indexName]
+      global.nowLoadPluginName = null
 
       // 如果存在配置文件
       if (oldConfig) {
