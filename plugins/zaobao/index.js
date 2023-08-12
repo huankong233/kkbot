@@ -46,7 +46,7 @@ function event() {
   })
 }
 
-import { get } from '../../libs/fetch.js'
+import { get, retryAsync } from '../../libs/fetch.js'
 import { replyMsg } from '../../libs/sendMsg.js'
 import logger from '../../libs/logger.js'
 import dayjs from 'dayjs'
@@ -58,7 +58,14 @@ async function zaobao(context) {
 async function prepareMessage() {
   let response
   try {
-    response = await get({ url: 'https://api.2xb.cn/zaob' }).then(res => res.json())
+    await retryAsync(
+      async () => {
+        response = await get({ url: 'https://api.2xb.cn/zaob' }).then(res => res.json())
+      },
+      3,
+      5000
+    )
+
     if (response.datatime !== dayjs().format('YYYY-MM-DD')) {
       await sleep(1000 * 60 * 30)
       response = await prepareMessage()
@@ -71,6 +78,7 @@ async function prepareMessage() {
     } else {
       logger.WARNING(error)
     }
+
     return '早报获取失败'
   }
 

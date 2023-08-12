@@ -170,6 +170,7 @@ async function request(callbacks) {
   for (let i = 0; i < callbacks.length; i++) {
     const item = callbacks[i]
     try {
+      if (debug) logger.DEBUG(`[搜图] 引擎:${item.name}搜索中`)
       const start = performance.now()
       let obj = {
         success: true,
@@ -200,14 +201,14 @@ async function parse(context, res, originUrl) {
   const { user_id } = context
   const { bot, searchImage } = global.config
 
-  let messages = [CQ.node(bot.botName, context.self_id, CQ.image(originUrl))]
+  let messages = [CQ.node(bot.info.nickname, bot.info.user_id, CQ.image(originUrl))]
 
   res.forEach(async datum => {
     if (!datum.success) {
       messages.push(
         CQ.node(
-          bot.botName,
-          context.self_id,
+          bot.info.nickname,
+          bot.info.user_id,
           CQ.text(`${datum.name}搜图失败力~已赔偿鸽子${searchImage.back}只`)
         )
       )

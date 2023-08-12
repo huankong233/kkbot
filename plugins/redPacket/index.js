@@ -89,7 +89,7 @@ async function get(context) {
 
     //口令不正确
     if (message !== item.code) {
-      break
+      continue
     }
 
     //领取过
@@ -99,7 +99,7 @@ async function get(context) {
 
     //判断剩余红包数(如果剩余1个,全部拿走)
     const getPigeonNum =
-      redPacket_num === 1 ? pigeon_num : randomInt(1, pigeon_num * randomInt(50, 70))
+      redPacket_num === 1 ? pigeon_num : randomInt(1, (pigeon_num * randomInt(50, 70)) / 100)
 
     picked_user.push(user_id)
 
@@ -129,6 +129,7 @@ async function freshRedPacketList() {
 
 import { getUserName } from '../query/index.js'
 async function getAll(context) {
+  await freshRedPacketList()
   const { redPacket } = global.config
   if (redPacket.length !== 0) {
     let msg = ['剩余红包:']

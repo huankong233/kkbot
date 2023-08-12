@@ -1,14 +1,17 @@
 [
   {
     "commandName": "入群",
-    "commandDescription": ["入群 [批准/拒绝] [FLAG] (拒绝原因)"]
+    "commandDescription": ["入群 [批准/拒绝] [FLAG] (拒绝原因)"],
+    "admin": true
   },
   {
     "commandName": "加群",
-    "commandDescription": ["加群 [批准/拒绝] [FLAG] (拒绝原因)"]
+    "commandDescription": ["加群 [批准/拒绝] [FLAG] (拒绝原因)"],
+    "admin": true
   },
   {
     "commandName": "好友",
-    "commandDescription": ["好友 [批准/拒绝] [FLAG]"]
+    "commandDescription": ["好友 [批准/拒绝] [FLAG]"],
+    "admin": true
   }
 ]

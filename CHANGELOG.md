@@ -2,6 +2,31 @@
 
 ## 2023
 
+### 08-11 v0.1.7.5
+
+- 修复连接 `websocket` 失败超过次数后无法退出运行
+- 函数 `retryAsync` 添加失败后 sleep 时间
+- 支持库 `sendMsg` 新增 `emoji` 转换
+- 修复插件 `zaobao`
+- 优化插件 `searchImage` 中合并转发中机器人的信息
+- 修复插件 `redPacket`
+- 修复日志无法记录对象
+
+### 08-11 v0.1.7.5
+
+- 修复插件在加载时缺少 `manifest` 时错误的处理
+- 添加配置加载时将数据添加到全局变量中
+- ~~新增插件 `refeshConfig`~~ 鸽了
+- 修复错误的 `emoji` 处理，现在将处理添加到源头处理
+- 优化插件 `help` 可以设置仅管理员可见命令
+- 修复插件 `searchImage`
+
+### 08-11 v0.1.7.4
+
+- 新增插件 `block`
+- 修复插件 `corpus`
+- 更新插件 `searchImage` 依赖
+
 ### 08-09 v0.1.7.3
 
 - 修复插件 `setu` 的发送失败依然自动撤回的问题
@@ -59,7 +84,7 @@
 ### 07-15 v0.1.4.6
 
 - 修复插件 `searchImage` 失败归还鸽子数有误
-- 已知错误: 使用 `jimp` 剪切 `gif` 时返回的 `base64` 是错误的 [详细信息](https://github.com/jimp-dev/jimp/pull/1239) 等待合并
+- ~~已知错误: 使用 `jimp` 剪切 `gif` 时返回的 `base64` 是错误的 [详细信息](https://github.com/jimp-dev/jimp/pull/1239) 等待合并~~ 7 月 28 日已合并
 
 ### 07-15 v0.1.4.5
 

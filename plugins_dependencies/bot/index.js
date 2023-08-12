@@ -32,6 +32,9 @@ export async function newBot() {
 
     bot.on('socket.failed', (wsType, attempts) => {
       logger.WARNING(`连接失败[${wsType}]#${attempts}`)
+      if (attempts >= connect.reconnectionAttempts) {
+        throw new Error(`连接失败次数超过设置的${connect.reconnectionAttempts}次!`)
+      }
     })
 
     bot.on('socket.connect', async (wsType, sock, attempts) => {
@@ -55,11 +58,6 @@ export async function newBot() {
 
     return new Promise((resolve, reject) => {
       bot.on('socket.connect', wsType => (wsType === '/api' ? resolve() : null))
-      bot.on('socket.failed', (wsType, attempts) => {
-        if (attempts >= connect.reconnectionAttempts) {
-          reject(`连接失败次数超过设置的${connect.reconnectionAttempts}次!`)
-        }
-      })
     })
   } catch (error) {
     logger.WARNING('机器人启动失败!!!')
@@ -87,6 +85,8 @@ async function loginComplete(attempts) {
   await sendMsg(admin, `${online.msg}#${attempts}`)
 }
 
+import * as emoji from 'node-emoji'
+
 function initEvents() {
   //初始化事件
   global.events = {
@@ -101,7 +101,8 @@ function initEvents() {
 
     const events = compare(global.events.message, 'priority')
 
-    context.message = CQ.unescape(context.message)
+    context.message = emoji.unemojify(CQ.unescape(context.message))
+
     for (let i = 0; i < events.length; i++) {
       global.nowPlugin = events[i].pluginName
 

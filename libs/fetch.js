@@ -110,13 +110,17 @@ export async function fetchPost({ url, data = {}, timeOut = TIMEOUT, headers } =
  * 自动重试
  * @param {Function} func
  * @param {Number} times
+ * @param {Number} sleepTime
  * @returns
  */
-export async function retryAsync(func, times = 3) {
+import { sleep } from './sleep.js'
+export async function retryAsync(func, times = 3, sleepTime = 0) {
   while (times--) {
     try {
       return await func()
     } catch (error) {
+      if (sleepTime !== 0) await sleep(sleepTime)
+      if (debug) logger.DEBUG(`尝试还剩 ${times} 次`)
       if (times === 0) {
         throw error
       }

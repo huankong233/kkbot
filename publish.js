@@ -12,8 +12,12 @@ const originPackages = {
   'abort-controller': '^3.0.0',
   'cli-color': '^2.0.3',
   jsonc: '^2.0.0',
-  'compare-versions': '^6.1.0'
+  'compare-versions': '^6.1.0',
+  'mime-types': '^2.1.35',
+  'node-emoji': '^2.1.0'
 }
+
+global.debug = true
 
 // 定义起始地址
 import { getBaseDir } from './libs/getDirname.js'

@@ -8,40 +8,51 @@ import { jsonc } from 'jsonc'
  * @param {String} configName 配置文件名称
  * @param {Boolean} RegToGlobal 是否注册到全局变量
  * @param {String} configPath 配置文件所在的位置
- * @param {String} _pluginName 用于在插件加载时自动加载配置文件(手动加载请勿使用此参数,在配置文件中填写即可!)
+ * @param {String} forceOverride 是否强制覆盖原有配置文件
  * @returns {JSON} 配置文件
  */
 export function loadConfig(
   configName,
   RegToGlobal = true,
   configPath = `./config`,
-  _pluginName = null
+  forceOverride = false
 ) {
+  // 判断config
+  if (!global.config) {
+    global.config = {}
+  }
+
+  const { config } = global
+
   //获取json内容
-  let config
+  let configData
 
   try {
-    config = jsonc.parse(
-      fs.readFileSync(path.join(configPath, `${configName}.jsonc`), { encoding: 'utf-8' })
-    )
-
-    if (!global.config) {
-      global.config = {}
-    }
+    configPath = path.join(configPath, `${configName}.jsonc`)
+    configData = jsonc.parse(fs.readFileSync(configPath, { encoding: 'utf-8' }))
 
     if (RegToGlobal) {
-      const index = config.configName ?? _pluginName ?? configName
-      if (global.config[index]) {
-        if (debug) logger.DEBUG(`配置${index}已经存在了,不允许重复加载!`)
-        return
-      }
       // 优先配置文件中配置的配置文件名 然后是传入的插件名 如果插件名也不存在就直接使用配置文件的名称
-      global.config[index] = config
+      const indexName = configData.configName ?? global.nowLoadPluginName ?? configName
+      const oldConfig = config[indexName]
+      global.nowLoadPluginName = null
+
+      // 如果存在配置文件
+      if (oldConfig) {
+        const canOverride = forceOverride ? true : oldConfig['override'] ?? false
+
+        if (!canOverride) {
+          if (debug) logger.DEBUG(`配置文件 ${configPath} 禁止被重写`)
+          return 'reject override'
+        }
+      }
+
+      config[indexName] = { ...configData, configPath }
     }
 
-    return config
+    return configData
   } catch (error) {
-    logger.WARNING(`配置文件${configName}加载失败,请检查`)
+    logger.WARNING(`配置文件 ${configName} 加载失败,请检查`)
     if (debug) {
       logger.DEBUG(error)
     } else {

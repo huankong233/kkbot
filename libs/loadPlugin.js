@@ -16,6 +16,8 @@ import { loadConfig } from './loadConfig.js'
  * @param {Boolean} loadFromDir 是否是使用文件夹加载的
  */
 export async function loadPlugin(pluginName, pluginDir = 'plugins', loadFromDir = false) {
+  global.nowLoadPluginName = null
+
   if (!global.plugins) {
     global.plugins = {}
   }
@@ -32,7 +34,8 @@ export async function loadPlugin(pluginName, pluginDir = 'plugins', loadFromDir 
   }
 
   if (!fs.existsSync(manifestPath)) {
-    logger.WARNING(`插件 ${pluginName} manifest 不存在`)
+    logger.WARNING(`插件 ${pluginName} 的 manifest 不存在`)
+    return
   }
 
   let manifest
@@ -41,7 +44,7 @@ export async function loadPlugin(pluginName, pluginDir = 'plugins', loadFromDir 
   try {
     manifest = jsonc.parse(readFileSync(manifestPath, { encoding: 'utf-8' }))
   } catch (error) {
-    logger.WARNING(`插件 ${pluginName} manifest.json 加载失败`)
+    logger.WARNING(`插件 ${pluginName} manifest 加载失败`)
     if (debug) {
       logger.DEBUG(error)
     } else {
@@ -82,6 +85,7 @@ export async function loadPlugin(pluginName, pluginDir = 'plugins', loadFromDir 
       try {
         execSync(installCommand).toString()
       } catch (error) {
+        global.nowLoadPluginName = null
         logger.WARNING(`插件 ${pluginName} 支持库安装失败`)
         if (debug) {
           logger.DEBUG(error)
@@ -121,6 +125,8 @@ export async function loadPlugin(pluginName, pluginDir = 'plugins', loadFromDir 
     }
   }
 
+  global.nowLoadPluginName = pluginName
+
   // 自动加载配置文件
   if (!disableAutoLoadConfig) {
     // 检查配置文件是否存在
@@ -135,11 +141,14 @@ export async function loadPlugin(pluginName, pluginDir = 'plugins', loadFromDir 
     }
   }
 
+  global.nowLoadPluginName = pluginName
+
   let program
 
   try {
     program = await import(pathToFileURL(path.join(pluginAbsoluteDir, 'index.js')))
   } catch (error) {
+    global.nowLoadPluginName = null
     logger.WARNING(`插件 ${pluginName} 不存在或插件损坏`)
     if (debug) {
       logger.DEBUG(error)
@@ -150,12 +159,14 @@ export async function loadPlugin(pluginName, pluginDir = 'plugins', loadFromDir 
   }
 
   if (program.enable === false) {
+    global.nowLoadPluginName = null
     logger.NOTICE(`插件 ${pluginName} 未启用`)
     return
   }
 
   // 循环检查是否存在
   if (plugins[pluginName]) {
+    global.nowLoadPluginName = null
     if (debug) logger.DEBUG(`插件 ${pluginName} 已经加载过了`)
     return
   }
@@ -163,16 +174,17 @@ export async function loadPlugin(pluginName, pluginDir = 'plugins', loadFromDir 
   plugins[pluginName] = { ...manifest, dir: pluginAbsoluteDir }
 
   if (!program.default) {
+    global.nowLoadPluginName = null
     logger.WARNING(`加载插件 ${pluginName} 失败，插件不存在默认导出函数`)
     return
   }
 
   try {
-    global.nowLoadPluginName = pluginName
     await program.default()
     global.nowLoadPluginName = null
     logger.SUCCESS(`加载插件 ${pluginName} 成功`)
   } catch (error) {
+    global.nowLoadPluginName = null
     logger.WARNING(`加载插件 ${pluginName} 失败,失败日志:`)
     if (debug) {
       logger.DEBUG(error)
@@ -181,6 +193,8 @@ export async function loadPlugin(pluginName, pluginDir = 'plugins', loadFromDir 
     }
     return
   }
+
+  global.nowLoadPluginName = null
 
   return 'success'
 }

@@ -45,10 +45,12 @@ import { replyMsg } from '../../libs/sendMsg.js'
 async function help(context) {
   const { help, bot } = global.config
   const {
+    user_id,
     command: { params }
   } = context
 
   const name = params[0]
+  const isAdmin = user_id === bot.admin
 
   if (name) {
     const command = help.commandList.find(item => item.commandName === name)
@@ -67,7 +69,13 @@ async function help(context) {
     }
   } else {
     let str = [`使用"${bot.prefix}帮助 命令名称"来获取详情`, `命令列表:`]
-    help.commandList.forEach(command => str.push(command.commandName))
+    help.commandList.forEach(command => {
+      if (command.admin) {
+        if (isAdmin) str.push(command.commandName)
+      } else {
+        str.push(command.commandName)
+      }
+    })
     await replyMsg(context, str.join('\n'), { reply: true })
   }
 }
