@@ -129,6 +129,7 @@ async function freshRedPacketList() {
 
 import { getUserName } from '../query/index.js'
 async function getAll(context) {
+  await freshRedPacketList()
   const { redPacket } = global.config
   if (redPacket.length !== 0) {
     let msg = ['剩余红包:']

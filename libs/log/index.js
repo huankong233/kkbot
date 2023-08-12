@@ -71,6 +71,13 @@ function save2File(...msg) {
   const config = loadConfig('config', false, 'libs/log')
   const fileDir = path.join(baseDir, 'logs')
   const filePath = path.join(fileDir, `${dayjs().format('YYYY-MM-DD')}.log`)
+  msg = msg.map(function (item) {
+    if (typeof item === 'object') {
+      return JSON.stringify(item)
+    }
+    return item
+  })
+
   const fileData = clc.strip(msg.join(' ')) + '\n'
 
   if (!fs.existsSync(fileDir)) {

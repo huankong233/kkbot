@@ -106,7 +106,7 @@ export async function sendForwardMsg(context, messages, toEmoji = true) {
   const { message_type } = context
 
   if (toEmoji) {
-    messages.map(function (node) {
+    messages = messages.map(function (node) {
       node._data.content = emoji.emojify(node._data.content)
       return node
     })
