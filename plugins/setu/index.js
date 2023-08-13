@@ -39,6 +39,11 @@ async function handler(context, match) {
 
   let { count, update_time } = userData
 
+  if (!isToday(update_time)) {
+    // 如果不是今天就清零
+    count = 0
+  }
+
   // 每天上限
   if (count >= setu.limit) {
     const res = await replyMsg(context, CQ.image('https://api.lolicon.app/assets/img/lx.jpg'), {
@@ -218,13 +223,7 @@ async function handler(context, match) {
     await add({ user_id, number: setu.pigeon, reason: '色图发送失败' })
     return
   } else {
-    if (!isToday(update_time)) {
-      // 如果不是今天就清零
-      count = 0
-    } else {
-      // 如果是今天就+1
-      count++
-    }
+    count++
 
     //更新数据
     await database
