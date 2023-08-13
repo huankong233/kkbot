@@ -68,7 +68,7 @@ export async function downloadFile(url, ext = '.png') {
 /**
  * 删除指定数量的老文件
  * @param {String} dirPath
- * @param {String} count
+ * @param {Number} count
  */
 export async function deleteOldestFiles(dirPath, count) {
   const files = await fs.promises.readdir(dirPath)

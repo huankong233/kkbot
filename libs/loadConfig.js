@@ -68,11 +68,11 @@ export function loadConfig(
  * @param {String} configPath 配置文件所在的位置
  * @returns {Object} 配置文件(对象)
  */
-export function loadConfigs(configNames, RegToGlobal, configPath) {
+export function loadConfigs(configNames, RegToGlobal, configPath, forceOverride = false) {
   let config = {}
   for (let i = 0; i < configNames.length; i++) {
     const configName = configNames[i]
-    config[configName] = loadConfig(configName, RegToGlobal, configPath)
+    config[configName] = loadConfig(configName, RegToGlobal, configPath, forceOverride)
   }
   return config
 }

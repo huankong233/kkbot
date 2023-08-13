@@ -21,30 +21,39 @@ import { imgAntiShielding } from './AntiShielding.js'
 import { deleteMsg } from '../../libs/Api.js'
 import { get, post } from '../../libs/fetch.js'
 import { replyMsg } from '../../libs/sendMsg.js'
+import { isToday } from '../gugu/index.js'
+import { logger } from '../../libs/logger.js'
+import { jsonc } from 'jsonc'
 
 async function handler(context, match) {
-  const { user_id, message_type } = context
+  const { user_id } = context
   const { setu } = global.config
 
-  // 屏蔽黑名单
-  if (message_type === 'group' && setu.blackList.find(group_id => group_id === context.group_id))
-    return
+  let userData = await database.select('*').where('user_id', user_id).from('setu').first()
 
-  //判断有没有到上限了
-  let { count = -1, update_time } =
-    (await database.select().where('user_id', user_id).from('setu'))[0] || {}
-
-  if (count === -1) {
+  if (!userData) {
     // 第一次看色图
     await database.insert({ user_id }).into('setu')
-  } else {
-    // 更新count
-    count = checkQuota(count, update_time, setu.limit)
-    if (!count) {
-      return await replyMsg(context, CQ.image('https://api.lolicon.app/assets/img/lx.jpg'), {
-        reply: true
-      })
+    userData = { count: 0, update_time: 0 }
+  }
+
+  let { count, update_time } = userData
+
+  if (!isToday(update_time)) {
+    // 如果不是今天就清零
+    count = 0
+  }
+
+  // 每天上限
+  if (count >= setu.limit) {
+    const res = await replyMsg(context, CQ.image('https://api.lolicon.app/assets/img/lx.jpg'), {
+      reply: true
+    })
+
+    if (res.status === 'failed') {
+      await replyMsg(context, '因此对于年轻人而言一个重要的功课就是学会去节制欲望.jpg')
     }
+    return
   }
 
   if (!(await reduce({ user_id, number: setu.pigeon, reason: '看色图' }))) {
@@ -60,7 +69,7 @@ async function handler(context, match) {
   }
 
   if (match[2]) {
-    const groupOut = match[2].split('&amp;')
+    const groupOut = match[2].split('&')
     groupOut.forEach(item => {
       let groupIn = item.split('|')
       groupIn = groupIn.map(item => {
@@ -87,12 +96,22 @@ async function handler(context, match) {
         'Content-Type': 'application/json'
       }
     })
-      .then(res => res.json())
-      .then(res => res.data)
+      .then(res => res.text())
+      .then(async res => {
+        if (res === ':D') {
+          throw new Error('机器人IP被Ban,请检查')
+        } else {
+          return jsonc.parse(res)['data']
+        }
+      })
   } catch (error) {
-    await replyMsg(context, '色图服务器爆炸惹', {
-      reply: true
-    })
+    await replyMsg(
+      context,
+      error === '机器人IP被Ban,请检查' ? '机器人IP被Ban,请检查' : '色图服务器爆炸惹',
+      {
+        reply: true
+      }
+    )
     await add({ user_id, number: setu.pigeon, reason: '色图加载失败' })
 
     logger.WARNING('色图加载失败')
@@ -204,6 +223,8 @@ async function handler(context, match) {
     await add({ user_id, number: setu.pigeon, reason: '色图发送失败' })
     return
   } else {
+    count++
+
     //更新数据
     await database
       .update({
@@ -223,22 +244,4 @@ async function handler(context, match) {
       message_id: infoMessageResponse.data.message_id
     })
   }, setu.withdraw * 1000)
-}
-
-import { isToday } from '../gugu/index.js'
-import logger from '../../libs/logger.js'
-/**
- * 判断是否超出配额
- * @param {Number} count
- * @param {Number} update_time
- * @param {Number} limit
- * @returns
- */
-function checkQuota(count, update_time, limit) {
-  if (count >= limit) {
-    // 判断时间如果是今天就返回false，不然返回1
-    return isToday(update_time) ? false : 1
-  } else {
-    return count + 1
-  }
 }
