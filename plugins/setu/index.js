@@ -23,28 +23,31 @@ import { get, post } from '../../libs/fetch.js'
 import { replyMsg } from '../../libs/sendMsg.js'
 
 async function handler(context, match) {
-  const { user_id, message_type } = context
+  const { user_id } = context
   const { setu } = global.config
 
-  // 屏蔽黑名单
-  if (message_type === 'group' && setu.blackList.find(group_id => group_id === context.group_id))
-    return
+  const userData = await database.select('*').where('user_id', user_id).from('setu').first()
 
-  //判断有没有到上限了
-  let { count = -1, update_time } =
-    (await database.select().where('user_id', user_id).from('setu'))[0] || {}
-
-  if (count === -1) {
+  if (!userData) {
     // 第一次看色图
     await database.insert({ user_id }).into('setu')
-  } else {
-    // 更新count
-    count = checkQuota(count, update_time, setu.limit)
-    if (!count) {
-      return await replyMsg(context, CQ.image('https://api.lolicon.app/assets/img/lx.jpg'), {
-        reply: true
-      })
+    userData = { count: 0, update_time: 0 }
+  }
+
+  //判断有没有到上限了
+  let { count, update_time } = userData
+
+  // 更新count
+  count = checkQuota(count, update_time, setu.limit)
+  if (!count) {
+    const res = await replyMsg(context, CQ.image('https://api.lolicon.app/assets/img/lx.jpg'), {
+      reply: true
+    })
+
+    if (res.status === 'failed') {
+      await replyMsg(context, '因此对于年轻人而言一个重要的功课就是学会去节制欲望.jpg')
     }
+    return
   }
 
   if (!(await reduce({ user_id, number: setu.pigeon, reason: '看色图' }))) {
@@ -87,12 +90,22 @@ async function handler(context, match) {
         'Content-Type': 'application/json'
       }
     })
-      .then(res => res.json())
-      .then(res => res.data)
+      .then(res => res.text())
+      .then(async res => {
+        if (res === ':D') {
+          throw new Error('机器人IP被Ban,请检查')
+        } else {
+          return jsonc.parse(res)['data']
+        }
+      })
   } catch (error) {
-    await replyMsg(context, '色图服务器爆炸惹', {
-      reply: true
-    })
+    await replyMsg(
+      context,
+      error === '机器人IP被Ban,请检查' ? '机器人IP被Ban,请检查' : '色图服务器爆炸惹',
+      {
+        reply: true
+      }
+    )
     await add({ user_id, number: setu.pigeon, reason: '色图加载失败' })
 
     logger.WARNING('色图加载失败')
@@ -227,6 +240,7 @@ async function handler(context, match) {
 
 import { isToday } from '../gugu/index.js'
 import logger from '../../libs/logger.js'
+import { jsonc } from 'jsonc'
 /**
  * 判断是否超出配额
  * @param {Number} count

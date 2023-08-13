@@ -13,7 +13,7 @@ export default async function () {
   global.debug = isDebug || isDeV
   global.dev = isDeV
 
-  if (global.debug) logger.DEBUG(`当前已打开DEBUG模式,可能会有更多的log被输出,非开发人员请关闭~`)
+  if (global.debug) logger.DEBUG(`当前已打开DEBUG模式,可能会有更多的log被输出`)
 
   // 定义起始地址
   global.baseDir = getBaseDir()
