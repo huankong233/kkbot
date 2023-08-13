@@ -21,6 +21,9 @@ import { imgAntiShielding } from './AntiShielding.js'
 import { deleteMsg } from '../../libs/Api.js'
 import { get, post } from '../../libs/fetch.js'
 import { replyMsg } from '../../libs/sendMsg.js'
+import { isToday } from '../gugu/index.js'
+import { logger } from '../../libs/logger.js'
+import { jsonc } from 'jsonc'
 
 async function handler(context, match) {
   const { user_id } = context
@@ -34,12 +37,10 @@ async function handler(context, match) {
     userData = { count: 0, update_time: 0 }
   }
 
-  //判断有没有到上限了
   let { count, update_time } = userData
 
-  // 更新count
-  count = checkQuota(count, update_time, setu.limit)
-  if (!count) {
+  // 每天上限
+  if (count >= setu.limit) {
     const res = await replyMsg(context, CQ.image('https://api.lolicon.app/assets/img/lx.jpg'), {
       reply: true
     })
@@ -217,6 +218,14 @@ async function handler(context, match) {
     await add({ user_id, number: setu.pigeon, reason: '色图发送失败' })
     return
   } else {
+    if (!isToday(update_time)) {
+      // 如果不是今天就清零
+      count = 0
+    } else {
+      // 如果是今天就+1
+      count++
+    }
+
     //更新数据
     await database
       .update({
@@ -236,23 +245,4 @@ async function handler(context, match) {
       message_id: infoMessageResponse.data.message_id
     })
   }, setu.withdraw * 1000)
-}
-
-import { isToday } from '../gugu/index.js'
-import logger from '../../libs/logger.js'
-import { jsonc } from 'jsonc'
-/**
- * 判断是否超出配额
- * @param {Number} count
- * @param {Number} update_time
- * @param {Number} limit
- * @returns
- */
-function checkQuota(count, update_time, limit) {
-  if (count >= limit) {
-    // 判断时间如果是今天就返回false，不然返回1
-    return isToday(update_time) ? false : 1
-  } else {
-    return count + 1
-  }
 }
