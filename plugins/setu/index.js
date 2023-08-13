@@ -26,7 +26,7 @@ async function handler(context, match) {
   const { user_id } = context
   const { setu } = global.config
 
-  const userData = await database.select('*').where('user_id', user_id).from('setu').first()
+  let userData = await database.select('*').where('user_id', user_id).from('setu').first()
 
   if (!userData) {
     // 第一次看色图
