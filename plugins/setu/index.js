@@ -69,7 +69,7 @@ async function handler(context, match) {
   }
 
   if (match[2]) {
-    const groupOut = match[2].split('&amp;')
+    const groupOut = match[2].split('&')
     groupOut.forEach(item => {
       let groupIn = item.split('|')
       groupIn = groupIn.map(item => {
