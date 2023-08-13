@@ -70,6 +70,10 @@ async function prepareMessage() {
       await sleep(1000 * 60 * 30)
       response = await prepareMessage()
     }
+
+    if (response.msg === 'Success') {
+      return CQ.image(response.imageUrl)
+    }
   } catch (error) {
     logger.WARNING('早报获取失败')
 
@@ -80,9 +84,5 @@ async function prepareMessage() {
     }
 
     return '早报获取失败'
-  }
-
-  if (response.msg === 'Success') {
-    return CQ.image(response.imageUrl)
   }
 }
