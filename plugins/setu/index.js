@@ -209,9 +209,7 @@ async function handler(context, match) {
     return
   }
 
-  const message = await replyMsg(context, CQ.image(`base64://${base64}`), {
-    reply: true
-  })
+  const message = await replyMsg(context, CQ.image(`base64://${base64}`))
 
   if (message.status === 'failed') {
     await replyMsg(context, '色图发送失败', {

@@ -132,12 +132,4 @@ export async function sendForwardMsg(context, messages, toEmoji = true) {
  * @param {String|Object} message
  * @returns {String|Object}
  */
-export function parseToEmoji(message) {
-  if (typeof message === 'string') {
-    return emoji.emojify(message)
-  } else if (typeof message === 'object') {
-    return JSON.parse(emoji.emojify(JSON.stringify(message)))
-  } else {
-    return emoji.emojify(message.tostring())
-  }
-}
+export const parseToEmoji = message => emoji.emojify(message.toString())
