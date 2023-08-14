@@ -48,7 +48,7 @@ import * as mime from 'mime-types'
  * 下载文件
  * @param {String} url
  * @param {String} ext 下载的文件后缀
- * @returns
+ * @returns {String} 完整的下载路径
  */
 export async function downloadFile(url, ext = '.png') {
   const fileName = getRangeCode(10)

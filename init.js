@@ -10,8 +10,10 @@ export default async function () {
   // 是否启用DEBUG模式
   const isDebug = typeof process.argv.find(item => item === '--debug') !== 'undefined'
   const isDeV = typeof process.argv.find(item => item === '--dev') !== 'undefined'
+  const isPref = typeof process.argv.find(item => item === '--pref') !== 'undefined'
   global.debug = isDebug || isDeV
   global.dev = isDeV
+  global.pref = isPref
 
   if (global.debug) logger.DEBUG(`当前已打开DEBUG模式,可能会有更多的log被输出`)
 

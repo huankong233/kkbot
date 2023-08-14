@@ -6,11 +6,13 @@
  */
 export function eventReg(type, callback, priority = 1) {
   const { events } = global
+
   const obj = {
     callback,
     priority,
     pluginName: global.nowLoadPluginName
   }
+
   switch (type) {
     case 'message':
       events.message.push(obj)
@@ -28,9 +30,9 @@ export function eventReg(type, callback, priority = 1) {
 
 /**
  * 检查是否@了机器人
- * @param {Object} context
- * @param {String} commandName
- * @returns {Object}
+ * @param {object} context
+ * @param {string} commandName
+ * @returns {{name:String,params:Array}}
  */
 export function haveAt(context, commandName = '@') {
   const { message, self_id } = context
@@ -50,7 +52,7 @@ export function haveAt(context, commandName = '@') {
 /**
  * 格式化消息
  * @param {String} message
- * @returns {Object}
+ * @returns {{name:String,params:Array}}
  */
 export function format(message) {
   const { prefix } = global.config.bot
@@ -77,7 +79,6 @@ import { replyMsg } from './sendMsg.js'
  * @param {Object} context
  * @param {Object} params
  * @param {Number} paramsLength
- * @returns
  */
 export async function missingParams(context, params, paramsLength) {
   const { bot } = global.config

@@ -9,7 +9,7 @@ import { jsonc } from 'jsonc'
  * @param {Boolean} RegToGlobal 是否注册到全局变量
  * @param {String} configPath 配置文件所在的位置
  * @param {String} forceOverride 是否强制覆盖原有配置文件
- * @returns {JSON} 配置文件
+ * @returns {Object} 配置文件
  */
 export function loadConfig(
   configName,
@@ -66,7 +66,8 @@ export function loadConfig(
  * @param {Array} configNames 配置文件名称(数组)
  * @param {Boolean} RegToGlobal 是否注册到全局变量
  * @param {String} configPath 配置文件所在的位置
- * @returns {Object} 配置文件(对象)
+ * @param {Boolean} forceOverride 是否强制覆盖原有配置文件
+ * @returns {Object} 配置文件
  */
 export function loadConfigs(configNames, RegToGlobal, configPath, forceOverride = false) {
   let config = {}

@@ -14,6 +14,7 @@ import { loadConfig } from './loadConfig.js'
  * @param {String} pluginName 插件名
  * @param {String} pluginDir 插件路径
  * @param {Boolean} loadFromDir 是否是使用文件夹加载的
+ * @returns {String} 加载状态
  */
 export async function loadPlugin(pluginName, pluginDir = 'plugins', loadFromDir = false) {
   global.nowLoadPluginName = null
@@ -218,6 +219,7 @@ export async function loadPlugins(plugins, pluginDir = 'plugins', loadFromDir = 
 export async function loadPluginDir(pluginDir) {
   //获取文件夹内文件
   let plugins
+
   try {
     plugins = readdirSync(pluginDir)
   } catch (error) {

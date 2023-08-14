@@ -9,7 +9,7 @@ import AbortController from 'abort-controller'
 
 /**
  * 不带重试的Get请求
- * @param {Object} req
+ * @param {{ url:String, data:Object, timeOut:Number, headers:Object }}
  * @returns {Promise}
  */
 export async function fetchGet({ url, data = {}, timeOut = TIMEOUT, headers } = {}) {
@@ -60,7 +60,7 @@ export async function fetchGet({ url, data = {}, timeOut = TIMEOUT, headers } = 
 
 /**
  * 不带重试的Post请求
- * @param {Object} req
+ * @param {{ url:String, data:Object, timeOut:Number, headers:Object }}
  * @returns {Promise}
  */
 export async function fetchPost({ url, data = {}, timeOut = TIMEOUT, headers } = {}) {
@@ -111,7 +111,7 @@ export async function fetchPost({ url, data = {}, timeOut = TIMEOUT, headers } =
  * @param {Function} func
  * @param {Number} times
  * @param {Number} sleepTime
- * @returns
+ * @returns {Promise}
  */
 import { sleep } from './sleep.js'
 export async function retryAsync(func, times = 3, sleepTime = 0) {
@@ -130,24 +130,24 @@ export async function retryAsync(func, times = 3, sleepTime = 0) {
 
 /**
  * 带重试的Get请求
- * @param {Object} req 请求参数
+ * @param {{ url:String, data:Object, timeOut:Number, headers:Object }}
  * @param {Number} times 重试次数
  * @returns {Promise}
  */
 export async function get({ url, data, timeOut, headers } = {}, times) {
   return await retryAsync(async () => {
-    return await fetchGet({ url, data, timeOut, headers }, true)
+    return await fetchGet({ url, data, timeOut, headers })
   }, times)
 }
 
 /**
  * 带重试的Post请求
- * @param {Object} req 请求参数
+ * @param {{ url:String, data:Object, timeOut:Number, headers:Object }}
  * @param {Number} times 重试次数
  * @returns {Promise}
  */
 export async function post({ url, data, timeOut, headers } = {}, times) {
   return await retryAsync(async () => {
-    return await fetchPost({ url, data, timeOut, headers }, true)
+    return await fetchPost({ url, data, timeOut, headers })
   }, times)
 }

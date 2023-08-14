@@ -8,6 +8,7 @@ export const logger = {
 
 export default logger
 
+import { getTime } from './time.js'
 import clc from 'cli-color'
 
 /**
@@ -44,7 +45,7 @@ export function NOTICE(...message) {
 
 /**
  * 统一格式输出到控制台
- * @param  {...String} message
+ * @param  {...any} message
  */
 export function DEBUG(...message) {
   if (global.debug) {
@@ -61,9 +62,3 @@ function print(...message) {
     ...message
   )
 }
-
-/**
- * 获取时间
- * @returns 2023/6/26 09:46:39
- */
-export const getTime = () => new Date().toLocaleString()
