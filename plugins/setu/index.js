@@ -177,7 +177,7 @@ async function handler(context, match) {
   try {
     image = await getImage(responseData.urls.original)
   } catch (error) {
-    await replyMsg(context, '图片获取失败惹', {
+    await replyMsg(context, '图片获取失败惹，可能是没有权限', {
       reply: true
     })
     await add({ user_id, number: setu.pigeon, reason: '图片获取失败' })
