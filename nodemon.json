@@ -2,5 +2,5 @@
   "watch": ["."],
   "ext": ".js,.jsonc",
   "ignore": [],
-  "exec": "node index.js --dev"
+  "exec": "node --max-old-space-size=1024 index.js --dev"
 }

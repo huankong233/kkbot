@@ -20,8 +20,8 @@ export function formatTime(ms) {
 /**
  * 判断时间戳是否是今天的
  * @param {Number} timestamp
- * @returns {Boolean} true  是今天
- * @returns {Boolean} false 不是今天
+ * @returns {Boolean} `true`  是今天
+ * @returns {Boolean} `false` 不是今天
  */
 export function isToday(timestamp) {
   // 获取当前的时间戳
@@ -39,3 +39,9 @@ export function isToday(timestamp) {
     return false
   }
 }
+
+/**
+ * 获取时间
+ * @returns {String} 2023/6/26 09:46:39
+ */
+export const getTime = () => new Date().toLocaleString()

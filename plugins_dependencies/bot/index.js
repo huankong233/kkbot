@@ -86,6 +86,7 @@ async function loginComplete(attempts) {
 }
 
 import * as emoji from 'node-emoji'
+import { hrtime } from 'process'
 
 function initEvents() {
   //初始化事件
@@ -108,11 +109,19 @@ function initEvents() {
 
       let response
       try {
-        response = await events[i].callback(
-          event,
-          { command: format(context.message), ...context },
-          tags
-        )
+        if (pref) {
+          logger.INFO(`插件${events[i].pluginName}事件触发中`)
+          const start = performance.now()
+          response = await events[i].callback(
+            event,
+            { command: format(context.message), ...context },
+            tags
+          )
+          const end = performance.now()
+          logger.SUCCESS(`插件${events[i].pluginName}事件耗时:${parseInt(end - start)}ms`)
+        } else {
+          await events[i].callback(event, { command: format(context.message), ...context }, tags)
+        }
       } catch (error) {
         logger.WARNING(`插件${events[i].pluginName}运行错误`)
 
@@ -138,7 +147,15 @@ function initEvents() {
 
       let response
       try {
-        response = await events[i].callback(context)
+        if (pref) {
+          logger.INFO(`插件${events[i].pluginName}事件触发中`)
+          const start = performance.now()
+          response = await events[i].callback(context)
+          const end = performance.now()
+          logger.SUCCESS(`插件${events[i].pluginName}事件耗时:${parseInt(end - start)}ms`)
+        } else {
+          await events[i].callback(context)
+        }
       } catch (error) {
         logger.WARNING(`插件${events[i].pluginName}运行错误`)
         if (debug) {
@@ -163,7 +180,15 @@ function initEvents() {
 
       let response
       try {
-        response = await events[i].callback(context)
+        if (pref) {
+          logger.INFO(`插件${events[i].pluginName}事件触发中`)
+          const start = performance.now()
+          response = await events[i].callback(context)
+          const end = performance.now()
+          logger.SUCCESS(`插件${events[i].pluginName}事件耗时:${parseInt(end - start)}ms`)
+        } else {
+          await events[i].callback(context)
+        }
       } catch (error) {
         logger.WARNING(`插件${events[i].pluginName}运行错误`)
         if (debug) {

@@ -175,12 +175,9 @@ async function handler(context, match) {
   let image
 
   try {
-    image = await get({
-      url: responseData.urls.original,
-      headers: { Referer: 'https://www.pixiv.net/', Host: 'i.pximg.net' }
-    }).then(res => res.arrayBuffer())
+    image = await getImage(responseData.urls.original)
   } catch (error) {
-    await replyMsg(context, '图片获取失败惹', {
+    await replyMsg(context, '图片获取失败惹，可能是没有权限', {
       reply: true
     })
     await add({ user_id, number: setu.pigeon, reason: '图片获取失败' })
@@ -212,9 +209,7 @@ async function handler(context, match) {
     return
   }
 
-  const message = await replyMsg(context, CQ.image(`base64://${base64}`), {
-    reply: true
-  })
+  const message = await replyMsg(context, CQ.image(`base64://${base64}`))
 
   if (message.status === 'failed') {
     await replyMsg(context, '色图发送失败', {
@@ -244,4 +239,32 @@ async function handler(context, match) {
       message_id: infoMessageResponse.data.message_id
     })
   }, setu.withdraw * 1000)
+}
+
+import { retryAsync } from '../../libs/fetch.js'
+async function getImage(url) {
+  // 使用retryAsync函数，重试3次，3秒后重试
+  return await retryAsync(
+    async () => {
+      // 使用get函数发送请求，获取响应
+      let response = await get({
+        url,
+        headers: { Referer: 'https://www.pixiv.net/', Host: 'i.pximg.net' }
+      }).then(res => res.arrayBuffer())
+      // 创建文本解码器
+      const decoder = new TextDecoder('utf-8')
+      // 解码响应
+      const resTxt = decoder.decode(response)
+
+      // 如果响应存在，则返回响应
+      if (resTxt) {
+        return response
+        // 如果响应不存在，则抛出错误
+      } else {
+        throw new Error('getImage Failed')
+      }
+    },
+    3,
+    3000
+  )
 }

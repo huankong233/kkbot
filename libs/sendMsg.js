@@ -5,9 +5,9 @@ import * as emoji from 'node-emoji'
 /**
  * 回复消息
  * @param {Object} context 消息上下文
- * @param {String} message 回复内容
- * @param {Object} params 是否at/reply发送者
- * @param {boolean} toEmoji 是否转换为emoji
+ * @param {String|Object} message 回复内容
+ * @param {{at:false,reply:false}} params 是否at/reply发送者
+ * @param {Boolean} toEmoji 是否转换为emoji
  * @returns {Object}
  */
 export async function replyMsg(
@@ -18,13 +18,7 @@ export async function replyMsg(
 ) {
   const { message_type, user_id, group_id, message_id } = context
   if (toEmoji) {
-    if (typeof message === 'string') {
-      message = emoji.emojify(message)
-    } else if (typeof message === 'object') {
-      if (message._data.content) message._data.content = emoji.emojify(message._data.content)
-    } else {
-      throw new Error('未知类型')
-    }
+    message = parseToEmoji(message)
   }
 
   if (message_type !== 'private') {
@@ -67,19 +61,13 @@ export async function replyMsg(
 /**
  * 发送私信
  * @param {Number} user_id
- * @param {String} message
- * @param {boolean} toEmoji 是否转换为emoji
+ * @param {String|Object} message
+ * @param {Boolean} toEmoji 是否转换为emoji
  * @returns {Object}
  */
 export async function sendMsg(user_id, message, toEmoji = true) {
   if (toEmoji) {
-    if (typeof message === 'string') {
-      message = emoji.emojify(message)
-    } else if (typeof message === 'object') {
-      if (message._data.content) message._data.content = emoji.emojify(message._data.content)
-    } else {
-      throw new Error('未知类型')
-    }
+    message = parseToEmoji(message)
   }
 
   const response = await sendPrivateMsg({
@@ -102,17 +90,14 @@ export async function sendMsg(user_id, message, toEmoji = true) {
  * docs:https://docs.go-cqhttp.org/cqcode/#合并转发
  * @param {Object} context 消息对象
  * @param {Array} messages
- * @param {boolean} toEmoji 是否转换为emoji
+ * @param {Boolean} toEmoji 是否转换为emoji
  * @returns {Object}
  */
 export async function sendForwardMsg(context, messages, toEmoji = true) {
   const { message_type } = context
 
   if (toEmoji) {
-    messages = messages.map(function (node) {
-      node._data.content = emoji.emojify(node._data.content)
-      return node
-    })
+    messages = parseToEmoji(messages)
   }
 
   let response
@@ -141,3 +126,10 @@ export async function sendForwardMsg(context, messages, toEmoji = true) {
 
   return response
 }
+
+/**
+ * 消息反转义为emoji
+ * @param {String|Object} message
+ * @returns {String|Object}
+ */
+export const parseToEmoji = message => emoji.emojify(message.toString())
