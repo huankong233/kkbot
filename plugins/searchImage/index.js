@@ -99,61 +99,61 @@ async function imageHandler(context, url) {
         proxy: searchImage.ascii2dProxy,
         imagePath
       }
-    },
-    {
-      name: 'SauceNAO',
-      callback: SauceNAO,
-      params: {
-        hide: false,
-        imagePath
-      }
-    },
-    {
-      name: 'IqDB',
-      callback: IqDB,
-      params: {
-        discolor: false,
-        services: [
-          'danbooru',
-          'konachan',
-          'yandere',
-          'gelbooru',
-          'sankaku_channel',
-          'e_shuushuu',
-          'zerochan',
-          'anime_pictures'
-        ],
-        imagePath
-      }
-    },
-    {
-      name: 'TraceMoe',
-      callback: TraceMoe,
-      params: {
-        cutBorders: true,
-        imagePath
-      }
-    },
-    {
-      name: 'AnimeTraceAnime',
-      callback: AnimeTrace,
-      params: {
-        model: 'anime_model_lovelive',
-        mode: 0,
-        preview: true,
-        imagePath
-      }
-    },
-    {
-      name: 'AnimeTraceGame',
-      callback: AnimeTrace,
-      params: {
-        model: 'game_model_kirakira',
-        mode: 0,
-        preview: true,
-        imagePath
-      }
     }
+    // {
+    //   name: 'SauceNAO',
+    //   callback: SauceNAO,
+    //   params: {
+    //     hide: false,
+    //     imagePath
+    //   }
+    // },
+    // {
+    //   name: 'IqDB',
+    //   callback: IqDB,
+    //   params: {
+    //     discolor: false,
+    //     services: [
+    //       'danbooru',
+    //       'konachan',
+    //       'yandere',
+    //       'gelbooru',
+    //       'sankaku_channel',
+    //       'e_shuushuu',
+    //       'zerochan',
+    //       'anime_pictures'
+    //     ],
+    //     imagePath
+    //   }
+    // },
+    // {
+    //   name: 'TraceMoe',
+    //   callback: TraceMoe,
+    //   params: {
+    //     cutBorders: true,
+    //     imagePath
+    //   }
+    // },
+    // {
+    //   name: 'AnimeTraceAnime',
+    //   callback: AnimeTrace,
+    //   params: {
+    //     model: 'anime_model_lovelive',
+    //     mode: 0,
+    //     preview: true,
+    //     imagePath
+    //   }
+    // },
+    // {
+    //   name: 'AnimeTraceGame',
+    //   callback: AnimeTrace,
+    //   params: {
+    //     model: 'game_model_kirakira',
+    //     mode: 0,
+    //     preview: true,
+    //     imagePath
+    //   }
+    // }
   ]
 
   const responseData = await request(requestParams)

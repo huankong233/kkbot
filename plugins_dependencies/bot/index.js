@@ -120,7 +120,11 @@ function initEvents() {
           const end = performance.now()
           logger.SUCCESS(`插件${events[i].pluginName}事件耗时:${parseInt(end - start)}ms`)
         } else {
-          await events[i].callback(event, { command: format(context.message), ...context }, tags)
+          response = await events[i].callback(
+            event,
+            { command: format(context.message), ...context },
+            tags
+          )
         }
       } catch (error) {
         logger.WARNING(`插件${events[i].pluginName}运行错误`)
@@ -154,7 +158,7 @@ function initEvents() {
           const end = performance.now()
           logger.SUCCESS(`插件${events[i].pluginName}事件耗时:${parseInt(end - start)}ms`)
         } else {
-          await events[i].callback(context)
+          response = await events[i].callback(context)
         }
       } catch (error) {
         logger.WARNING(`插件${events[i].pluginName}运行错误`)
@@ -187,7 +191,7 @@ function initEvents() {
           const end = performance.now()
           logger.SUCCESS(`插件${events[i].pluginName}事件耗时:${parseInt(end - start)}ms`)
         } else {
-          await events[i].callback(context)
+          response = await events[i].callback(context)
         }
       } catch (error) {
         logger.WARNING(`插件${events[i].pluginName}运行错误`)
