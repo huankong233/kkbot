@@ -15,6 +15,13 @@ function event() {
     },
     102
   )
+  eventReg(
+    'notice',
+    async context => {
+      return await checkBan(context)
+    },
+    102
+  )
 }
 
 async function checkBan(context) {

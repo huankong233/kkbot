@@ -132,4 +132,11 @@ export async function sendForwardMsg(context, messages, toEmoji = true) {
  * @param {String|Object} message
  * @returns {String|Object}
  */
-export const parseToEmoji = message => emoji.emojify(message.toString())
+export const parseToEmoji = message => {
+  if (typeof message === 'string') {
+    return emoji.emojify(message.toString())
+  } else {
+    if (debug) logger.DEBUG(`不支持转换对象形式的信息,请手动转换`)
+    return message
+  }
+}
