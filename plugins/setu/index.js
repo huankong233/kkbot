@@ -23,7 +23,7 @@ import { get, post } from '../../libs/fetch.js'
 import { replyMsg } from '../../libs/sendMsg.js'
 import { isToday } from '../gugu/index.js'
 import { logger } from '../../libs/logger.js'
-import { jsonc } from 'jsonc'
+import { confuseURL } from '../../libs/handleUrl.js'
 
 async function handler(context, match) {
   const { user_id } = context
@@ -62,59 +62,49 @@ async function handler(context, match) {
     })
   }
 
-  const requestData = {
+  let requestData = {
     r18: match[1] ? 1 : 0,
     tag: [],
-    proxy: global.config.proxy ? false : setu.proxy.enable ? setu.proxy.url : false
+    proxy: global.config.proxy?.enable ?? false ? false : setu.proxy.enable ? setu.proxy.url : false
   }
 
   if (match[2]) {
-    const groupOut = match[2].split('&')
-    groupOut.forEach(item => {
-      let groupIn = item.split('|')
-      groupIn = groupIn.map(item => {
-        // 支持前后或中间配置r18变量
-        if (item.match(/[Rr]18/)) {
-          requestData.r18 = true
-          return item.replaceAll(/[Rr]18/g, '')
-        } else {
-          return item
-        }
+    requestData.tag = match[2]
+      .split('&')
+      .map(element => {
+        return element
+          .split('|')
+          .map(element => {
+            // 支持前后或中间配置r18变量
+            if (!element.match(/[Rr]18/)) {
+              return element
+            }
+            requestData.r18 = true
+            return element === 'r18' || element === 'R18' ? null : element.replaceAll(/[Rr]18/g, '')
+          })
+          .filter(item => item)
       })
-      requestData.tag.push(groupIn)
-    })
+      .filter(item => item.length !== 0)
   }
 
-  let responseData
+  let responseData, image
 
   try {
-    responseData = await post({
-      url: 'https://api.lolicon.app/setu/v2',
-      data: requestData,
-      headers: {
-        Accept: 'application/json',
-        'Content-Type': 'application/json'
-      }
-    })
-      .then(res => res.text())
-      .then(async res => {
-        if (res === ':D') {
-          throw new Error('机器人IP被Ban,请检查')
-        } else {
-          return jsonc.parse(res)['data']
-        }
-      })
+    ;({ responseData, image } = await getData(requestData))
   } catch (error) {
-    await replyMsg(
-      context,
-      error === '机器人IP被Ban,请检查' ? '机器人IP被Ban,请检查' : '色图服务器爆炸惹',
-      {
-        reply: true
-      }
-    )
-    await add({ user_id, number: setu.pigeon, reason: '色图加载失败' })
+    let reply = '色图服务器爆炸惹'
 
-    logger.WARNING('色图加载失败')
+    if (error.toString().includes('机器人IP被Ban啦,笨蛋')) {
+      reply = '机器人IP被Ban啦,笨蛋'
+    } else if (error.toString().includes('换个标签试试吧~')) {
+      reply = '换个标签试试吧~'
+    }
+
+    await replyMsg(context, reply, {
+      reply: true
+    })
+    await add({ user_id, number: setu.pigeon, reason: reply })
+
     if (debug) {
       logger.DEBUG(error)
     } else {
@@ -123,17 +113,26 @@ async function handler(context, match) {
     return
   }
 
-  if (responseData.length === 0) {
-    await replyMsg(context, '换个标签试试吧~', {
+  let fullUrl = `https://www.pixiv.net/artworks/${responseData.pid}`
+
+  let base64
+
+  try {
+    //反和谐
+    base64 = await imgAntiShielding(image, setu.antiShieldingMode)
+  } catch (error) {
+    await replyMsg(context, '反和谐失败惹', {
       reply: true
     })
-    await add({ user_id, number: setu.pigeon, reason: '没有获取到色图' })
+    await add({ user_id, number: setu.pigeon, reason: '反和谐失败' })
+    logger.WARNING('反和谐失败')
+    if (debug) {
+      logger.DEBUG(error)
+    } else {
+      logger.WARNING(error)
+    }
     return
   }
-
-  responseData = responseData[0]
-
-  let fullUrl = `https://www.pixiv.net/artworks/${responseData.pid}`
 
   let shortUrlData
 
@@ -161,53 +160,15 @@ async function handler(context, match) {
   }
 
   const infoMessage = [
-    `标题:${responseData.title}`,
-    `标签:${responseData.tags.join(' ')}`,
-    `AI作品:${responseData.aiType ? '是' : '不是'}`,
-    `作品地址:${setu.short.enable ? shortUrlData.url : fullUrl}`,
-    '图片还在路上哦~坐和放宽~'
+    `标题: ${responseData.title}`,
+    `标签: ${responseData.tags.join(' ')}`,
+    `AI作品: ${responseData.aiType ? '是' : '不是'}`,
+    `作品地址: ${setu.short.enable ? shortUrlData.url : confuseURL(fullUrl)}`
   ].join('\n')
 
   const infoMessageResponse = await replyMsg(context, infoMessage, {
     reply: true
   })
-
-  let image
-
-  try {
-    image = await getImage(responseData.urls.original)
-  } catch (error) {
-    await replyMsg(context, '图片获取失败惹，可能是没有权限', {
-      reply: true
-    })
-    await add({ user_id, number: setu.pigeon, reason: '图片获取失败' })
-    logger.WARNING('图片获取失败')
-    if (debug) {
-      logger.DEBUG(error)
-    } else {
-      logger.WARNING(error)
-    }
-    return
-  }
-
-  let base64
-
-  try {
-    //反和谐
-    base64 = await imgAntiShielding(image, setu.antiShieldingMode)
-  } catch (error) {
-    await replyMsg(context, '反和谐失败惹', {
-      reply: true
-    })
-    await add({ user_id, number: setu.pigeon, reason: '反和谐失败' })
-    logger.WARNING('反和谐失败')
-    if (debug) {
-      logger.DEBUG(error)
-    } else {
-      logger.WARNING(error)
-    }
-    return
-  }
 
   const message = await replyMsg(context, CQ.image(`base64://${base64}`))
 
@@ -242,29 +203,57 @@ async function handler(context, match) {
 }
 
 import { retryAsync } from '../../libs/fetch.js'
-async function getImage(url) {
-  // 使用retryAsync函数，重试3次，3秒后重试
+
+async function getData(requestData) {
   return await retryAsync(
-    async () => {
-      // 使用get函数发送请求，获取响应
-      let response = await get({
-        url,
+    async times => {
+      const [responseData] = await post({
+        url: 'https://api.lolicon.app/setu/v2',
+        data: requestData,
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json'
+        }
+      })
+        .then(res => res.text())
+        .then(async res => {
+          if (res === ':D') {
+            return ['quit机器人IP被Ban啦,笨蛋']
+          } else {
+            return JSON.parse(res)['data']
+          }
+        })
+
+      if (!responseData) {
+        if (times > 0) {
+          return 'quit换个标签试试吧~'
+        } else {
+          throw new Error('换个标签试试吧~')
+        }
+      }
+
+      if (responseData === 'quit机器人IP被Ban啦,笨蛋') {
+        return 'quit机器人IP被Ban啦,笨蛋'
+      }
+
+      const image = await get({
+        url: responseData.urls.original,
         headers: { Referer: 'https://www.pixiv.net/', Host: 'i.pximg.net' }
       }).then(res => res.arrayBuffer())
-      // 创建文本解码器
-      const decoder = new TextDecoder('utf-8')
-      // 解码响应
-      const resTxt = decoder.decode(response)
 
-      // 如果响应存在，则返回响应
-      if (resTxt) {
-        return response
-        // 如果响应不存在，则抛出错误
-      } else {
+      const decoder = new TextDecoder('utf-8')
+      const resTxt = decoder.decode(image)
+
+      if (!resTxt || resTxt.includes('404')) {
         throw new Error('getImage Failed')
+      }
+
+      return {
+        responseData,
+        image
       }
     },
     3,
-    3000
+    1500
   )
 }

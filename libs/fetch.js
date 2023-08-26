@@ -117,11 +117,21 @@ import { sleep } from './sleep.js'
 export async function retryAsync(func, times = 3, sleepTime = 0) {
   while (times--) {
     try {
-      return await func()
+      const res = await func(times)
+      if (res.toString().includes('quit')) {
+        times = -1
+        sleepTime = 0
+        if (debug) logger.DEBUG('重试被手动停止')
+        throw res.toString().replaceAll('quit', '')
+      }
+      return res
     } catch (error) {
+      if (debug) {
+        logger.DEBUG(error)
+        if (times !== -1) logger.DEBUG(`重试还剩 ${times} 次`)
+      }
       if (sleepTime !== 0) await sleep(sleepTime)
-      if (debug) logger.DEBUG(`尝试还剩 ${times} 次`)
-      if (times === 0) {
+      if (times <= 0) {
         throw error
       }
     }
