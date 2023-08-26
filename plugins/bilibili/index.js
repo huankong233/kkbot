@@ -15,11 +15,11 @@ import { getVideoInfo } from './libs/video.js'
 import { getDynamicInfo } from './libs/dynamic.js'
 import { getArticleInfo } from './libs/article.js'
 import { getLiveRoomInfo } from './libs/live.js'
-import { parseJSON } from './libs/utils.js'
 
 //主程序
 async function bilibiliHandler(context) {
   const { bilibili } = global.config
+  const { message } = context
 
   if (
     !(
@@ -32,21 +32,13 @@ async function bilibiliHandler(context) {
     return
   }
 
-  const { message } = context
-
-  let url = null
-  if (message.includes('com.tencent.miniapp_01')) {
-    // 小程序
-    const data = parseJSON(message)
-    url = data?.meta?.detail_1?.qqdocurl
-  } else if (message.includes('com.tencent.structmsg')) {
-    // 结构化消息
-    const data = parseJSON(message)
-    url = data?.meta?.news?.jumpUrl
-  }
-
-  const param = await getIdFromMsg(url || message)
-  const { aid = null, bvid = null, dyid = null, arid = null, lrid = null } = param
+  const {
+    aid = null,
+    bvid = null,
+    dyid = null,
+    arid = null,
+    lrid = null
+  } = await parseData(message)
 
   //解析视频
   if (bilibili.getVideoInfo && (aid || bvid)) {
@@ -85,8 +77,39 @@ async function bilibiliHandler(context) {
   }
 }
 
+import { get } from '../../libs/fetch.js'
+import { logger } from '../../libs/logger.js'
+import { parseJSON } from './libs/utils.js'
+
+async function parseData(message) {
+  let url = message
+  if (message.includes('com.tencent.miniapp_01')) {
+    // 小程序
+    const data = parseJSON(message)
+    url = data?.meta?.detail_1?.qqdocurl
+  } else if (message.includes('com.tencent.structmsg')) {
+    // 结构化消息
+    const data = parseJSON(message)
+    url = data?.meta?.news?.jumpUrl
+  }
+
+  // 判断是否为短链
+  const regex = /((b23|acg)\.tv|bili2233.cn)\/[0-9a-zA-Z]+/.exec(url)
+  if (regex) url = await getLinkFromShortLink(`https://${regex[0]}`)
+  return getIdFromNormalLink(url)
+}
+
+async function getLinkFromShortLink(shortLink) {
+  try {
+    const data = await get({ url: shortLink })
+    return data.url
+  } catch (error) {
+    logger.WARNING(`bilibili get head short link ${shortLink} failed`)
+    return {}
+  }
+}
+
 function getIdFromNormalLink(link) {
-  if (typeof link !== 'string') return null
   const searchVideo =
     /bilibili\.com\/video\/(?:av(\d+)|(bv[\da-z]+))/i.exec(link) ||
     /bilibili\.com\\\/video\\\/(?:av(\d+)|(bv[\da-z]+))/i.exec(link) ||
@@ -103,28 +126,7 @@ function getIdFromNormalLink(link) {
     bvid: searchVideo[2],
     dyid: searchDynamic[1],
     arid: searchArticle[1],
-    lrid: searchLiveRoom[1],
-    link
+    lrid: searchLiveRoom[1]
+    // link
   }
-}
-
-import { get } from '../../libs/fetch.js'
-import { logger } from '../../libs/logger.js'
-async function getIdFromShortLink(shortLink) {
-  try {
-    const data = await get({ url: shortLink })
-    return getIdFromNormalLink(data.url)
-  } catch (error) {
-    logger.WARNING(`bilibili get head short link ${shortLink} failed`)
-    return {}
-  }
-}
-
-async function getIdFromMsg(msg) {
-  let result = getIdFromNormalLink(msg)
-  if (Object.values(result).some(id => id)) return result
-  if ((result = /((b23|acg)\.tv|bili2233.cn)\/[0-9a-zA-Z]+/.exec(msg))) {
-    return getIdFromShortLink(`https://${result[0]}`)
-  }
-  return {}
 }
