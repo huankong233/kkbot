@@ -51,10 +51,9 @@ export const epicApi = async () => {
       contentUrl += linkSlug
       let description = item.description
       if (item.offerType !== 'BASE_GAME') {
-        const contentResp = await got({
-          method: 'get',
+        const contentResp = await get({
           url: contentUrl
-        })
+        }).then(res => res.json())
         description = isBundles
           ? contentResp.data.data.about.shortDescription
           : contentResp.data.pages[0].data.about.shortDescription
