@@ -54,9 +54,10 @@ export const epicApi = async () => {
         const contentResp = await get({
           url: contentUrl
         }).then(res => res.json())
+
         description = isBundles
-          ? contentResp.data.data.about.shortDescription
-          : contentResp.data.pages[0].data.about.shortDescription
+          ? contentResp.data.about.shortDescription
+          : contentResp.pages[0].data.about.shortDescription
       }
 
       let image = item.keyImages[0].url
