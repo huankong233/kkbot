@@ -56,6 +56,8 @@ async function notice(context) {
   }
 }
 
+import { sleep } from '../../libs/sleep.js'
+
 //request事件处理
 async function request(context) {
   const { request_type, sub_type } = context
@@ -66,12 +68,14 @@ async function request(context) {
       //申请加群
       await sendNotice(context, '加群', admin.add.agree)
       if (admin.add.agree) {
+        await sleep(3000)
         await invite(context, ['批准', context.flag], 'add')
       }
     } else if (sub_type === 'invite') {
       //邀请机器人入群
       await sendNotice(context, '入群', admin.invite.agree)
       if (admin.invite.agree) {
+        await sleep(3000)
         await invite(context, ['批准', context.flag], 'invite')
       }
     }
@@ -81,6 +85,7 @@ async function request(context) {
     //添加好友
     await sendNotice(context, '好友', admin.friend.agree)
     if (admin.friend.agree) {
+      await sleep(3000)
       await friend(context, ['批准', context.flag])
     }
   }
