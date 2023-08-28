@@ -14,7 +14,8 @@ const originPackages = {
   jsonc: '^2.0.0',
   'compare-versions': '^6.1.0',
   'mime-types': '^2.1.35',
-  'node-emoji': '^2.1.0'
+  'node-emoji': '^2.1.0',
+  cron: '^2.4.0'
 }
 
 global.debug = true

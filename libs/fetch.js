@@ -119,12 +119,12 @@ export async function retryAsync(func, times = 3, sleepTime = 0) {
     try {
       const res = await func(times)
       if (res) {
-        let res = res.toString()
-        if (res.includes('quit')) {
+        let res_string = res.toString()
+        if (res_string.includes('quit')) {
           times = -1
           sleepTime = 0
           if (debug) logger.DEBUG('重试被手动停止')
-          throw res.replaceAll('quit', '')
+          throw res_string.replaceAll('quit', '')
         }
       }
       return res

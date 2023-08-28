@@ -4,7 +4,7 @@ export default async () => {
   event()
 }
 
-import { CronJob } from 'cron'
+import { cron } from '../../libs/crontab.js'
 import { sleep } from '../../libs/sleep.js'
 import { replyMsg, sendForwardMsg } from '../../libs/sendMsg.js'
 import logger from '../../libs/logger.js'
@@ -12,7 +12,7 @@ import logger from '../../libs/logger.js'
 async function init() {
   const { freegames } = global.config
   if (freegames.groups.length === 0) return
-  new CronJob(
+  cron(
     freegames.crontab,
     async function () {
       let messages
