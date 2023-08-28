@@ -23,10 +23,10 @@ async function event() {
   })
 }
 
-import { CronJob } from 'cron'
+import { cron } from '../../libs/crontab.js'
 async function init() {
   const { update } = global.config
-  new CronJob(update.crontab, checkUpdate, null, true)
+  cron(update.crontab, checkUpdate, null, true)
 }
 
 //检查更新

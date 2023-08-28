@@ -1,1 +1,1 @@
-{"kkbot_plugin_version":"2","name":"update","description":"检查更新","version":"0.0.2","author":[{"name":"huan_kong","link":"https://github.com/huankong233"}],"dependPackages":{"cron":"^2.4.0"},"dependPlugins":{}}
+{"kkbot_plugin_version":"2","name":"update","description":"检查更新","version":"0.0.2","author":[{"name":"huan_kong","link":"https://github.com/huankong233"}],"dependPackages":{},"dependPlugins":{}}

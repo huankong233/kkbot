@@ -4,14 +4,14 @@ export default async () => {
   event()
 }
 
-import { CronJob } from 'cron'
+import { cron } from '../../libs/crontab.js'
 import { sleep } from '../../libs/sleep.js'
 
 async function init() {
   const { zaobao } = global.config
 
   if (zaobao.groups.length === 0) return
-  new CronJob(
+  cron(
     zaobao.crontab,
     async function () {
       const message = await prepareMessage()
