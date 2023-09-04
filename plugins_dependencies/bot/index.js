@@ -1,29 +1,31 @@
 import { CQ } from 'go-cqwebsocket'
 import { CQWebSocket } from '@tsuk1ko/cq-websocket'
 import { globalReg } from '../../libs/globalReg.js'
-import { logger } from '../../libs/logger.js'
+import { makeLogger } from '../../libs/logger.js'
 import { sendMsg } from '../../libs/sendMsg.js'
 import { format } from '../../libs/eventReg.js'
 
-export default async function () {
-  await newBot()
-}
+const logger = makeLogger({ pluginName: 'bot', subModule: 'connect' })
 
 /**
  * 启动机器人,注册事件等
  */
-export async function newBot() {
+export default async function () {
+  const { botConfig } = global.config
+  const { botData } = global.data
   try {
-    const { connect, admin } = global.config.bot
-
-    const bot = new CQWebSocket(connect)
+    const bot = new CQWebSocket(botConfig.connect)
 
     //注册全局变量
-    globalReg({ bot, CQ })
+    globalReg({ bot })
 
     //连接相关监听
     bot.on('socket.connecting', (wsType, attempts) => {
       logger.INFO(`连接中[${wsType}]#${attempts}`)
+    })
+
+    bot.on('socket.max_reconnect', (wsType, attempts) => {
+      throw new Error(`重试次数超过设置的${botConfig.connect.reconnectionAttempts}次!`)
     })
 
     bot.on('socket.error', (wsType, err, attempts) => {
@@ -32,22 +34,11 @@ export async function newBot() {
 
     bot.on('socket.failed', (wsType, attempts) => {
       logger.WARNING(`连接失败[${wsType}]#${attempts}`)
-      if (attempts >= connect.reconnectionAttempts) {
-        throw new Error(`连接失败次数超过设置的${connect.reconnectionAttempts}次!`)
-      }
     })
 
     bot.on('socket.connect', async (wsType, sock, attempts) => {
       logger.SUCCESS(`连接成功[${wsType}]#${attempts}`)
-
-      if (wsType !== '/api') {
-        return
-      }
-
-      if (admin <= 0) {
-        return logger.NOTICE('未设置管理员账户,请检查!')
-      }
-
+      if (wsType !== '/api') return (botData.wsType = wsType)
       await loginComplete(attempts)
     })
 
@@ -57,36 +48,36 @@ export async function newBot() {
     bot.connect()
 
     return new Promise((resolve, reject) => {
-      bot.on('socket.connect', wsType => (wsType === '/api' ? resolve() : null))
+      bot.on('socket.connect', wsType => (wsType !== botData.wsType ? resolve() : null))
     })
   } catch (error) {
     logger.WARNING('机器人启动失败!!!')
-
-    if (debug) {
-      logger.DEBUG(error)
-    } else {
-      logger.WARNING(error)
-    }
-
+    logger.ERROR(error)
     throw new Error('请检查机器人配置文件!!!')
   }
 }
 
 import { getLoginInfo } from '../../libs/Api.js'
 async function loginComplete(attempts) {
-  const { online, admin } = global.config.bot
+  const { bot } = global.config
+  const { botData } = global.data
 
-  global.config.bot.info = (await getLoginInfo()).data
+  botData.info = (await getLoginInfo()).data
 
-  if (debug) return
+  if (dev) return
 
   if (!online.enable) return
 
-  await sendMsg(admin, `${online.msg}#${attempts}`)
+  if (bot.admin <= 0) {
+    return logger.NOTICE('未设置管理员账户,请检查!')
+  }
+
+  await sendMsg(bot.admin, `${bot.online.msg}#${attempts}`)
 }
 
 import * as emoji from 'node-emoji'
-import { hrtime } from 'process'
+import { countRunTime } from '../../libs/time.js'
+const eventLogger = makeLogger({ pluginName: 'bot', subModule: 'events' })
 
 function initEvents() {
   //初始化事件
@@ -98,27 +89,20 @@ function initEvents() {
 
   //事件处理
   bot.on('message', async (event, context, tags) => {
-    if (debug) logger.DEBUG(`收到信息:\n`, context)
-
+    if (debug) eventLogger.DEBUG(`收到信息:\n`, context)
     const events = compare(global.events.message, 'priority')
-
-    context.message = emoji.unemojify(CQ.unescape(context.message))
-
+    context.message = emoji.unemojify(CQ.unescape(context.message)).trim()
     for (let i = 0; i < events.length; i++) {
       global.nowPlugin = events[i].pluginName
 
-      let response
+      let response, time
       try {
         if (pref) {
-          logger.INFO(`插件${events[i].pluginName}事件触发中`)
-          const start = performance.now()
-          response = await events[i].callback(
-            event,
-            { command: format(context.message), ...context },
-            tags
-          )
-          const end = performance.now()
-          logger.SUCCESS(`插件${events[i].pluginName}事件耗时:${parseInt(end - start)}ms`)
+          eventLogger.INFO(`插件${events[i].pluginName}事件触发中`)
+          ;({ response, time } = countRunTime(async () => {
+            await events[i].callback(event, { command: format(context.message), ...context }, tags)
+          }))
+          eventLogger.SUCCESS(`插件${events[i].pluginName}耗时:${time}ms`)
         } else {
           response = await events[i].callback(
             event,
@@ -127,85 +111,70 @@ function initEvents() {
           )
         }
       } catch (error) {
-        logger.WARNING(`插件${events[i].pluginName}运行错误`)
-
-        if (debug) {
-          logger.DEBUG(error)
-        } else {
-          logger.WARNING(error)
-        }
+        eventLogger.WARNING(`插件${events[i].pluginName}运行错误`)
+        eventLogger.ERROR(error)
       }
 
+      global.nowPlugin = null
       if (response === 'quit') break
     }
-
-    global.nowPlugin = null
   })
 
   bot.on('notice', async context => {
-    if (debug) logger.DEBUG(`收到通知:\n`, context)
+    if (debug) eventLogger.DEBUG(`收到通知:\n`, context)
 
     let events = compare(global.events.notice, 'priority')
+
     for (let i = 0; i < events.length; i++) {
       global.nowPlugin = events[i].pluginName
 
-      let response
+      let response, time
       try {
         if (pref) {
-          logger.INFO(`插件${events[i].pluginName}事件触发中`)
-          const start = performance.now()
-          response = await events[i].callback(context)
-          const end = performance.now()
-          logger.SUCCESS(`插件${events[i].pluginName}事件耗时:${parseInt(end - start)}ms`)
+          eventLogger.INFO(`插件${events[i].pluginName}事件触发中`)
+          ;({ response, time } = countRunTime(async () => {
+            await events[i].callback(context)
+          }))
+          eventLogger.SUCCESS(`插件${events[i].pluginName}耗时:${time}ms`)
         } else {
           response = await events[i].callback(context)
         }
       } catch (error) {
-        logger.WARNING(`插件${events[i].pluginName}运行错误`)
-        if (debug) {
-          logger.DEBUG(error)
-        } else {
-          logger.WARNING(error)
-        }
+        eventLogger.WARNING(`插件${events[i].pluginName}运行错误`)
+        eventLogger.ERROR(error)
       }
 
+      global.nowPlugin = null
       if (response === 'quit') break
     }
-
-    global.nowPlugin = null
   })
 
   bot.on('request', async context => {
-    if (debug) logger.DEBUG(`收到请求:\n`, context)
-
+    if (debug) eventLogger.DEBUG(`收到请求:\n`, context)
     let events = compare(global.events.request, 'priority')
+
     for (let i = 0; i < events.length; i++) {
       global.nowPlugin = events[i].pluginName
 
-      let response
+      let response, time
       try {
         if (pref) {
-          logger.INFO(`插件${events[i].pluginName}事件触发中`)
-          const start = performance.now()
-          response = await events[i].callback(context)
-          const end = performance.now()
-          logger.SUCCESS(`插件${events[i].pluginName}事件耗时:${parseInt(end - start)}ms`)
+          eventLogger.INFO(`插件${events[i].pluginName}事件触发中`)
+          ;({ response, time } = countRunTime(async () => {
+            await events[i].callback(context)
+          }))
+          eventLogger.SUCCESS(`插件${events[i].pluginName}耗时:${time}ms`)
         } else {
           response = await events[i].callback(context)
         }
       } catch (error) {
-        logger.WARNING(`插件${events[i].pluginName}运行错误`)
-        if (debug) {
-          logger.DEBUG(error)
-        } else {
-          logger.WARNING(error)
-        }
+        eventLogger.WARNING(`插件${events[i].pluginName}运行错误`)
+        eventLogger.ERROR(error)
       }
 
+      global.nowPlugin = null
       if (response === 'quit') break
     }
-
-    global.nowPlugin = null
   })
 }
 

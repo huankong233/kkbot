@@ -1,6 +1,7 @@
 import { humanNum } from './utils.js'
 import { get } from '../../../libs/fetch.js'
-import { logger } from '../../../libs/logger.js'
+import { CQ } from 'go-cqwebsocket'
+import { logger } from '../index.js'
 
 export async function getLiveRoomInfo(id) {
   try {
@@ -37,12 +38,7 @@ export async function getLiveRoomInfo(id) {
     ].join('\n')
   } catch (error) {
     logger.WARNING(`bilibili get live room info ${id} failed`)
-
-    if (debug) {
-      logger.DEBUG(error)
-    } else {
-      logger.WARNING(error)
-    }
+    logger.ERROR(error)
     return null
   }
 }

@@ -1,0 +1,1 @@
+{"kkbot_plugin_version":"2","name":"searchImage","description":"搜图","version":"0.0.2","author":[{"name":"huan_kong","link":"https://github.com/huankong233"}],"dependPackages":{"image_searcher":"^0.2.2","jimp":"^0.22.10"},"disableLoadInDir":true,"dependPlugins":{"gugu":"0.0.2","pigeon":"0.0.2"},"installed":true}

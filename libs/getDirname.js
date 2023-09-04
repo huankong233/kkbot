@@ -11,7 +11,7 @@ export function getDirName(importMetaUrl) {
 }
 
 /**
- * 获取初始路径
+ * 获取初始路径(请误手动调用)
  * @returns {String}
  */
 export function getBaseDir() {

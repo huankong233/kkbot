@@ -1,4 +1,5 @@
-import logger from '../../../libs/logger.js'
+import { CQ } from 'go-cqwebsocket'
+import { logger } from '../index.js'
 
 /**
  * 净化链接
@@ -45,11 +46,7 @@ export const parseJSON = text => {
     return JSON.parse(jsonText)
   } catch (error) {
     logger.WARNING('转换CQ:json失败')
-    if (debug) {
-      logger.DEBUG(error)
-    } else {
-      logger.WARNING(error)
-    }
+    logger.ERROR(error)
     return null
   }
 }

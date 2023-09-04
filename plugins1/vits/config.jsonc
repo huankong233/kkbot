@@ -1,0 +1,7 @@
+{
+  // 服务地址
+  "url": "https://artrajz-vits-simple-api.hf.space/voice",
+  // 模型帮助地址
+  "helpUrl": "https://huggingface.co/spaces/Artrajz/vits-simple-api",
+  "cost": 15
+}

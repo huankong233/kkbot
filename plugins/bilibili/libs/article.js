@@ -1,6 +1,7 @@
 import { humanNum } from './utils.js'
 import { get } from '../../../libs/fetch.js'
-import { logger } from '../../../libs/logger.js'
+import { logger } from '../index.js'
+import { CQ } from 'go-cqwebsocket'
 
 export async function getArticleInfo(id) {
   try {
@@ -25,12 +26,8 @@ export async function getArticleInfo(id) {
       `https://www.bilibili.com/read/cv${id}`
     ].join('\n')
   } catch (error) {
-    logger.WARNING(`bilibili get article info ${id} failed`)
-    if (debug) {
-      logger.DEBUG(error)
-    } else {
-      logger.WARNING(error)
-    }
+    logger.WARNING(`获取文章信息失败`)
+    logger.ERROR(error)
     return null
   }
 }

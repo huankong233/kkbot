@@ -1,6 +1,9 @@
-import logger from './logger.js'
+import { makeSystemLogger } from './logger.js'
 import { sendPrivateMsg, sendGroupMsg, sendGroupForwardMsg, sendPrivateForwardMsg } from './Api.js'
 import * as emoji from 'node-emoji'
+import { CQ } from 'go-cqwebsocket'
+
+const logger = makeSystemLogger({ pluginName: 'sendMsg' })
 
 /**
  * 回复消息
@@ -23,10 +26,10 @@ export async function replyMsg(
 
   if (message_type !== 'private') {
     //不是私聊，可以at发送者
-    if (at) message = `${CQ.at(user_id)} ${message}`
+    if (at && user_id) message = `${CQ.at(user_id)} ${message}`
 
     //不是私聊，可以回复
-    if (reply) message = `${CQ.reply(message_id)}${message}`
+    if (reply && message_id) message = `${CQ.reply(message_id)}${message}`
   }
 
   let response
@@ -129,8 +132,8 @@ export async function sendForwardMsg(context, messages, toEmoji = true) {
 
 /**
  * 消息反转义为emoji
- * @param {String|Object} message
- * @returns {String|Object}
+ * @param {String} message
+ * @returns {String}
  */
 export const parseToEmoji = message => {
   if (typeof message === 'string') {

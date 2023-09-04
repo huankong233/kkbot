@@ -1,11 +1,7 @@
 import { eventReg, haveAt } from '../../libs/eventReg.js'
 import { replyMsg } from '../../libs/sendMsg.js'
 
-export default () => {
-  event()
-}
-
-function event() {
+export default function event() {
   //判断用户是否注册过了
   eventReg(
     'message',
@@ -13,13 +9,13 @@ function event() {
       const { user_id } = context
 
       const at = haveAt(context)
-      const haveAccount = !(await getUserData(user_id))
-      const isCommand = context.command && haveAccount && context.command.name.search('咕咕') === -1
-      const isPrivate = context.message_type === 'private' && !context.command && haveAccount
-      const isAt = at && haveAccount
+      const notHaveAccount = !(await getUserData(user_id))
+      const isCommand =
+        context.command && context.command.name.search('咕咕') === -1 && notHaveAccount
+      const isAt = at && notHaveAccount
 
-      if (isCommand || isAt || isPrivate) {
-        await replyMsg(context, `请先使用"${global.config.bot.prefix}咕咕"注册账户`, {
+      if (isCommand || isAt) {
+        await replyMsg(context, `请先使用"${global.config.botConfig.prefix}咕咕"注册账户`, {
           reply: true
         })
         return 'quit'
@@ -31,38 +27,40 @@ function event() {
 
 /**
  * 获取用户信息
- * @param {Object} context
+ * @param {Number} user_id
  * @returns false 新用户
- * @returns data  不是新用户
+ * @returns Object 不是新用户
  */
 export async function getUserData(user_id) {
-  const data = await database.select().from('pigeon').where('user_id', user_id)
-  return data.length > 0 ? data : false
+  const data = await database.select('*').where('user_id', user_id).from('pigeon').first()
+  return data ?? false
 }
 
 /**
  * 增加鸽子
- * @param {Object} params
- * @returns true  成功
- * @returns false 失败
+ * @param {{number:Number,user_id:Number,reason:String,extra:Object}} params
+ * @returns {Promise<Boolean>} 提交状态
  */
 export async function add({ number, reason, extra, user_id }) {
   //不允许增加负数的鸽子
-  if (number < 0) {
-    return false
-  }
+  if (number <= 0) return false
+
+  let userData = await getUserData(user_id)
+  if (!userData) throw new Error('user not found')
 
   //获取拥有的鸽子数
-  let origin_pigeon = (await getUserData(user_id))[0].pigeon_num
+  let origin_pigeon = userData.pigeon_num
   let now_pigeon = origin_pigeon + number
+
   //更新数据库
   await database
     .update({
       pigeon_num: now_pigeon,
       ...extra
     })
-    .from('pigeon')
     .where('user_id', user_id)
+    .from('pigeon')
+
   //插入历史记录
   await database
     .insert({
@@ -80,18 +78,18 @@ export async function add({ number, reason, extra, user_id }) {
 
 /**
  * 减少鸽子
- * @param {Object} params
- * @returns true  成功
- * @returns false 失败
+ * @param {{number:Number,user_id:Number,reason:String,extra:Object}} params
+ * @returns {Promise<Boolean>} 提交状态
  */
 export async function reduce({ number, reason, extra, user_id }) {
   //不允许减少负数的鸽子
-  if (number < 0) {
-    return false
-  }
+  if (number <= 0) return false
+
+  let userData = await getUserData(user_id)
+  if (!userData) throw new Error('user not found')
 
   //获取拥有的鸽子数
-  let origin_pigeon = (await getUserData(user_id))[0].pigeon_num
+  let origin_pigeon = userData.pigeon_num
   let now_pigeon = origin_pigeon - number
   if (now_pigeon < 0) {
     //无法扣除
