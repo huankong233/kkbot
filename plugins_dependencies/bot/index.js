@@ -57,22 +57,18 @@ export default async function () {
   }
 }
 
-import { getLoginInfo } from '../../libs/Api.js'
 async function loginComplete(attempts) {
-  const { bot } = global.config
-  const { botData } = global.data
-
-  botData.info = (await getLoginInfo()).data
+  const { botConfig } = global.config
 
   if (dev) return
 
   if (!online.enable) return
 
-  if (bot.admin <= 0) {
+  if (botConfig.admin <= 0) {
     return logger.NOTICE('未设置管理员账户,请检查!')
   }
 
-  await sendMsg(bot.admin, `${bot.online.msg}#${attempts}`)
+  await sendMsg(botConfig.admin, `${botConfig.online.msg}#${attempts}`)
 }
 
 import * as emoji from 'node-emoji'

@@ -1,1 +1,0 @@
-{"kkbot_plugin_version":"2","name":"query","description":"对鸽子情况进行查询","version":"0.0.2","author":[{"name":"huan_kong","link":"https://github.com/huankong233"}],"disableAutoLoadConfig":true,"disableLoadInDir":true,"dependPackages":{},"dependPlugins":{"knex":"0.0.1","pigeon":"0.0.2"},"installed":true}

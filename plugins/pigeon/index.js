@@ -1,4 +1,5 @@
 import { eventReg, haveAt } from '../../libs/eventReg.js'
+import { getUserData } from '../../libs/Api.js'
 import { replyMsg } from '../../libs/sendMsg.js'
 
 export default function event() {
@@ -9,7 +10,7 @@ export default function event() {
       const { user_id } = context
 
       const at = haveAt(context)
-      const notHaveAccount = !(await getUserData(user_id))
+      const notHaveAccount = !(await getUserData({ user_id }))
       const isCommand =
         context.command && context.command.name.search('咕咕') === -1 && notHaveAccount
       const isAt = at && notHaveAccount
@@ -26,17 +27,6 @@ export default function event() {
 }
 
 /**
- * 获取用户信息
- * @param {Number} user_id
- * @returns false 新用户
- * @returns Object 不是新用户
- */
-export async function getUserData(user_id) {
-  const data = await database.select('*').where('user_id', user_id).from('pigeon').first()
-  return data ?? false
-}
-
-/**
  * 增加鸽子
  * @param {{number:Number,user_id:Number,reason:String,extra:Object}} params
  * @returns {Promise<Boolean>} 提交状态
@@ -45,7 +35,7 @@ export async function add({ number, reason, extra, user_id }) {
   //不允许增加负数的鸽子
   if (number <= 0) return false
 
-  let userData = await getUserData(user_id)
+  let userData = await getUserData({ user_id })
   if (!userData) throw new Error('user not found')
 
   //获取拥有的鸽子数
@@ -85,7 +75,7 @@ export async function reduce({ number, reason, extra, user_id }) {
   //不允许减少负数的鸽子
   if (number <= 0) return false
 
-  let userData = await getUserData(user_id)
+  let userData = await getUserData({ user_id })
   if (!userData) throw new Error('user not found')
 
   //获取拥有的鸽子数

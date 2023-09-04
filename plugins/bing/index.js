@@ -29,7 +29,7 @@ import { get } from './lib.js'
 import { makeLogger } from '../../libs/logger.js'
 import { replyMsg } from '../../libs/sendMsg.js'
 
-const logger = makeLogger('bing')
+const logger = makeLogger({ pluginName: 'bing' })
 
 async function handler(context) {
   const {

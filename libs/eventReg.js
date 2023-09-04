@@ -62,7 +62,10 @@ export function format(message) {
   if (message[0] !== botConfig.prefix) return false
 
   // 参数分割
-  let command = message.split(' ').filter(value => value !== '')
+  let command = message
+    .split(' ')
+    .filter(value => value !== '')
+    .map(value => value.trim())
 
   return {
     name: command[0].replace('/', ''),

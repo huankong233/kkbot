@@ -58,7 +58,7 @@ export class Logger {
    * @param {...any} messages
    */
   ERROR(...messages) {
-    global.debug ? this.DEBUG(...messages) : this.WARNING(...messages)
+    global.debug ? this.DEBUG('\n', ...messages) : this.WARNING(...messages)
   }
 
   print(...params) {

@@ -38,6 +38,17 @@ export const getStrangerInfo = async ({ user_id }) => await bot('get_stranger_in
 export const getUserName = async ({ user_id }) =>
   await getStrangerInfo({ user_id }).then(res => res.data.nickname)
 
+/**
+ * 获取用户信息
+ * @param {Number} user_id
+ * @returns false 新用户
+ * @returns Object 不是新用户
+ */
+export async function getUserData({ user_id }) {
+  const data = await database.select('*').where('user_id', user_id).from('pigeon').first()
+  return data ?? false
+}
+
 export const getFriendList = async () => await bot('get_friend_list')
 
 /**
