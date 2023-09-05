@@ -9,4 +9,4 @@ await plugins()
 
 logger.SUCCESS('机器人已启动成功')
 
-if (!debug) await sendMsg(global.config.bot.admin, `机器人已启动成功！`)
+if (!debug) await sendMsg(global.config.botConfig.admin, `机器人已启动成功！`)

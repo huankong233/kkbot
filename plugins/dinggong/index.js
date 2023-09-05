@@ -4,7 +4,7 @@ import { eventReg } from '../../libs/eventReg.js'
 import { randomInt } from '../../libs/random.js'
 import { replyMsg } from '../../libs/sendMsg.js'
 import { CQ } from 'go-cqwebsocket'
-import { getDirName } from '../../libs/getDirname.js'
+import { getDirName } from '../../libs/getDirName.js'
 import { makeLogger } from '../../libs/logger.js'
 
 const logger = makeLogger({ pluginName: 'dinggong' })
