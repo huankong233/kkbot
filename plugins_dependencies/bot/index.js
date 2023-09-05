@@ -62,7 +62,7 @@ async function loginComplete(attempts) {
 
   if (dev) return
 
-  if (!online.enable) return
+  if (!botConfig.online.enable) return
 
   if (botConfig.admin <= 0) {
     return logger.NOTICE('未设置管理员账户,请检查!')
