@@ -49,10 +49,6 @@ export async function loadPlugin(pluginName, pluginDir = 'plugins', loadFromDir 
     return
   }
 
-  if (compare(manifest.kkbot_plugin_version, global.kkbot_plugin_version, '<')) {
-    logger.NOTICE(`插件 ${pluginName} 兼容的插件系统版本低于当前插件系统版本，可能有兼容问题`)
-  }
-
   const {
     dependPackages = {},
     dependPlugins = {},
@@ -65,6 +61,10 @@ export async function loadPlugin(pluginName, pluginDir = 'plugins', loadFromDir 
   if (disableLoadInDir && loadFromDir) {
     if (debug) logger.DEBUG(`插件 ${pluginName} 禁止在文件夹中自动加载`)
     return
+  }
+
+  if (compare(manifest.kkbot_plugin_version, global.kkbot_plugin_version, '<')) {
+    logger.NOTICE(`插件 ${pluginName} 兼容的插件系统版本低于当前插件系统版本，可能有兼容问题`)
   }
 
   // 如果还没安装就安装一次

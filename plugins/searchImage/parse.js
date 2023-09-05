@@ -1,5 +1,6 @@
 import { confuseURL } from '../../libs/handleUrl.js'
 import { formatTime } from '../../libs/time.js'
+import { CQ } from 'go-cqwebsocket'
 
 class CParser {
   ascii2d = function (item) {
@@ -25,9 +26,9 @@ class CParser {
 
     message.push(``)
 
-    return `${item.image !== 'https://saucenao.com/' ? CQ.image(item.image) : ''}${message.join(
-      '\n'
-    )}`
+    return `${
+      item.image !== 'https://saucenao.com/' || item.image !== '' ? CQ.image(item.image) : ''
+    }${message.join('\n')}`
   }
 
   IqDB = function (item) {
@@ -57,7 +58,7 @@ class CParser {
   }
 
   AnimeTraceAnime = function (item) {
-    const { searchImage } = global.config
+    const { searchImageConfig } = global.config
 
     const preview =
       item.preview !== 'fail unsupport image type'
@@ -66,7 +67,7 @@ class CParser {
 
     let message = []
 
-    for (let i = 0; i < searchImage.limit2; i++) {
+    for (let i = 0; i < searchImageConfig.limit2; i++) {
       const char = item.char[i]
       message.push(`角色名: ${char.name}`, `动漫名: ${char.cartoonname}`)
     }

@@ -76,6 +76,18 @@ export class Logger {
 
     console.log(clc.cyan(`[${getTime()}]`), clc.blackBright(`[${type}]`), ...messages)
   }
+
+  /**
+   * 修改subModule名称并返回一个全新的logger
+   * @param {String} subModule
+   */
+  changeSubModule(subModule) {
+    return new Logger({
+      pluginName: this.pluginName,
+      type: this.type,
+      subModule
+    })
+  }
 }
 
 /**

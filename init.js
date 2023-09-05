@@ -1,7 +1,10 @@
+import fs from 'fs'
+import path from 'path'
 import { getBaseDir } from './libs/getDirName.js'
 import { globalReg } from './libs/globalReg.js'
 import { getVersion } from './libs/loadVersion.js'
 import { loadPlugin } from './libs/loadPlugin.js'
+import { deleteFolder } from './libs/fs.js'
 
 export default async function () {
   //修改时区
@@ -22,6 +25,12 @@ export default async function () {
     // 定义起始地址
     baseDir: getBaseDir()
   })
+
+  const tempDir = path.join(baseDir, 'temp')
+  //删除temp文件夹内的所有文件
+  deleteFolder(tempDir)
+  //创建文件夹
+  fs.mkdirSync(tempDir)
 
   // 初始化framework.jsonc内容
   globalReg(getVersion())

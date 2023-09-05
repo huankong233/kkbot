@@ -1,0 +1,1 @@
+{"kkbot_plugin_version":"2.1","name":"setu","description":"色图","version":"0.0.3","author":[{"name":"huan_kong","link":"https://github.com/huankong233"}],"dependPackages":{"jimp":"^0.22.8"},"dependPlugins":{"knex":"0.0.1","pigeon":"0.0.3"}}

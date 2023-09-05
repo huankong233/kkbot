@@ -1,4 +1,4 @@
-import { readdirSync, readFileSync, writeFileSync, unlinkSync, existsSync } from 'fs'
+import { readdirSync, readFileSync, writeFileSync } from 'fs'
 import path from 'path'
 import { jsonc } from 'jsonc'
 import { makeSystemLogger } from './libs/logger.js'
