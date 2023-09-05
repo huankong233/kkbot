@@ -17,7 +17,9 @@ const originPackages = {
   jsonc: '^2.0.0',
   'compare-versions': '^6.1.0',
   'mime-types': '^2.1.35',
-  'node-emoji': '^2.1.0'
+  'node-emoji': '^2.1.0',
+  '@tsuk1ko/cq-websocket': '^2.4.2',
+  'go-cqwebsocket': '^6.2.2'
 }
 
 pluginDirs.forEach(pluginDir => {
