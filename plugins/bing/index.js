@@ -17,7 +17,6 @@ function event() {
     const at = haveAt(context, 'bing')
     if (at) {
       context.command = at
-      console.log(context)
 
       await handler(context)
     }

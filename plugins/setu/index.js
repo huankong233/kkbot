@@ -7,6 +7,7 @@ import { replyMsg } from '../../libs/sendMsg.js'
 import { isToday } from '../../libs/time.js'
 import { makeLogger } from '../../libs/logger.js'
 import { confuseURL } from '../../libs/handleUrl.js'
+import { CQ } from 'go-cqwebsocket'
 
 const logger = makeLogger({ pluginName: 'setu' })
 

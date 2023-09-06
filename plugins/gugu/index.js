@@ -33,7 +33,6 @@ async function gugu(context) {
   } else {
     //判断今天还能不能签到
     let data = await getUserData({ user_id })
-    console.log(data)
     if (isToday(data.update_time)) {
       return await replyMsg(context, `咕咕失败~今天已经咕咕过了哦~`, { reply: true })
     }

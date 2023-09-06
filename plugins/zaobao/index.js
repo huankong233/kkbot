@@ -4,9 +4,11 @@ import { eventReg } from '../../libs/eventReg.js'
 import { get, retryAsync } from '../../libs/fetch.js'
 import { replyMsg } from '../../libs/sendMsg.js'
 import { makeLogger } from '../../libs/logger.js'
+import { CQ } from 'go-cqwebsocket'
 import dayjs from 'dayjs'
 
 const logger = makeLogger({ pluginName: 'zaobao' })
+const cronLogger = logger.changeSubModule('Cron')
 
 export default async () => {
   await init()
@@ -31,7 +33,16 @@ async function init() {
   new CronJob(
     zaobaoConfig.crontab,
     async function () {
-      const message = await prepareMessage()
+      let message
+
+      try {
+        message = await prepareMessage()
+      } catch (error) {
+        logger.WARNING(`请求接口失败`)
+        logger.ERROR(error)
+        return
+      }
+
       for (let i = 0; i < zaobaoConfig.groups.length; i++) {
         const group_id = zaobaoConfig.groups[i]
 
@@ -70,10 +81,8 @@ async function prepareMessage() {
   } catch (error) {
     logger.WARNING('早报获取失败')
     logger.ERROR(error)
-    return
+    return '早报获取失败'
   }
 
-  if (response.msg === 'Success') {
-    return CQ.image(response.imageUrl)
-  }
+  return response.msg === 'Success' ? CQ.image(response.imageUrl) : '早报获取失败'
 }

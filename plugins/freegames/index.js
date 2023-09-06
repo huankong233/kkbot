@@ -4,6 +4,7 @@ import { makeLogger } from '../../libs/logger.js'
 import { CronJob } from 'cron'
 import { eventReg } from '../../libs/eventReg.js'
 import { epicApi, steamApi } from './lib.js'
+import { CQ } from 'go-cqwebsocket'
 
 const logger = makeLogger({ pluginName: 'freegames' })
 
