@@ -4,8 +4,11 @@ import { globalReg } from '../../libs/globalReg.js'
 import { makeLogger } from '../../libs/logger.js'
 import { sendMsg } from '../../libs/sendMsg.js'
 import { format } from '../../libs/eventReg.js'
+import * as emoji from 'node-emoji'
+import { countRunTime } from '../../libs/time.js'
 
 const logger = makeLogger({ pluginName: 'bot', subModule: 'connect' })
+const eventLogger = logger.changeSubModule('events')
 
 /**
  * 启动机器人,注册事件等
@@ -70,10 +73,6 @@ async function loginComplete(attempts) {
 
   await sendMsg(botConfig.admin, `${botConfig.online.msg}#${attempts}`)
 }
-
-import * as emoji from 'node-emoji'
-import { countRunTime } from '../../libs/time.js'
-const eventLogger = makeLogger({ pluginName: 'bot', subModule: 'events' })
 
 function initEvents() {
   //初始化事件

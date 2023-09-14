@@ -116,7 +116,7 @@ export const getDynamicInfoFromItem = async item => {
 }
 
 export const getDynamicInfo = async id => {
-  const { bilibili } = global.config
+  const { bilibiliConfig } = global.config
 
   try {
     const {
@@ -129,8 +129,8 @@ export const getDynamicInfo = async id => {
         features: 'itemOpusStyle'
       },
       headers: {
-        Cookie: bilibili.DEDE_USER_COOKIE,
-        'User-Agent': bilibili.USER_AGENT
+        Cookie: bilibiliConfig.DEDE_USER_COOKIE,
+        'User-Agent': bilibiliConfig.USER_AGENT
       }
     }).then(res => res.json())
 
