@@ -1,9 +1,9 @@
 import WebSocket from 'ws'
 
 async function connectWebSocket() {
-  const { bing } = global.config
+  const { bingConfig } = global.config
   return new Promise((resolve, reject) => {
-    let websocket = new WebSocket(bing.websocket)
+    let websocket = new WebSocket(bingConfig.websocket)
 
     websocket.onopen = () => {
       resolve(websocket)
@@ -16,6 +16,8 @@ async function connectWebSocket() {
 }
 
 export async function get(userInput, userContext, password) {
+  const { bingConfig } = global.config
+
   let websocket
   try {
     websocket = await connectWebSocket()
@@ -27,7 +29,8 @@ export async function get(userInput, userContext, password) {
     JSON.stringify({
       message: userInput,
       context: userContext,
-      password: password
+      password: bingConfig.password,
+      locale: bingConfig.language
     })
   )
 

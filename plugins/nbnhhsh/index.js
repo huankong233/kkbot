@@ -1,9 +1,14 @@
+import { eventReg } from '../../libs/eventReg.js'
+import { post } from '../../libs/fetch.js'
+import { missingParams } from '../../libs/eventReg.js'
+import { replyMsg } from '../../libs/sendMsg.js'
+import { makeLogger } from '../../libs/logger.js'
+
+const logger = makeLogger({ pluginName: 'nbnhhsh' })
+
 export default () => {
   event()
 }
-
-//注册事件
-import { eventReg } from '../../libs/eventReg.js'
 
 function event() {
   eventReg('message', async (event, context, tags) => {
@@ -17,18 +22,14 @@ function event() {
   })
 }
 
-import { post } from '../../libs/fetch.js'
-import { missingParams } from '../../libs/eventReg.js'
-import { replyMsg } from '../../libs/sendMsg.js'
-
 async function nbnhhsh(context) {
   const {
     command: { params }
   } = context
 
-  if (await missingParams(context, params, 1)) return
+  if (await missingParams(context, 1)) return
 
-  let data
+  let data = {}
   try {
     data = await post({
       url: 'https://lab.magiconch.com/api/nbnhhsh/guess',
@@ -37,18 +38,14 @@ async function nbnhhsh(context) {
       .then(res => res.json())
       .then(res => res[0])
   } catch (error) {
-    logger.WARNING(`nbnhhsh get info failed`)
-    if (debug) {
-      logger.DEBUG(error)
-    } else {
-      logger.WARNING(error)
-    }
+    logger.WARNING(`请求接口失败`)
+    logger.ERROR(error)
     return await replyMsg(context, `接口请求失败`, { reply: true })
   }
 
-  if (!data?.trans) return await replyMsg(context, '空空也不知道这是什么意思呢~', { reply: true })
+  if (!data.trans) return await replyMsg(context, '空空也不知道这是什么意思呢~', { reply: true })
 
-  await replyMsg(context, [`"${data.name}" 可能是:`, `${data.trans.join(',')}`].join('\n'), {
+  await replyMsg(context, [`"${data.name}" 可能是:`, `${data.trans.join(', ')}`].join('\n'), {
     reply: true
   })
 }

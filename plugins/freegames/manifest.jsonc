@@ -1,0 +1,1 @@
+{"kkbot_plugin_version":"2.1","name":"freegames","description":"定期通知免费游戏","version":"0.0.5","author":[{"name":"huan_kong","link":"https://github.com/huankong233"}],"dependPackages":{"cheerio":"^1.0.0-rc.12","lodash":"^4.17.21","cron":"^2.4.3"},"dependPlugins":{}}

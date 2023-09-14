@@ -18,15 +18,15 @@ import { getLiveRoomInfo } from './libs/live.js'
 
 //主程序
 async function bilibiliHandler(context) {
-  const { bilibili } = global.config
+  const { bilibiliConfig } = global.config
   const { message } = context
 
   if (
     !(
-      bilibili.getVideoInfo ||
-      bilibili.getDynamicInfo ||
-      bilibili.getArticleInfo ||
-      bilibili.getLiveRoomInfo
+      bilibiliConfig.getVideoInfo ||
+      bilibiliConfig.getDynamicInfo ||
+      bilibiliConfig.getArticleInfo ||
+      bilibiliConfig.getLiveRoomInfo
     )
   ) {
     return
@@ -41,7 +41,7 @@ async function bilibiliHandler(context) {
   } = await parseData(message)
 
   //解析视频
-  if (bilibili.getVideoInfo && (aid || bvid)) {
+  if (bilibiliConfig.getVideoInfo && (aid || bvid)) {
     const reply = await getVideoInfo({ aid, bvid })
     if (reply) {
       await replyMsg(context, reply)
@@ -50,7 +50,7 @@ async function bilibiliHandler(context) {
   }
 
   //解析动态
-  if (bilibili.getDynamicInfo && dyid) {
+  if (bilibiliConfig.getDynamicInfo && dyid) {
     const reply = await getDynamicInfo(dyid)
     if (reply) {
       await replyMsg(context, reply)
@@ -59,7 +59,7 @@ async function bilibiliHandler(context) {
   }
 
   //解析文章
-  if (bilibili.getArticleInfo && arid) {
+  if (bilibiliConfig.getArticleInfo && arid) {
     const reply = await getArticleInfo(arid)
     if (reply) {
       await replyMsg(context, reply)
@@ -68,7 +68,7 @@ async function bilibiliHandler(context) {
   }
 
   //解析直播或音频
-  if (bilibili.getLiveRoomInfo && lrid) {
+  if (bilibiliConfig.getLiveRoomInfo && lrid) {
     const reply = await getLiveRoomInfo(lrid)
     if (reply) {
       await replyMsg(context, reply)
@@ -78,8 +78,10 @@ async function bilibiliHandler(context) {
 }
 
 import { get } from '../../libs/fetch.js'
-import { logger } from '../../libs/logger.js'
+import { makeLogger } from '../../libs/logger.js'
 import { parseJSON } from './libs/utils.js'
+
+export const logger = makeLogger({ pluginName: 'bilibili' })
 
 async function parseData(message) {
   let url = message
@@ -104,7 +106,8 @@ async function getLinkFromShortLink(shortLink) {
     const data = await get({ url: shortLink })
     return data.url
   } catch (error) {
-    logger.WARNING(`bilibili get head short link ${shortLink} failed`)
+    logger.WARNING('获取短链跳转链接失败')
+    logger.ERROR(error)
     return {}
   }
 }

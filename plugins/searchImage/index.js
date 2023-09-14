@@ -1,3 +1,23 @@
+import { eventReg } from '../../libs/eventReg.js'
+import { add, reduce } from '../pigeon/index.js'
+import { replyMsg, sendForwardMsg } from '../../libs/sendMsg.js'
+import { getUniversalImgURL } from '../../libs/handleUrl.js'
+import { downloadFile } from '../../libs/fs.js'
+import { ascii2d, SauceNAO, IqDB, TraceMoe, AnimeTrace } from 'image_searcher'
+import {
+  searchInitialization,
+  turnOnSearchMode,
+  turnOffSearchMode,
+  isSearchMode,
+  refreshTimeOfAutoLeave
+} from './control.js'
+import { Parser } from './parse.js'
+import { makeLogger } from '../../libs/logger.js'
+import { CQ } from 'go-cqwebsocket'
+import fs from 'fs'
+
+export const logger = makeLogger({ pluginName: 'searchImage' })
+
 export default () => {
   //初始化搜图
   searchInitialization()
@@ -5,15 +25,14 @@ export default () => {
   event()
 }
 
-//注册事件
-import { eventReg } from '../../libs/eventReg.js'
 function event() {
-  const { bot, searchImage } = global.config
+  const { botConfig, searchImageConfig } = global.config
 
   eventReg('message', async (event, context, tags) => {
-    if (context.command) {
+    const { command } = context
+    if (command) {
       // 开启搜图模式
-      if (context.command.name === `${bot.botName}${searchImage.word.on}`) {
+      if (command.name === `${botConfig.botName}${searchImageConfig.word.on}`) {
         await turnOnSearchMode(context)
       }
     }
@@ -22,8 +41,9 @@ function event() {
   eventReg(
     'message',
     async (event, context, tags) => {
-      // 退出搜图模式
-      if (context.command.name === `${searchImage.word.off}${bot.botName}`) {
+      const { command } = context
+      if (command?.name === `${searchImageConfig.word.off}${botConfig.botName}`) {
+        // 退出搜图模式
         await turnOffSearchMode(context)
       } else {
         if (isSearchMode(context.user_id)) {
@@ -36,20 +56,9 @@ function event() {
   )
 }
 
-import {
-  turnOnSearchMode,
-  turnOffSearchMode,
-  searchInitialization,
-  isSearchMode,
-  refreshTimeOfAutoLeave
-} from './control.js'
-
-import { add, reduce } from '../pigeon/index.js'
-import { replyMsg, sendForwardMsg } from '../../libs/sendMsg.js'
-
 async function search(context) {
   const { user_id } = context
-  const { searchImage } = global.config
+  const { searchImageConfig } = global.config
 
   //先下载文件
   let messageArray = CQ.parse(context.message)
@@ -60,13 +69,13 @@ async function search(context) {
     const message = messageArray[i]
     if (message._type === 'image') {
       //扣除鸽子
-      if (!(await reduce({ user_id, number: searchImage.reduce, reason: '搜图' }))) {
+      if (!(await reduce({ user_id, number: searchImageConfig.reduce, reason: '搜图' }))) {
         return await replyMsg(context, `搜索失败,鸽子不足~`, true)
       }
 
       if (!receive) {
         receive = true
-        await replyMsg(context, `${searchImage.word.receive}`, true)
+        await replyMsg(context, `${searchImageConfig.word.receive}`, true)
       }
 
       //刷新时间
@@ -77,14 +86,8 @@ async function search(context) {
   }
 }
 
-import { getUniversalImgURL } from '../../libs/handleUrl.js'
-import { downloadFile } from '../../libs/fs.js'
-import { ascii2d, SauceNAO, IqDB, TraceMoe, AnimeTrace } from 'image_searcher'
-import logger from '../../libs/logger.js'
-import fs from 'fs'
-
 async function imageHandler(context, url) {
-  const { searchImage } = global.config
+  const { searchImageConfig } = global.config
 
   //图片url
   const imageUrl = getUniversalImgURL(url)
@@ -96,7 +99,7 @@ async function imageHandler(context, url) {
       callback: ascii2d,
       params: {
         type: 'bovw',
-        proxy: searchImage.ascii2dProxy,
+        proxy: searchImageConfig.ascii2dProxy,
         imagePath
       }
     },
@@ -183,39 +186,33 @@ async function request(callbacks) {
     } catch (error) {
       responseData.push({ success: false, name: item.name, res: error })
       logger.WARNING(`[搜图] 引擎:${item.name}请求失败`)
-
-      if (debug) {
-        logger.DEBUG(error)
-      } else {
-        logger.WARNING(error)
-      }
+      logger.ERROR(error)
     }
   }
   return responseData
 }
 
-import { Parser } from './parse.js'
-
 //整理数据
 async function parse(context, res, originUrl) {
   const { user_id } = context
-  const { bot, searchImage } = global.config
+  const { searchImageConfig } = global.config
+  const { botData } = global.data
 
-  let messages = [CQ.node(bot.info.nickname, bot.info.user_id, CQ.image(originUrl))]
+  let messages = [CQ.node(botData.info.nickname, botData.info.user_id, CQ.image(originUrl))]
 
   res.forEach(async datum => {
     if (!datum.success) {
       messages.push(
         CQ.node(
-          bot.info.nickname,
-          bot.info.user_id,
-          CQ.text(`${datum.name}搜图失败力~已赔偿鸽子${searchImage.back}只`)
+          botData.info.nickname,
+          botData.info.user_id,
+          CQ.text(`${datum.name}搜图失败力~已赔偿鸽子${searchImageConfig.back}只`)
         )
       )
       //赔偿
       await add({
         user_id,
-        number: searchImage.back,
+        number: searchImageConfig.back,
         reason: `${datum.name}搜图失败赔偿`
       })
     }
@@ -224,7 +221,8 @@ async function parse(context, res, originUrl) {
     if (datum.res.length === 0) {
       message += '没有搜索结果~'
     } else {
-      let limit = datum.res.length >= searchImage.limit ? searchImage.limit : datum.res.length
+      let limit =
+        datum.res.length >= searchImageConfig.limit ? searchImageConfig.limit : datum.res.length
 
       for (let i = 0; i < limit; i++) {
         const item = datum.res[i]
@@ -232,7 +230,7 @@ async function parse(context, res, originUrl) {
       }
     }
 
-    const node = CQ.node(bot.info.nickname, bot.info.user_id, message)
+    const node = CQ.node(botData.info.nickname, botData.info.user_id, message)
     messages.push(node)
   })
 
@@ -240,6 +238,6 @@ async function parse(context, res, originUrl) {
   const data = await sendForwardMsg(context, messages)
   if (data.status === 'failed') {
     await replyMsg(context, '发送合并消息失败，可以尝试私聊我哦~(鸽子已返还)')
-    await add({ user_id, number: searchImage.reduce, reason: `搜图合并消息发送失败赔偿` })
+    await add({ user_id, number: searchImageConfig.reduce, reason: `搜图合并消息发送失败赔偿` })
   }
 }

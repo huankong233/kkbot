@@ -45,3 +45,18 @@ export function isToday(timestamp) {
  * @returns {String} 2023/6/26 09:46:39
  */
 export const getTime = () => new Date().toLocaleString()
+
+/**
+ * 计算运行指定函数耗时
+ * @param {Function} func
+ * @returns {{response:any,time:Number}}
+ */
+export const countRunTime = async func => {
+  const start = performance.now()
+  response = await func()
+  const end = performance.now()
+  return {
+    response,
+    time: parseInt(end - start)
+  }
+}

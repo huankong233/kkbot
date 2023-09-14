@@ -1,3 +1,6 @@
+import { CQ } from 'go-cqwebsocket'
+import { replyMsg } from './sendMsg.js'
+
 /**
  * 事件快捷注册
  * @param {String} type 事件类型
@@ -32,40 +35,37 @@ export function eventReg(type, callback, priority = 1) {
  * 检查是否@了机器人
  * @param {object} context
  * @param {string} commandName
- * @returns {{name:String,params:Array}}
+ * @returns {{name:String,params:Array} | false}
  */
 export function haveAt(context, commandName = '@') {
   const { message, self_id } = context
-  const { prefix } = global.config.bot
+  const { botConfig } = global.config
 
-  const findString = `[CQ:at,qq=${self_id}]`
-  const index = message.indexOf(findString)
-  if (index === -1) {
+  const messageArr = CQ.parse(message)
+  if (messageArr[0]?._type === 'at' && messageArr[0]?._data?.qq === self_id.toString()) {
+    const parsedMessage = message.replace(messageArr[0].toString(), '')
+    return format(`${botConfig.prefix}${commandName} ${parsedMessage}`)
+  } else {
     return false
   }
-
-  // 获取参数
-  const parsedMessage = message.substring(index + findString.length, message.length).trim()
-  return format(`${prefix}${commandName} ${parsedMessage}`)
 }
 
 /**
  * 格式化消息
  * @param {String} message
- * @returns {{name:String,params:Array}}
+ * @returns {{name:String,params:Array} | false}
  */
 export function format(message) {
-  const { prefix } = global.config.bot
-  // 去头去尾空格
-  message = message.trim()
+  const { botConfig } = global.config
 
   // 判断是否是一个命令
-  if (message[0] !== prefix) {
-    return false
-  }
+  if (message[0] !== botConfig.prefix) return false
 
   // 参数分割
-  let command = message.split(' ').filter(value => value !== '')
+  let command = message
+    .split(' ')
+    .filter(value => value !== '')
+    .map(value => value.trim())
 
   return {
     name: command[0].replace('/', ''),
@@ -73,20 +73,21 @@ export function format(message) {
   }
 }
 
-import { replyMsg } from './sendMsg.js'
 /**
  * 缺少参数统一输出
  * @param {Object} context
- * @param {Object} params
  * @param {Number} paramsLength
  */
-export async function missingParams(context, params, paramsLength) {
-  const { bot } = global.config
+export async function missingParams(context, paramsLength) {
+  const { botConfig } = global.config
+  const { command } = context
 
-  if (params.length < paramsLength) {
+  if (!command) throw new Error(`未提供"command"字段`)
+
+  if (command.params.length < paramsLength) {
     return await replyMsg(
       context,
-      `参数不足，请发送"${bot.prefix}帮助 ${context.command.name}"查看帮助`,
+      `参数不足，请发送"${botConfig.prefix}帮助 ${command.name}"查看帮助`,
       { reply: true }
     )
   }

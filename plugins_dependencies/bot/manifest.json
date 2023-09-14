@@ -1,1 +1,0 @@
-{"kkbot_plugin_version":"2","name":"bot","description":"初始化机器人","version":"0.0.1","author":[{"name":"huan_kong","link":"https://github.com/huankong233"}],"disableLoadInDir":true,"dependPackages":{"@tsuk1ko/cq-websocket":"^2.4.2","go-cqwebsocket":"^6.2.2"},"dependPlugins":{}}

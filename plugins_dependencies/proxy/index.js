@@ -1,13 +1,12 @@
-export default () => {
-  addProxy()
-}
-
 import proxy from 'node-global-proxy'
-import { logger } from '../../libs/logger.js'
+import { makeLogger } from '../../libs/logger.js'
 
-export const addProxy = () => {
-  if (global.config.proxy.enable) {
-    proxy.default.setConfig(global.config.proxy.proxy)
+const logger = makeLogger({ pluginName: 'proxy' })
+
+export default function () {
+  const { proxyConfig } = global.config
+  if (proxyConfig.enable) {
+    proxy.default.setConfig(proxyConfig.proxy)
     proxy.default.start()
     logger.NOTICE('=====================================================')
     logger.NOTICE('代理已启动')

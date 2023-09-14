@@ -1,6 +1,8 @@
 import { eventReg } from '../../libs/eventReg.js'
-import logger from '../../libs/logger.js'
+import { makeLogger } from '../../libs/logger.js'
 import { replyMsg } from '../../libs/sendMsg.js'
+
+const logger = makeLogger({ pluginName: 'block' })
 
 export default () => {
   event()
@@ -25,30 +27,28 @@ function event() {
 }
 
 async function checkBan(context) {
-  const { blockUsers, blockGroups, defaultReply, blockedCommands } = global.config.block
+  const { blockConfig } = global.config
   const { user_id, group_id, command } = context
 
-  if (blockUsers.includes(user_id)) {
+  if (blockConfig.blockUsers.includes(user_id)) {
     if (debug) logger.DEBUG(`用户 ${user_id} 处于黑名单中`)
-
     return 'quit'
   }
 
-  if (blockGroups.includes(group_id)) {
+  if (blockConfig.blockGroups.includes(group_id)) {
     if (debug) logger.DEBUG(`群组 ${group_id} 处于黑名单中`)
-
     return 'quit'
   }
 
   if (command) {
-    for (let i = 0; i < blockedCommands.length; i++) {
-      const element = blockedCommands[i]
+    for (let i = 0; i < blockConfig.blockedCommands.length; i++) {
+      const element = blockConfig.blockedCommands[i]
       if (element.groupId !== '*' && !element.groupId.includes(group_id)) {
         continue
       }
 
       if (command.name.match(element.regexp)) {
-        if (element.reply !== '') await replyMsg(context, element.reply ?? defaultReply)
+        if (element.reply !== '') await replyMsg(context, element.reply ?? blockConfig.defaultReply)
         if (debug) logger.DEBUG(`群组 ${group_id} 的命令 ${element.regexp} 处于黑名单中`)
         return 'quit'
       }

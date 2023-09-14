@@ -1,0 +1,1 @@
+{"kkbot_plugin_version":"2.1","name":"loadInfo","description":"检查是否支持ffmpeg和加载机器人部分功能","version":"0.0.2","author":[{"name":"huan_kong","link":"https://github.com/huankong233"}],"disableAutoLoadConfig":true,"dependPackages":{},"dependPlugins":{}}

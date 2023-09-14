@@ -1,10 +1,11 @@
-export default async () => {
-  global.config.repeat.data = {}
+import { eventReg } from '../../libs/eventReg.js'
+import { replyMsg } from '../../libs/sendMsg.js'
+import { randomFloat } from '../../libs/random.js'
 
+export default async () => {
   event()
 }
 
-import { eventReg } from '../../libs/eventReg.js'
 function event() {
   eventReg('message', async (event, context, tags) => {
     //屏蔽命令
@@ -14,32 +15,32 @@ function event() {
   })
 }
 
-import { replyMsg } from '../../libs/sendMsg.js'
-
 async function repeat(context) {
   const { group_id, message, user_id } = context
-  const { repeat } = global.config
-  if (!repeat.data[group_id]) {
-    repeat.data[group_id] = {
+  const { repeatConfig } = global.config
+  const { repeatData } = global.data
+
+  if (!repeatData[group_id]) {
+    repeatData[group_id] = {
       message,
       user_id: [user_id],
       count: 1
     }
   } else {
-    if (message !== repeat.data[group_id].message) {
+    if (message !== repeatData[group_id].message) {
       //替换
-      repeat.data[group_id] = {
+      repeatData[group_id] = {
         message: message,
         user_id: [user_id],
         count: 1
       }
     } else {
       //增加计数(并且不是同一个人)
-      if (!repeat.data[group_id].user_id.includes(user_id)) {
-        repeat.data[group_id].user_id.push(user_id)
-        repeat.data[group_id].count++
+      if (!repeatData[group_id].user_id.includes(user_id)) {
+        repeatData[group_id].user_id.push(user_id)
+        repeatData[group_id].count++
         //判断次数
-        if (repeat.data[group_id].count === repeat.times) {
+        if (repeatData[group_id].count === repeatConfig.times) {
           await replyMsg(context, message)
         }
       }
@@ -47,7 +48,7 @@ async function repeat(context) {
   }
 
   //所有规则外还有一定概率触发
-  if (Math.random() * 100 <= repeat.commonProb) {
+  if (randomFloat(0, 100) <= repeatConfig.commonProb) {
     await replyMsg(context, message)
   }
 }

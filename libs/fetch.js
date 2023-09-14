@@ -1,22 +1,18 @@
-// 默认超时时间
-const TIMEOUT = 60 * 1000
-
 import fetch, { AbortError } from 'node-fetch'
-import { logger } from './logger.js'
+import AbortController from 'abort-controller'
+import { makeLogger } from './logger.js'
 import { stringify } from 'qs'
 
-import AbortController from 'abort-controller'
+// 默认超时时间
+const TIMEOUT = 120 * 1000
+const logger = makeLogger('FETCH')
 
 /**
  * 不带重试的Get请求
  * @param {{ url:String, data:Object, timeOut:Number, headers:Object }}
- * @returns {Promise}
  */
 export async function fetchGet({ url, data = {}, timeOut = TIMEOUT, headers } = {}) {
-  if (!url) {
-    logger.WARNING(`url参数不存在`)
-    return `url参数不存在`
-  }
+  if (!url) throw new Error(`url参数不存在`)
 
   const controller = new AbortController()
   setTimeout(() => {
@@ -48,11 +44,7 @@ export async function fetchGet({ url, data = {}, timeOut = TIMEOUT, headers } = 
       logger.WARNING(`请求${url}时超时`)
     } else {
       logger.WARNING(`请求${url}时失败`)
-      if (debug) {
-        logger.DEBUG(error)
-      } else {
-        logger.WARNING(error)
-      }
+      logger.ERROR(error)
     }
     throw error
   }
@@ -61,13 +53,9 @@ export async function fetchGet({ url, data = {}, timeOut = TIMEOUT, headers } = 
 /**
  * 不带重试的Post请求
  * @param {{ url:String, data:Object, timeOut:Number, headers:Object }}
- * @returns {Promise}
  */
 export async function fetchPost({ url, data = {}, timeOut = TIMEOUT, headers } = {}) {
-  if (!url) {
-    logger.WARNING(`url参数不存在`)
-    return `url参数不存在`
-  }
+  if (!url) throw new Error(`url参数不存在`)
 
   const controller = new AbortController()
   setTimeout(() => {
@@ -96,11 +84,7 @@ export async function fetchPost({ url, data = {}, timeOut = TIMEOUT, headers } =
       logger.WARNING(`请求${url}时超时`)
     } else {
       logger.WARNING(`请求${url}时失败`)
-      if (debug) {
-        logger.DEBUG(error)
-      } else {
-        logger.WARNING(error)
-      }
+      logger.ERROR(error)
     }
     throw error
   }
@@ -108,10 +92,9 @@ export async function fetchPost({ url, data = {}, timeOut = TIMEOUT, headers } =
 
 /**
  * 自动重试
- * @param {Function} func
- * @param {Number} times
- * @param {Number} sleepTime
- * @returns {Promise}
+ * @param {Function} func 执行的函数
+ * @param {Number} times 执行的次数
+ * @param {Number} sleepTime 失败后休眠时间(毫秒)
  */
 import { sleep } from './sleep.js'
 export async function retryAsync(func, times = 3, sleepTime = 0) {
@@ -133,7 +116,7 @@ export async function retryAsync(func, times = 3, sleepTime = 0) {
         logger.DEBUG(error)
         if (times !== -1) logger.DEBUG(`重试还剩 ${times} 次`)
       }
-      if (sleepTime !== 0) await sleep(sleepTime)
+      if (sleepTime !== 0 && times > 0) await sleep(sleepTime)
       if (times <= 0) {
         throw error
       }
@@ -145,22 +128,30 @@ export async function retryAsync(func, times = 3, sleepTime = 0) {
  * 带重试的Get请求
  * @param {{ url:String, data:Object, timeOut:Number, headers:Object }}
  * @param {Number} times 重试次数
- * @returns {Promise}
+ * @param {Number} sleepTime 失败后休眠时间(毫秒)
  */
-export async function get({ url, data, timeOut, headers } = {}, times) {
-  return await retryAsync(async () => {
-    return await fetchGet({ url, data, timeOut, headers })
-  }, times)
+export async function get({ url, data, timeOut, headers } = {}, times, sleepTime) {
+  return await retryAsync(
+    async () => {
+      return await fetchGet({ url, data, timeOut, headers })
+    },
+    times,
+    sleepTime
+  )
 }
 
 /**
  * 带重试的Post请求
  * @param {{ url:String, data:Object, timeOut:Number, headers:Object }}
  * @param {Number} times 重试次数
- * @returns {Promise}
+ * @param {Number} sleepTime 失败后休眠时间(毫秒)
  */
-export async function post({ url, data, timeOut, headers } = {}, times) {
-  return await retryAsync(async () => {
-    return await fetchPost({ url, data, timeOut, headers })
-  }, times)
+export async function post({ url, data, timeOut, headers } = {}, times, sleepTime) {
+  return await retryAsync(
+    async () => {
+      return await fetchPost({ url, data, timeOut, headers })
+    },
+    times,
+    sleepTime
+  )
 }

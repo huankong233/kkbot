@@ -1,9 +1,19 @@
+import fs from 'fs'
+import path from 'path'
+import { eventReg } from '../../libs/eventReg.js'
+import { randomInt } from '../../libs/random.js'
+import { replyMsg } from '../../libs/sendMsg.js'
+import { CQ } from 'go-cqwebsocket'
+import { getDirName } from '../../libs/getDirName.js'
+import { makeLogger } from '../../libs/logger.js'
+
+const logger = makeLogger({ pluginName: 'dinggong' })
+
 export default () => {
   init()
   event()
 }
 
-import { eventReg } from '../../libs/eventReg.js'
 function event() {
   eventReg('message', async (event, context, tags) => {
     if (context.command) {
@@ -14,29 +24,24 @@ function event() {
   })
 }
 
-import fs from 'fs'
-import path from 'path'
-import { getDirName } from '../../libs/getDirname.js'
-
 async function init() {
-  const { bot } = global.config
-  if (bot.ffmpeg) {
+  let { botData } = global.data
+  if (botData.ffmpeg) {
     const baseDir = getDirName(import.meta.url)
     const resourcesPath = path.join(baseDir, 'resources')
-    global.config.dinggong = {
+    global.data.dinggongData = {
       resourcesPath,
       records: fs.readdirSync(resourcesPath)
     }
+  } else {
+    logger.WARNING('未安装ffmpeg，无法发送语音')
   }
 }
 
-import { randomInt } from '../../libs/random.js'
-import { replyMsg } from '../../libs/sendMsg.js'
-
 async function dinggong(context) {
-  const { bot, dinggong } = global.config
-  const { resourcesPath, records } = dinggong
-  if (bot.ffmpeg) {
+  let { botData, dinggongData } = global.data
+  const { resourcesPath, records } = dinggongData
+  if (botData.ffmpeg) {
     const recordName = records[randomInt(records.length - 1, 0)]
     await replyMsg(context, path.basename(recordName, '.mp3'), { reply: true })
     //语音回复

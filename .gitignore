@@ -4,3 +4,4 @@
 /config
 *.log
 pnpm-lock.yaml
+test.js

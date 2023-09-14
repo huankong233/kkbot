@@ -1,0 +1,1 @@
+{"kkbot_plugin_version":"2.1","name":"zaobao","description":"早报","version":"0.0.3","author":[{"name":"huan_kong","link":"https://github.com/huankong233"}],"dependPackages":{"cron":"^2.4.3"},"dependPlugins":{}}

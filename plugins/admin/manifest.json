@@ -1,1 +1,0 @@
-{"kkbot_plugin_version":"2","name":"admin","description":"对机器人进行方便的管理","version":"0.0.2","author":[{"name":"huan_kong","link":"https://github.com/huankong233"}],"dependPackages":{},"dependPlugins":{"query":"0.0.2"}}

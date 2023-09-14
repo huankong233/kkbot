@@ -3,9 +3,9 @@
   // 例子: ws://服务器地址/ws
   // "websocket": "ws://host:port/ws",
   "websocket": false,
-  // 密码字段(新版添加的)
+  // 接口密码
   "password": "",
-  "cost": 10,
-  // 私聊启用
-  "private": true
+  // 可用选项: ["en-US", "zh-CN", "en-IE", "en-GB"]
+  "language": "zh-CN",
+  "cost": 10
 }

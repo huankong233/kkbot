@@ -1,7 +1,8 @@
 import { stringify } from 'qs'
 import { humanNum } from './utils.js'
 import { get } from '../../../libs/fetch.js'
-import { logger } from '../../../libs/logger.js'
+import { CQ } from 'go-cqwebsocket'
+import { logger } from '../index.js'
 
 export async function getVideoInfo(param) {
   try {
@@ -32,13 +33,8 @@ export async function getVideoInfo(param) {
       `https://www.bilibili.com/video/${bvid}`
     ].join('\n')
   } catch (error) {
-    logger.WARNING(`[error] bilibili get video info ${param}`)
-
-    if (debug) {
-      logger.DEBUG(error)
-    } else {
-      logger.WARNING(error)
-    }
+    logger.WARNING(`获取视频信息失败`)
+    logger.ERROR(error)
     return null
   }
 }

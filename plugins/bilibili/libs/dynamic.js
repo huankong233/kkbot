@@ -1,6 +1,7 @@
 import { purgeLinkInText, humanNum } from './utils.js'
 import { get } from '../../../libs/fetch.js'
-import { logger } from '../../../libs/logger.js'
+import { CQ } from 'go-cqwebsocket'
+import { logger } from '../index.js'
 
 const additionalFormatters = {
   // 投票
@@ -115,7 +116,7 @@ export const getDynamicInfoFromItem = async item => {
 }
 
 export const getDynamicInfo = async id => {
-  const { bilibili } = global.config
+  const { bilibiliConfig } = global.config
 
   try {
     const {
@@ -128,8 +129,8 @@ export const getDynamicInfo = async id => {
         features: 'itemOpusStyle'
       },
       headers: {
-        Cookie: bilibili.DEDE_USER_COOKIE,
-        'User-Agent': bilibili.USER_AGENT
+        Cookie: bilibiliConfig.DEDE_USER_COOKIE,
+        'User-Agent': bilibiliConfig.USER_AGENT
       }
     }).then(res => res.json())
 
@@ -148,13 +149,8 @@ export const getDynamicInfo = async id => {
     const lines = await formatDynamic(data.item)
     return lines.join('\n')
   } catch (error) {
-    logger.WARNING(`bilibili get dynamic new info ${id} failed`)
-
-    if (debug) {
-      logger.DEBUG(error)
-    } else {
-      logger.WARNING(error)
-    }
+    logger.WARNING(`获取动态信息失败`)
+    logger.ERROR(error)
     return null
   }
 }

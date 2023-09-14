@@ -1,41 +1,36 @@
 import { pathToFileURL } from 'url'
-import { readdirSync, readFileSync, writeFileSync } from 'fs'
+import { readdirSync, readFileSync, writeFileSync, existsSync } from 'fs'
 import { execSync } from 'child_process'
 import { jsonc } from 'jsonc'
-import logger from './logger.js'
-import clc from 'cli-color'
-import path from 'path'
-import fs from 'fs'
 import { compare } from 'compare-versions'
 import { loadConfig } from './loadConfig.js'
+import { makeSystemLogger } from './logger.js'
+import path from 'path'
+
+const logger = makeSystemLogger({ pluginName: 'loadPlugin' })
 
 /**
  * 加载单个插件
  * @param {String} pluginName 插件名
  * @param {String} pluginDir 插件路径
  * @param {Boolean} loadFromDir 是否是使用文件夹加载的
- * @returns {String} 加载状态
  */
 export async function loadPlugin(pluginName, pluginDir = 'plugins', loadFromDir = false) {
-  global.nowLoadPluginName = null
-
-  if (!global.plugins) {
-    global.plugins = {}
-  }
-
-  const { plugins } = global
+  const { plugins, data, baseDir } = global
 
   // 插件绝对路径
-  const pluginAbsoluteDir = path.join(global.baseDir, pluginDir, pluginName)
-  // 插件manifest路径
-  let manifestPath = path.join(pluginAbsoluteDir, `manifest.json`)
+  const pluginAbsoluteDir = path.join(baseDir, pluginDir, pluginName)
 
-  if (!fs.existsSync(manifestPath)) {
-    manifestPath = path.join(pluginAbsoluteDir, `manifest.jsonc`)
+  if (!existsSync(pluginAbsoluteDir)) {
+    logger.WARNING(`插件 ${pluginName} 文件夹不存在`)
+    return
   }
 
-  if (!fs.existsSync(manifestPath)) {
-    logger.WARNING(`插件 ${pluginName} 的 manifest 不存在`)
+  // 插件manifest路径
+  let manifestPath = path.join(pluginAbsoluteDir, `manifest.jsonc`)
+
+  if (!existsSync(manifestPath)) {
+    logger.WARNING(`插件 ${pluginName} 的 manifest.jsonc 文件不存在`)
     return
   }
 
@@ -45,7 +40,7 @@ export async function loadPlugin(pluginName, pluginDir = 'plugins', loadFromDir 
   try {
     manifest = jsonc.parse(readFileSync(manifestPath, { encoding: 'utf-8' }))
   } catch (error) {
-    logger.WARNING(`插件 ${pluginName} manifest 加载失败`)
+    logger.WARNING(`插件 ${pluginName} manifest.jsonc 加载失败`)
     if (debug) {
       logger.DEBUG(error)
     } else {
@@ -54,13 +49,9 @@ export async function loadPlugin(pluginName, pluginDir = 'plugins', loadFromDir 
     return
   }
 
-  if (compare(manifest.kkbot_plugin_version, global.kkbot_plugin_version, '<')) {
-    logger.NOTICE(`插件 ${pluginName} 与当前框架的插件系统兼容版本不一致，可能有兼容问题`)
-  }
-
   const {
-    dependPackages,
-    dependPlugins,
+    dependPackages = {},
+    dependPlugins = {},
     installed = false,
     disableAutoLoadConfig = false,
     disableLoadInDir = false,
@@ -70,6 +61,10 @@ export async function loadPlugin(pluginName, pluginDir = 'plugins', loadFromDir 
   if (disableLoadInDir && loadFromDir) {
     if (debug) logger.DEBUG(`插件 ${pluginName} 禁止在文件夹中自动加载`)
     return
+  }
+
+  if (compare(manifest.kkbot_plugin_version, global.kkbot_plugin_version, '<')) {
+    logger.NOTICE(`插件 ${pluginName} 兼容的插件系统版本低于当前插件系统版本，可能有兼容问题`)
   }
 
   // 如果还没安装就安装一次
@@ -84,15 +79,10 @@ export async function loadPlugin(pluginName, pluginDir = 'plugins', loadFromDir 
 
     if (installCommand !== 'pnpm install') {
       try {
-        execSync(installCommand).toString()
+        execSync(installCommand)
       } catch (error) {
-        global.nowLoadPluginName = null
-        logger.WARNING(`插件 ${pluginName} 支持库安装失败`)
-        if (debug) {
-          logger.DEBUG(error)
-        } else {
-          logger.WARNING(error)
-        }
+        logger.WARNING(`插件 ${pluginName} 依赖的包安装失败`)
+        logger.ERROR(error)
         return
       }
     }
@@ -103,106 +93,87 @@ export async function loadPlugin(pluginName, pluginDir = 'plugins', loadFromDir 
   }
 
   // 检查是否存在依赖
-  if (Object.keys(dependPlugins).length !== 0) {
+  const dependPluginsKeys = Object.keys(dependPlugins)
+  if (dependPluginsKeys.length !== 0) {
     for (const key in dependPlugins) {
-      if (Object.hasOwnProperty.call(dependPlugins, key)) {
-        const requireVersion = dependPlugins[key]
-        const depend = plugins[key]
+      const requireVersion = dependPlugins[key]
+      const depend = plugins[key]
 
-        if (!depend) {
-          logger.WARNING(
-            `插件 ${pluginName} 缺少依赖,所需的依赖有:`,
-            clc.bold(Object.keys(dependPlugins).toString())
-          )
-          return
-        }
+      if (!depend) {
+        logger.WARNING(`插件 ${pluginName} 缺少依赖,所依赖的插件有:`, dependPluginsKeys.toString())
+        return
+      }
 
-        const dependVersion = depend.version
+      const dependVersion = depend.version
 
-        if (compare(dependVersion, requireVersion, '<')) {
-          logger.NOTICE(`插件 ${pluginName} 所依赖的 ${clc.bold(key)} 偏旧,可能存在兼容性问题`)
-        }
+      if (compare(dependVersion, requireVersion, '!=')) {
+        logger.NOTICE(`插件 ${pluginName} 所依赖的插件 ${key} 版本不一致,可能存在兼容性问题`)
       }
     }
   }
 
-  global.nowLoadPluginName = pluginName
-
-  // 自动加载配置文件
-  if (!disableAutoLoadConfig) {
-    // 检查配置文件是否存在
-    if (fs.existsSync(path.join(pluginAbsoluteDir, `${configName}.jsonc`))) {
-      loadConfig(configName, true, pluginAbsoluteDir, pluginName)
-    } else {
-      if (debug) logger.DEBUG(`插件 ${pluginName} 配置的自动加载的配置文件不存在`)
-      // 判断是否存在 default 文件
-      if (fs.existsSync(path.join(pluginAbsoluteDir, `${configName}.default.jsonc`))) {
-        logger.WARNING(`插件 ${pluginName} 需要手动配置信息`)
-      }
-    }
+  const jsPath = path.join(pluginAbsoluteDir, 'index.js')
+  if (!existsSync(jsPath)) {
+    logger.WARNING(`插件 ${pluginName} 的 index.js 文件不存在`)
+    return
   }
-
-  global.nowLoadPluginName = pluginName
 
   let program
 
   try {
-    program = await import(pathToFileURL(path.join(pluginAbsoluteDir, 'index.js')))
+    program = await import(pathToFileURL(jsPath))
   } catch (error) {
-    global.nowLoadPluginName = null
-    logger.WARNING(`插件 ${pluginName} 不存在或插件损坏`)
-    if (debug) {
-      logger.DEBUG(error)
-    } else {
-      logger.WARNING(error)
-    }
+    logger.WARNING(`插件 ${pluginName} 代码有误,导入失败`)
+    logger.ERROR(error)
     return
   }
 
   if (program.enable === false) {
-    global.nowLoadPluginName = null
     logger.NOTICE(`插件 ${pluginName} 未启用`)
     return
   }
 
+  // 自动加载配置文件
+  if (!disableAutoLoadConfig) {
+    // 加载配置文件
+    if (loadConfig(configName, true, pluginAbsoluteDir, false, pluginName) === 'unloaded') {
+      return
+    }
+  }
+
+  plugins[pluginName] = { ...manifest, dir: pluginAbsoluteDir, loaded: false }
+  data[`${pluginName}Data`] = {}
+
   // 循环检查是否存在
-  if (plugins[pluginName]) {
-    global.nowLoadPluginName = null
+  if (plugins[pluginName]?.loaded) {
     if (debug) logger.DEBUG(`插件 ${pluginName} 已经加载过了`)
     return
   }
 
-  plugins[pluginName] = { ...manifest, dir: pluginAbsoluteDir }
-
   if (!program.default) {
-    global.nowLoadPluginName = null
     logger.WARNING(`加载插件 ${pluginName} 失败，插件不存在默认导出函数`)
     return
   }
 
   try {
+    global.nowLoadPluginName = pluginName
     await program.default()
     global.nowLoadPluginName = null
     logger.SUCCESS(`加载插件 ${pluginName} 成功`)
   } catch (error) {
-    global.nowLoadPluginName = null
     logger.WARNING(`加载插件 ${pluginName} 失败,失败日志:`)
-    if (debug) {
-      logger.DEBUG(error)
-    } else {
-      logger.WARNING(error)
-    }
+    logger.ERROR(error)
     return
   }
 
-  global.nowLoadPluginName = null
+  plugins[pluginName].loaded = true
 
   return 'success'
 }
 
 /**
  * 加载多个插件
- * @param {Array} plugins 插件名[]
+ * @param {String[]} plugins 插件名
  * @param {String} pluginDir 插件路径
  * @param {Boolean} loadFromDir 是否是使用文件夹加载的
  */
@@ -220,18 +191,19 @@ export async function loadPluginDir(pluginDir) {
   //获取文件夹内文件
   let plugins
 
+  if (!existsSync(pluginDir)) {
+    logger.WARNING(`文件夹 ${pluginDir} 不存在`)
+    return
+  }
+
   try {
     plugins = readdirSync(pluginDir)
   } catch (error) {
-    logger.WARNING('获取文件夹内容失败,文件夹可能不存在')
-    if (debug) {
-      logger.DEBUG(error)
-    } else {
-      logger.WARNING(error)
-    }
+    logger.WARNING('获取文件夹内容失败')
+    logger.ERROR(error)
     return
   }
 
   await loadPlugins(plugins, pluginDir, true)
-  if (global.debug) logger.DEBUG(`文件夹: ${clc.underline(pluginDir)} 中的插件已全部加载!`)
+  if (debug) logger.DEBUG(`文件夹: ${pluginDir} 中的插件已全部加载!`)
 }

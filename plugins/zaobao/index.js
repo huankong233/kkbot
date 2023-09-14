@@ -1,22 +1,50 @@
+import { CronJob } from 'cron'
+import { sleep } from '../../libs/sleep.js'
+import { eventReg } from '../../libs/eventReg.js'
+import { get, retryAsync } from '../../libs/fetch.js'
+import { replyMsg } from '../../libs/sendMsg.js'
+import { makeLogger } from '../../libs/logger.js'
+import { CQ } from 'go-cqwebsocket'
+import dayjs from 'dayjs'
+
+const logger = makeLogger({ pluginName: 'zaobao' })
+const cronLogger = logger.changeSubModule('Cron')
+
 export default async () => {
   await init()
-
   event()
 }
 
-import { cron } from '../../libs/crontab.js'
-import { sleep } from '../../libs/sleep.js'
+function event() {
+  eventReg('message', async (event, context, tags) => {
+    const { command } = context
+    if (command) {
+      if (command.name === '早报') {
+        await zaobao(context)
+      }
+    }
+  })
+}
 
 async function init() {
-  const { zaobao } = global.config
+  const { zaobaoConfig } = global.config
 
-  if (zaobao.groups.length === 0) return
-  cron(
-    zaobao.crontab,
+  if (zaobaoConfig.groups.length === 0) return
+  new CronJob(
+    zaobaoConfig.crontab,
     async function () {
-      const message = await prepareMessage()
-      for (let i = 0; i < zaobao.groups.length; i++) {
-        const group_id = zaobao.groups[i]
+      let message
+
+      try {
+        message = await prepareMessage()
+      } catch (error) {
+        logger.WARNING(`请求接口失败`)
+        logger.ERROR(error)
+        return
+      }
+
+      for (let i = 0; i < zaobaoConfig.groups.length; i++) {
+        const group_id = zaobaoConfig.groups[i]
 
         const fakeContext = {
           message_type: 'group',
@@ -25,31 +53,13 @@ async function init() {
 
         await replyMsg(fakeContext, message)
 
-        await sleep(zaobao.cd)
+        await sleep(zaobaoConfig.cd * 1000)
       }
     },
     null,
     true
   )
 }
-
-import { eventReg } from '../../libs/eventReg.js'
-function event() {
-  eventReg('message', async (event, context, tags) => {
-    if (context.command) {
-      const { name } = context.command
-
-      if (name === '早报') {
-        await zaobao(context)
-      }
-    }
-  })
-}
-
-import { get, retryAsync } from '../../libs/fetch.js'
-import { replyMsg } from '../../libs/sendMsg.js'
-import logger from '../../libs/logger.js'
-import dayjs from 'dayjs'
 
 async function zaobao(context) {
   await replyMsg(context, await prepareMessage())
@@ -61,28 +71,18 @@ async function prepareMessage() {
     await retryAsync(
       async () => {
         response = await get({ url: 'https://api.2xb.cn/zaob' }).then(res => res.json())
+        if (response.datatime !== dayjs().format('YYYY-MM-DD')) {
+          throw new Error('wrong time')
+        }
       },
       3,
-      5000
+      1000 * 60 * 30
     )
-
-    if (response.datatime !== dayjs().format('YYYY-MM-DD')) {
-      await sleep(1000 * 60 * 30)
-      response = await prepareMessage()
-    }
-
-    if (response.msg === 'Success') {
-      return CQ.image(response.imageUrl)
-    }
   } catch (error) {
     logger.WARNING('早报获取失败')
-
-    if (debug) {
-      logger.DEBUG(error)
-    } else {
-      logger.WARNING(error)
-    }
-
+    logger.ERROR(error)
     return '早报获取失败'
   }
+
+  return response.msg === 'Success' ? CQ.image(response.imageUrl) : '早报获取失败'
 }

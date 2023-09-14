@@ -6,5 +6,7 @@
     "user": "root",
     "password": "",
     "database": "kkbot"
-  }
+  },
+  // 独立debug开关(打印所有执行的sql命令)
+  "debug": false
 }

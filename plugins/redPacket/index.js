@@ -1,3 +1,10 @@
+import { eventReg } from '../../libs/eventReg.js'
+import { add, reduce } from '../pigeon/index.js'
+import { missingParams } from '../../libs/eventReg.js'
+import { getRangeCode, randomInt } from '../../libs/random.js'
+import { replyMsg } from '../../libs/sendMsg.js'
+import { getUserName } from '../../libs/Api.js'
+
 export default async () => {
   event()
 
@@ -6,26 +13,21 @@ export default async () => {
 }
 
 //注册事件
-import { eventReg } from '../../libs/eventReg.js'
 function event() {
   eventReg('message', async (event, context, tags) => {
     await get(context)
 
-    if (context.command) {
-      const { name } = context.command
-      if (name === '鸽子红包') {
+    const { command } = context
+
+    if (command) {
+      if (command.name === '鸽子红包') {
         await give(context)
-      } else if (name === '剩余红包') {
+      } else if (command.name === '剩余红包') {
         await getAll(context)
       }
     }
   })
 }
-
-import { add, reduce } from '../pigeon/index.js'
-import { missingParams } from '../../libs/eventReg.js'
-import { getRangeCode, randomInt } from '../../libs/random.js'
-import { replyMsg } from '../../libs/sendMsg.js'
 
 //我的鸽子
 async function give(context) {
@@ -34,14 +36,14 @@ async function give(context) {
     command: { params }
   } = context
 
-  if (await missingParams(context, params, 2)) return
+  if (await missingParams(context, 2)) return
 
   //发送的红包数
   const redPacket_num = parseInt(params[0])
   //鸽子数
   const pigeon_num = parseInt(params[1])
   //口令
-  const code = params[2] ? params[2] : getRangeCode()
+  const code = params[2] ?? getRangeCode()
 
   if (redPacket_num <= 0 || pigeon_num <= 0) {
     return await replyMsg(context, '红包发送失败,红包数量和鸽子数都不能<=0', { reply: true })
@@ -74,7 +76,7 @@ async function give(context) {
       redPacket_num,
       pigeon_num,
       code,
-      picked_user: JSON.stringify([])
+      picked_user: '[]'
     })
     .into('red_packet')
 
@@ -85,9 +87,9 @@ async function give(context) {
 
 async function get(context) {
   const { user_id, message } = context
-  const { redPacket } = global.config
-  for (let i = 0; i < redPacket.length; i++) {
-    const item = redPacket[i]
+  const { redPacketData } = global.data
+  for (let i = 0; i < redPacketData.length; i++) {
+    const item = redPacketData[i]
     let { pigeon_num, redPacket_num, picked_user } = item
 
     picked_user = JSON.parse(picked_user)
@@ -123,25 +125,18 @@ async function get(context) {
     await replyMsg(context, `红包${item.code}领取成功,获得${getPigeonNum}只鸽子~`, {
       reply: true
     })
-
-    //更新红包列表
-    await freshRedPacketList()
   }
-}
-
-async function freshRedPacketList() {
-  global.config.redPacket = await database.select().where('pigeon_num', '!=', 0).from('red_packet')
-}
-
-import { getUserName } from '../query/index.js'
-async function getAll(context) {
+  //更新红包列表
   await freshRedPacketList()
-  const { redPacket } = global.config
-  if (redPacket.length !== 0) {
+}
+
+async function getAll(context) {
+  const { redPacketData } = global.data
+  if (redPacketData.length !== 0) {
     let msg = ['剩余红包:']
 
-    for (let i = 0; i < redPacket.length; i++) {
-      const item = redPacket[i]
+    for (let i = 0; i < redPacketData.length; i++) {
+      const item = redPacketData[i]
       msg.push(
         `由${await getUserName(item.send_user_id)}发送的口令为:"${item.code}"，剩余${
           item.pigeon_num
@@ -153,4 +148,11 @@ async function getAll(context) {
   } else {
     await replyMsg(context, '暂时还没有红包哦~要不你发一个?', { reply: true })
   }
+}
+
+async function freshRedPacketList() {
+  global.data.redPacketData = await database
+    .select('*')
+    .where('pigeon_num', '>', 0)
+    .from('red_packet')
 }

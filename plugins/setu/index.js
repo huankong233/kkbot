@@ -1,14 +1,26 @@
+import { eventReg } from '../../libs/eventReg.js'
+import { reduce, add } from '../pigeon/index.js'
+import { imgAntiShielding } from './AntiShielding.js'
+import { deleteMsg } from '../../libs/Api.js'
+import { get, post } from '../../libs/fetch.js'
+import { replyMsg } from '../../libs/sendMsg.js'
+import { isToday } from '../../libs/time.js'
+import { makeLogger } from '../../libs/logger.js'
+import { confuseURL } from '../../libs/handleUrl.js'
+import { CQ } from 'go-cqwebsocket'
+
+const logger = makeLogger({ pluginName: 'setu' })
+
 export default () => {
   event()
 }
 
-import { eventReg } from '../../libs/eventReg.js'
 function event() {
   eventReg('message', async (event, context, tags) => {
-    if (context.command) {
-      const { name } = context.command
-      const { setu } = global.config
-      const match = name.match(setu.reg)
+    const { command } = context
+    if (command) {
+      const { setuConfig } = global.config
+      const match = command.name.match(setuConfig.reg)
       if (match) {
         await handler(context, match)
       }
@@ -16,18 +28,9 @@ function event() {
   })
 }
 
-import { reduce, add } from '../pigeon/index.js'
-import { imgAntiShielding } from './AntiShielding.js'
-import { deleteMsg } from '../../libs/Api.js'
-import { get, post } from '../../libs/fetch.js'
-import { replyMsg } from '../../libs/sendMsg.js'
-import { isToday } from '../gugu/index.js'
-import { logger } from '../../libs/logger.js'
-import { confuseURL } from '../../libs/handleUrl.js'
-
 async function handler(context, match) {
   const { user_id } = context
-  const { setu } = global.config
+  const { setuConfig } = global.config
 
   let userData = await database.select('*').where('user_id', user_id).from('setu').first()
 
@@ -45,7 +48,7 @@ async function handler(context, match) {
   }
 
   // 每天上限
-  if (count >= setu.limit) {
+  if (count >= setuConfig.limit) {
     const res = await replyMsg(context, CQ.image('https://api.lolicon.app/assets/img/lx.jpg'), {
       reply: true
     })
@@ -56,7 +59,7 @@ async function handler(context, match) {
     return
   }
 
-  if (!(await reduce({ user_id, number: setu.pigeon, reason: '看色图' }))) {
+  if (!(await reduce({ user_id, number: setuConfig.pigeon, reason: '看色图' }))) {
     return await replyMsg(context, '你的鸽子不够哦~', {
       reply: true
     })
@@ -65,7 +68,12 @@ async function handler(context, match) {
   let requestData = {
     r18: match[1] ? 1 : 0,
     tag: [],
-    proxy: global.config.proxy?.enable ?? false ? false : setu.proxy.enable ? setu.proxy.url : false
+    proxy:
+      global.config.proxy?.enable ?? false
+        ? false
+        : setuConfig.proxy.enable
+        ? setuConfig.proxy.url
+        : false
   }
 
   if (match[2]) {
@@ -103,13 +111,10 @@ async function handler(context, match) {
     await replyMsg(context, reply, {
       reply: true
     })
-    await add({ user_id, number: setu.pigeon, reason: reply })
+    await add({ user_id, number: setuConfig.pigeon, reason: reply })
 
-    if (debug) {
-      logger.DEBUG(error)
-    } else {
-      logger.WARNING(error)
-    }
+    logger.WARNING(reply)
+    logger.ERROR(error)
     return
   }
 
@@ -119,27 +124,23 @@ async function handler(context, match) {
 
   try {
     //反和谐
-    base64 = await imgAntiShielding(image, setu.antiShieldingMode)
+    base64 = await imgAntiShielding(image, setuConfig.antiShieldingMode)
   } catch (error) {
     await replyMsg(context, '反和谐失败惹', {
       reply: true
     })
-    await add({ user_id, number: setu.pigeon, reason: '反和谐失败' })
+    await add({ user_id, number: setuConfig.pigeon, reason: '反和谐失败' })
     logger.WARNING('反和谐失败')
-    if (debug) {
-      logger.DEBUG(error)
-    } else {
-      logger.WARNING(error)
-    }
+    logger.ERROR(error)
     return
   }
 
   let shortUrlData
 
-  if (setu.short.enable) {
+  if (setuConfig.short.enable) {
     try {
       shortUrlData = await get({
-        url: `${setu.short.url}/api/url`,
+        url: `${setuConfig.short.url}/api/url`,
         data: {
           url: fullUrl
         }
@@ -148,13 +149,9 @@ async function handler(context, match) {
       await replyMsg(context, '短链服务器爆炸惹', {
         reply: true
       })
-      await add({ user_id, number: setu.pigeon, reason: '短链加载失败' })
+      await add({ user_id, number: setuConfig.pigeon, reason: '短链加载失败' })
       logger.WARNING('短链加载失败')
-      if (debug) {
-        logger.DEBUG(error)
-      } else {
-        logger.WARNING(error)
-      }
+      logger.ERROR(error)
       return
     }
   }
@@ -163,7 +160,7 @@ async function handler(context, match) {
     `标题: ${responseData.title}`,
     `标签: ${responseData.tags.join(' ')}`,
     `AI作品: ${responseData.aiType ? '是' : '不是'}`,
-    `作品地址: ${setu.short.enable ? shortUrlData.url : confuseURL(fullUrl)}`
+    `作品地址: ${setuConfig.short.enable ? shortUrlData.url : confuseURL(fullUrl)}`
   ].join('\n')
 
   const infoMessageResponse = await replyMsg(context, infoMessage, {
@@ -176,7 +173,7 @@ async function handler(context, match) {
     await replyMsg(context, '色图发送失败', {
       reply: true
     })
-    await add({ user_id, number: setu.pigeon, reason: '色图发送失败' })
+    await add({ user_id, number: setuConfig.pigeon, reason: '色图发送失败' })
     return
   } else {
     count++
@@ -199,7 +196,7 @@ async function handler(context, match) {
     await deleteMsg({
       message_id: infoMessageResponse.data.message_id
     })
-  }, setu.withdraw * 1000)
+  }, setuConfig.withdraw * 1000)
 }
 
 import { retryAsync } from '../../libs/fetch.js'
@@ -253,7 +250,7 @@ async function getData(requestData) {
         image
       }
     },
-    3,
-    1500
+    5,
+    2000
   )
 }

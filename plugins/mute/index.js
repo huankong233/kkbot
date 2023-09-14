@@ -1,23 +1,22 @@
+import { getGroupMemberInfo, setGroupBan } from '../../libs/Api.js'
+import { randomInt } from '../../libs/random.js'
+import { replyMsg } from '../../libs/sendMsg.js'
+import { eventReg } from '../../libs/eventReg.js'
+
 export default async () => {
   event()
 }
 
-import { eventReg } from '../../libs/eventReg.js'
 function event() {
   eventReg('message', async (event, context, tags) => {
-    if (context.command) {
-      const { name } = context.command
-
-      if (name === '鸽了') {
+    const { command } = context
+    if (command) {
+      if (command.name === '鸽了') {
         await mute(context)
       }
     }
   })
 }
-
-import { getGroupMemberInfo, setGroupBan } from '../../libs/Api.js'
-import { randomInt } from '../../libs/random.js'
-import { replyMsg } from '../../libs/sendMsg.js'
 
 /**
  * 口球
@@ -27,6 +26,7 @@ import { replyMsg } from '../../libs/sendMsg.js'
  * @returns
  */
 export async function mute(context, manual = true, time = []) {
+  const { muteConfig } = global.config
   const { group_id, user_id, self_id, message_type } = context
 
   if (message_type === 'private') {
@@ -58,9 +58,7 @@ export async function mute(context, manual = true, time = []) {
     }
   }
 
-  const { mute } = global.config
-
-  const muteTime = randomInt(time[0] ?? mute.time[0], time[1] ?? mute.time[1])
+  const muteTime = randomInt(time[0] ?? muteConfig.time[0], time[1] ?? muteConfig.time[1])
 
   const response = await setGroupBan({
     group_id: context.group_id,

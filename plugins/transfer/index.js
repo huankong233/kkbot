@@ -1,3 +1,8 @@
+import { getUserData } from '../../libs/Api.js'
+import { add, reduce } from '../pigeon/index.js'
+import { missingParams } from '../../libs/eventReg.js'
+import { replyMsg } from '../../libs/sendMsg.js'
+
 export default async () => {
   event()
 }
@@ -5,18 +10,14 @@ export default async () => {
 import { eventReg } from '../../libs/eventReg.js'
 function event() {
   eventReg('message', async (event, context, tags) => {
-    if (context.command) {
-      const { name } = context.command
-      if (name === '鸽子转账') {
+    const { command } = context
+    if (command) {
+      if (command.name === '鸽子转账') {
         await transferAccounts(context)
       }
     }
   })
 }
-
-import { getUserData, add, reduce } from '../pigeon/index.js'
-import { missingParams } from '../../libs/eventReg.js'
-import { replyMsg } from '../../libs/sendMsg.js'
 
 async function transferAccounts(context) {
   const {
@@ -24,7 +25,7 @@ async function transferAccounts(context) {
     command: { params }
   } = context
 
-  if (await missingParams(context, params, 2)) return
+  if (await missingParams(context, 2)) return
 
   const from = user_id
   const to = params[0].replace(/[^0-9]/gi, '')
@@ -40,7 +41,7 @@ async function transferAccounts(context) {
     return await replyMsg(context, '转账失败,金额有误', { reply: true })
   }
 
-  const to_data = await getUserData(to)
+  const to_data = await getUserData({ user_id: to })
 
   if (!to_data) {
     return await replyMsg(context, '转账失败,转账对象不存在~', { reply: true })

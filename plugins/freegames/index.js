@@ -1,51 +1,19 @@
+import { sleep } from '../../libs/sleep.js'
+import { replyMsg, sendForwardMsg } from '../../libs/sendMsg.js'
+import { makeLogger } from '../../libs/logger.js'
+import { CronJob } from 'cron'
+import { eventReg } from '../../libs/eventReg.js'
+import { epicApi, steamApi } from './lib.js'
+import { CQ } from 'go-cqwebsocket'
+
+const logger = makeLogger({ pluginName: 'freegames' })
+
 export default async () => {
   await init()
 
   event()
 }
 
-import { cron } from '../../libs/crontab.js'
-import { sleep } from '../../libs/sleep.js'
-import { replyMsg, sendForwardMsg } from '../../libs/sendMsg.js'
-import logger from '../../libs/logger.js'
-
-async function init() {
-  const { freegames } = global.config
-  if (freegames.groups.length === 0) return
-  cron(
-    freegames.crontab,
-    async function () {
-      let messages
-      try {
-        messages = await prepareMessage()
-      } catch (error) {
-        logger.WARNING(`freegames get info failed`)
-        if (debug) {
-          logger.DEBUG(error)
-        } else {
-          logger.WARNING(error)
-        }
-        return
-      }
-
-      for (let i = 0; i < freegames.groups.length; i++) {
-        const group_id = freegames.groups[i]
-
-        const fakeContext = {
-          message_type: 'group',
-          group_id
-        }
-
-        await sendForwardMsg(fakeContext, messages)
-        await sleep(freegames.cd)
-      }
-    },
-    null,
-    true
-  )
-}
-
-import { eventReg } from '../../libs/eventReg.js'
 function event() {
   eventReg('message', async (event, context, tags) => {
     if (context.command) {
@@ -58,19 +26,46 @@ function event() {
   })
 }
 
-import { epicApi, steamApi } from './lib.js'
+async function init() {
+  const { freegamesConfig } = global.config
+  new CronJob(
+    freegamesConfig.crontab,
+    async function () {
+      if (freegamesConfig.groups.length === 0) return
+
+      let messages
+      try {
+        messages = await prepareMessage()
+      } catch (error) {
+        logger.WARNING(`请求接口失败`)
+        logger.ERROR(error)
+        return
+      }
+
+      for (let i = 0; i < freegamesConfig.groups.length; i++) {
+        const group_id = freegamesConfig.groups[i]
+
+        const fakeContext = {
+          message_type: 'group',
+          group_id
+        }
+
+        await sendForwardMsg(fakeContext, messages)
+        await sleep(freegamesConfig.cd)
+      }
+    },
+    null,
+    true
+  )
+}
+
 async function freegames(context) {
   let messages
   try {
     messages = await prepareMessage()
   } catch (error) {
-    logger.WARNING(`freegames get info failed`)
-
-    if (debug) {
-      logger.DEBUG(error)
-    } else {
-      logger.WARNING(error)
-    }
+    logger.WARNING(`请求接口失败`)
+    logger.ERROR(error)
     return await replyMsg(context, `接口请求失败`, { reply: true })
   }
   const response = await sendForwardMsg(context, messages)
@@ -81,21 +76,21 @@ async function freegames(context) {
 }
 
 async function prepareMessage() {
-  const { bot } = global.config
+  const { botData } = global.data
   const epic = await epicApi()
   const steam = await steamApi()
 
   let messages = []
 
   messages.push(
-    CQ.node(bot.info.nickname, bot.info.user_id, `今日epic共有${epic.length}个免费游戏~`)
+    CQ.node(botData.info.nickname, botData.info.user_id, `今日epic共有${epic.length}个免费游戏~`)
   )
 
   epic.forEach(item => {
     messages.push(
       CQ.node(
-        bot.info.nickname,
-        bot.info.user_id,
+        botData.info.nickname,
+        botData.info.user_id,
         [
           `${CQ.image(item.description.image)}`,
           `游戏名:${item.title}`,
@@ -109,14 +104,14 @@ async function prepareMessage() {
   })
 
   messages.push(
-    CQ.node(bot.info.nickname, bot.info.user_id, `今日steam共有${steam.length}个免费游戏~`)
+    CQ.node(botData.info.nickname, botData.info.user_id, `今日steam共有${steam.length}个免费游戏~`)
   )
 
   steam.forEach(item => {
     messages.push(
       CQ.node(
-        bot.info.nickname,
-        bot.info.user_id,
+        botData.info.nickname,
+        botData.info.user_id,
         [
           `${CQ.image(item.img)}`,
           `游戏名:${item.title}`,

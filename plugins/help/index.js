@@ -1,59 +1,56 @@
+import { eventReg } from '../../libs/eventReg.js'
+import { replyMsg } from '../../libs/sendMsg.js'
+import fs from 'fs'
+import path from 'path'
+import { jsonc } from 'jsonc'
+
 export default async () => {
   await initial()
 
   event()
 }
 
-import { eventReg } from '../../libs/eventReg.js'
 function event() {
   eventReg('message', async (event, context, tags) => {
-    if (context.command) {
-      const { name } = context.command
-
-      if (name === '帮助' || name === 'help') {
+    const { command } = context
+    if (command) {
+      if (command.name === '帮助' || command.name === 'help') {
         await help(context)
       }
     }
   })
 }
 
-import fs from 'fs'
-import path from 'path'
-import { jsonc } from 'jsonc'
-
 async function initial() {
-  let commandList = []
   const { plugins } = global
+  let { helpData } = global.data
+  const commandList = []
 
   for (const key in plugins) {
-    if (Object.hasOwnProperty.call(plugins, key)) {
-      const element = plugins[key]
-      const commandsPath = path.join(element.dir, `commands.jsonc`)
-      const exists = fs.existsSync(commandsPath)
-      if (exists) {
-        const commands = jsonc.parse(fs.readFileSync(commandsPath, { encoding: 'utf-8' }))
-        commandList.push(...commands)
-      }
+    const element = plugins[key]
+    const commandsPath = path.join(element.dir, `commands.jsonc`)
+    if (fs.existsSync(commandsPath)) {
+      const commands = jsonc.parse(fs.readFileSync(commandsPath, { encoding: 'utf-8' }))
+      commandList.push(...commands)
     }
   }
 
-  global.config.help = { commandList }
+  helpData['commandList'] = commandList
 }
 
-import { replyMsg } from '../../libs/sendMsg.js'
-
 async function help(context) {
-  const { help, bot } = global.config
+  const { botConfig } = global.config
+  const { helpData } = global.data
   const {
     user_id,
     command: { params }
   } = context
 
   const name = params[0]
-  const isAdmin = user_id === bot.admin
+  const isAdmin = user_id === botConfig.admin
 
   if (name) {
-    const command = help.commandList.find(item => item.commandName === name)
+    const command = helpData.commandList.find(item => item.commandName === name)
     if (command) {
       await replyMsg(
         context,
@@ -69,7 +66,7 @@ async function help(context) {
     }
   } else {
     let str = [`使用"${bot.prefix}帮助 命令名称"来获取详情`, `命令列表:`]
-    help.commandList.forEach(command => {
+    helpData.commandList.forEach(command => {
       if (command.admin) {
         if (isAdmin) str.push(command.commandName)
       } else {

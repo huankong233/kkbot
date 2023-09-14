@@ -1,6 +1,6 @@
 {
   "watch": ["."],
   "ext": ".js,.jsonc",
-  "ignore": [],
+  "ignore": ["manifest.jsonc"],
   "exec": "node --max-old-space-size=1024 index.js --dev"
 }

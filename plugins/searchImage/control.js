@@ -1,20 +1,14 @@
-import fs from 'fs'
-import path from 'path'
-import { deleteFolder } from '../../libs/fs.js'
 import { replyMsg } from '../../libs/sendMsg.js'
 
 export const searchInitialization = () => {
-  const tempDir = path.join(baseDir, 'temp')
-  //删除temp文件夹内的所有文件
-  deleteFolder(tempDir)
-  //创建文件夹
-  fs.mkdirSync(tempDir)
-  global.search = { users: [] }
+  const { searchImageData } = global.data
+
+  searchImageData.users = []
 
   //1s运行一次的计时器
   setInterval(async () => {
-    global.search.users.forEach(async user => {
-      if (user.surplus_time === 0) {
+    searchImageData.users.forEach(async user => {
+      if (user.surplus_time <= 0) {
         //退出搜图模式
         await turnOffSearchMode(user.context, false)
       } else {
@@ -29,18 +23,19 @@ export const searchInitialization = () => {
  * @param {Object} context
  */
 export const turnOnSearchMode = async context => {
-  const { bot, searchImage } = global.config
+  const { botConfig, searchImageConfig } = global.config
+  const { searchImageData } = global.data
 
-  global.search.users.push({
+  searchImageData.users.push({
     context,
-    surplus_time: searchImage.autoLeave
+    surplus_time: searchImageConfig.autoLeave
   })
 
   await replyMsg(
     context,
     [
-      `${searchImage.word.on_reply}`,
-      `记得说"${bot.prefix}${searchImage.word.off}${bot.botName}"来退出搜图模式哦~`
+      `${searchImageConfig.word.on_reply}`,
+      `记得说"${botConfig.prefix}${searchImageConfig.word.off}${botConfig.botName}"来退出搜图模式哦~`
     ].join('\n')
   )
 }
@@ -51,18 +46,21 @@ export const turnOnSearchMode = async context => {
  * @param {Boolean} manual 是否为手动退出
  */
 export const turnOffSearchMode = async (context, manual = true) => {
-  const { bot, searchImage } = global.config
+  const { botConfig, searchImageConfig } = global.config
+  const { searchImageData } = global.data
 
-  global.search.users = global.search.users.filter(user => user.context.user_id !== context.user_id)
+  searchImageData.users = searchImageData.users.filter(
+    user => user.context.user_id !== context.user_id
+  )
 
   if (manual) {
-    await replyMsg(context, `${searchImage.word.off_reply}`, true)
+    await replyMsg(context, `${searchImageConfig.word.off_reply}`, true)
   } else {
     await replyMsg(
       context,
       [
         `已自动退出搜图模式`,
-        `下次记得说${bot.prefix}${searchImage.word.off}${bot.botName}来退出搜图模式哦~`
+        `下次记得说${botConfig.prefix}${searchImageConfig.word.off}${botConfig.botName}来退出搜图模式哦~`
       ].join('\n')
     )
   }
@@ -73,8 +71,9 @@ export const turnOffSearchMode = async (context, manual = true) => {
  * @param {Number} user_id
  */
 export const refreshTimeOfAutoLeave = user_id => {
+  const { searchImageConfig } = global.config
   let user = isSearchMode(user_id)
-  user.surplus_time = global.config.searchImage.autoLeave
+  user.surplus_time = searchImageConfig.autoLeave
 }
 
 /**
@@ -82,5 +81,7 @@ export const refreshTimeOfAutoLeave = user_id => {
  * @param {Number} user_id
  * @returns
  */
-export const isSearchMode = user_id =>
-  global.search.users.find(user => user.context.user_id === user_id)
+export const isSearchMode = user_id => {
+  const { searchImageData } = global.data
+  return searchImageData.users.find(user => user.context.user_id === user_id)
+}

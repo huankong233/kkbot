@@ -1,31 +1,30 @@
+import { isToday } from '../../libs/time.js'
+import { eventReg } from '../../libs/eventReg.js'
+import { add } from '../pigeon/index.js'
+import { getUserData } from '../../libs/Api.js'
+import { replyMsg } from '../../libs/sendMsg.js'
+import { randomInt } from '../../libs/random.js'
+
 export default () => {
   event()
 }
 
-export { isToday } from '../../libs/time.js'
-import { isToday } from '../../libs/time.js'
-
-import { eventReg } from '../../libs/eventReg.js'
-
 function event() {
   eventReg('message', async (event, context, tags) => {
-    if (context.command) {
-      if (context.command.name.search('咕咕') !== -1) {
+    const { command } = context
+    if (command) {
+      if (command.name.search('咕咕') !== -1) {
         await gugu(context)
       }
     }
   })
 }
 
-import { getUserData, add } from '../pigeon/index.js'
-import { replyMsg } from '../../libs/sendMsg.js'
-import { randomInt } from '../../libs/random.js'
-
 async function gugu(context) {
   const { user_id } = context
-  const { gugu: guguConfig } = global.config
+  const { guguConfig } = global.config
 
-  if (!(await getUserData(user_id))) {
+  if (!(await getUserData({ user_id }))) {
     //插入新用户
     await replyMsg(context, `新用户!赠送${guguConfig.newUserAdd}只鸽子~`, { reply: true })
     await database.insert({ user_id }).into('pigeon')
@@ -33,7 +32,7 @@ async function gugu(context) {
     await gugu(context)
   } else {
     //判断今天还能不能签到
-    let data = (await getUserData(user_id))[0]
+    let data = await getUserData({ user_id })
     if (isToday(data.update_time)) {
       return await replyMsg(context, `咕咕失败~今天已经咕咕过了哦~`, { reply: true })
     }
