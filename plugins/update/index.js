@@ -43,7 +43,8 @@ async function checkUpdate(manual = false, context) {
       .then(res => res.json())
       .then(res => res.kkbot_framework_version)
   } catch (error) {
-    logger.DEBUG('检查更新失败')
+    logger.WARNING('检查更新失败')
+    logger.ERROR(error)
   }
 
   if (!remote_version) {
