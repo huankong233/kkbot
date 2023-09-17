@@ -4,7 +4,7 @@
   //github代理地址
   "proxy": "",
   //package.json
-  "url": "https://github.com/huankong233/kkbot/raw/master/framework.json",
+  "url": "https://raw.githubusercontent.com/huankong233/kkbot/master/framework.jsonc",
   // 参考: https://crontab.guru/
   "crontab": "0 8 * * *"
 }

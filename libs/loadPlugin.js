@@ -13,9 +13,9 @@ const logger = makeSystemLogger({ pluginName: 'loadPlugin' })
  * 加载单个插件
  * @param {String} pluginName 插件名
  * @param {String} pluginDir 插件路径
- * @param {Boolean} loadFromDir 是否是使用文件夹加载的
+ * @param {Boolean} _loadFromDir 是否是使用文件夹加载的
  */
-export async function loadPlugin(pluginName, pluginDir = 'plugins', loadFromDir = false) {
+export async function loadPlugin(pluginName, pluginDir = 'plugins', _loadFromDir = false) {
   const { plugins, data, baseDir } = global
 
   // 插件绝对路径
@@ -58,7 +58,7 @@ export async function loadPlugin(pluginName, pluginDir = 'plugins', loadFromDir 
     configName = 'config'
   } = manifest
 
-  if (disableLoadInDir && loadFromDir) {
+  if (disableLoadInDir && _loadFromDir) {
     if (debug) logger.DEBUG(`插件 ${pluginName} 禁止在文件夹中自动加载`)
     return
   }
@@ -175,11 +175,11 @@ export async function loadPlugin(pluginName, pluginDir = 'plugins', loadFromDir 
  * 加载多个插件
  * @param {String[]} plugins 插件名
  * @param {String} pluginDir 插件路径
- * @param {Boolean} loadFromDir 是否是使用文件夹加载的
+ * @param {Boolean} _loadFromDir 是否是使用文件夹加载的
  */
-export async function loadPlugins(plugins, pluginDir = 'plugins', loadFromDir = false) {
+export async function loadPlugins(plugins, pluginDir = 'plugins', _loadFromDir = false) {
   for (const pluginName of plugins) {
-    await loadPlugin(pluginName, pluginDir, loadFromDir)
+    await loadPlugin(pluginName, pluginDir, _loadFromDir)
   }
 }
 
