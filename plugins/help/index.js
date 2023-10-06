@@ -65,7 +65,7 @@ async function help(context) {
       await replyMsg(context, '没有这个命令哦~', { reply: true })
     }
   } else {
-    let str = [`使用"${bot.prefix}帮助 命令名称"来获取详情`, `命令列表:`]
+    let str = [`使用"${botConfig.prefix}帮助 命令名称"来获取详情`, `命令列表:`]
     helpData.commandList.forEach(command => {
       if (command.admin) {
         if (isAdmin) str.push(command.commandName)
