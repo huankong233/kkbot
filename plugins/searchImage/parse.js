@@ -113,7 +113,7 @@ import { get } from '../../libs/fetch.js'
 
 // 转换图片为 base64 格式
 export async function getImageBase64(url) {
-  return await get(url)
+  return await get({ url })
     .then(response => response.arrayBuffer())
     .then(buffer => Buffer.from(buffer).toString('base64'))
 }
