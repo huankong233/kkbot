@@ -44,9 +44,9 @@ class CParser {
     return `${CQ.image(`base64://${await getImageBase64(item.image)}`)}${message.join('\n')}`
   }
 
-  TraceMoe = function (item) {
+  TraceMoe = async function (item) {
     let message = [
-      `预览视频:${CQ.video(item.video) ?? '无'}`,
+      // `预览视频:${item.video ?? '无'}`,
       `相似度: ${parseInt(item.similarity)}`,
       `文件名: ${item.filename}`,
       `动漫名: ${item.anilist.title.native}`,
@@ -56,7 +56,7 @@ class CParser {
       ``
     ]
 
-    return `${CQ.image(item.image)}${message.join('\n')}`
+    return `${CQ.image(`base64://${await getImageBase64(item.image)}`)}${message.join('\n')}`
   }
 
   AnimeTraceAnime = function (item) {

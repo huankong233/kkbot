@@ -9,7 +9,7 @@ global.baseDir = getBaseDir()
 
 const pluginDirs = ['plugins_dependencies', 'plugins']
 const originPackages = {
-  dayjs: '^1.11.9',
+  dayjs: '^1.11.10',
   'node-fetch': '^3.3.2',
   qs: '^6.11.2',
   'abort-controller': '^3.0.0',
