@@ -19,7 +19,7 @@ class CParser {
     return `${CQ.image(item.image)}${message.join('\n')}`
   }
 
-  SauceNAO = function (item) {
+  SauceNAO = async function (item) {
     let message = [`标题: ${item.title}`, `相似度: ${item.similarity}`, `图片信息:`]
 
     message.push(...joinContent(item.content))
@@ -27,11 +27,13 @@ class CParser {
     message.push(``)
 
     return `${
-      item.image !== 'https://saucenao.com/' || item.image !== '' ? CQ.image(item.image) : ''
+      item.image !== 'https://saucenao.com/' || item.image !== ''
+        ? CQ.image(`base64://${await getImageBase64(item.image)}`)
+        : ''
     }${message.join('\n')}`
   }
 
-  IqDB = function (item) {
+  IqDB = async function (item) {
     let message = [
       `分辨率: ${item.resolution}`,
       `相似度: ${item.similarity}`,
@@ -39,12 +41,12 @@ class CParser {
       ``
     ]
 
-    return `${CQ.image(item.image)}${message.join('\n')}`
+    return `${CQ.image(`base64://${await getImageBase64(item.image)}`)}${message.join('\n')}`
   }
 
   TraceMoe = function (item) {
     let message = [
-      `预览视频:${item.video ?? '无'}`,
+      `预览视频:${CQ.video(item.video) ?? '无'}`,
       `相似度: ${parseInt(item.similarity)}`,
       `文件名: ${item.filename}`,
       `动漫名: ${item.anilist.title.native}`,
@@ -105,4 +107,13 @@ function joinContent(data) {
   }
   // 返回结果数组
   return result
+}
+
+import { get } from '../../libs/fetch.js'
+
+// 转换图片为 base64 格式
+export async function getImageBase64(url) {
+  return await get(url)
+    .then(response => response.arrayBuffer())
+    .then(buffer => Buffer.from(buffer).toString('base64'))
 }

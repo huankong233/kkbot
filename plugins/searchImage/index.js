@@ -226,7 +226,7 @@ async function parse(context, res, originUrl) {
 
       for (let i = 0; i < limit; i++) {
         const item = datum.res[i]
-        message += Parser[datum.name](item)
+        message += await Parser[datum.name](item)
       }
     }
 
